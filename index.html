@@ -53,7 +53,7 @@
     <h2>Confirm Your Order</h2>
     <p id="selectedProduct" style="font-size:16px; text-align:center; margin-bottom:15px;"></p>
 
-    <form id="orderForm" method="POST" action="https://docs.google.com/forms/d/e/1FAIpQLSfREKvTld9R59UADJQK6jxQIbM64tt1iP0M-XiPq4ykOOwe5w/formResponse" target="hiddenFrame" onsubmit="showSuccess(event)">
+    <form id="orderForm" method="POST" action="https://docs.google.com/forms/d/e/1FAIpQLSfREKvTld9R59UADJQK6jxQIbM64tt1iP0M-XiPq4ykOOwe5w/formResponse" target="hiddenFrame" onsubmit="submitForm(event)">
       <input type="text" name="entry.1128392407" placeholder="Your Name" required />
       <textarea name="entry.654904844" placeholder="Address" required></textarea>
       <input type="tel" name="entry.1644126654" placeholder="Mobile Number" required />
@@ -83,13 +83,15 @@ function closeOrder(){
   document.getElementById('confirmDialog').style.display = 'none';
 }
 
-function showSuccess(event){
+function submitForm(event){
   event.preventDefault();
+  const form = document.getElementById('orderForm');
+  const iframe = document.getElementsByName('hiddenFrame')[0];
+  // Submit the form via hidden iframe
+  form.submit();
   document.getElementById('successMsg').style.display = 'block';
-  document.getElementById('orderForm').reset();
+  form.reset();
   setTimeout(closeOrder, 3000);
-  // submit the form to Google Form in hidden iframe
-  document.getElementById('orderForm').submit();
 }
 </script>
 </body>
