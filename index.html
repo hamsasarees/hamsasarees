@@ -37,6 +37,13 @@
     button:hover {
       background: #45A049;
     }
+    .success-msg {
+      display: none;
+      font-size: 18px;
+      color: green;
+      margin-top: 15px;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
@@ -44,7 +51,15 @@
 <div class="container">
   <h2>Order Now</h2>
 
-  <form action="https://docs.google.com/forms/d/e/1FAIpQLSfREKvTld9R59UADJQK6jxQIbM64tt1iP0M-XiPq4ykOOwe5w/formResponse" method="POST" target="_self">
+  <!-- Hidden iframe to stop redirect -->
+  <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
+
+  <form 
+    action="https://docs.google.com/forms/d/e/1FAIpQLSfREKvTld9R59UADJQK6jxQIbM64tt1iP0M-XiPq4ykOOwe5w/formResponse" 
+    method="POST" 
+    target="hidden_iframe"
+    onsubmit="submitted=true;"
+  >
 
     <label>Name</label>
     <input type="text" name="entry.1128392407" placeholder="Enter your name" required>
@@ -60,7 +75,20 @@
 
     <button type="submit">Submit Order</button>
   </form>
+
+  <div class="success-msg" id="success">
+    ✔ Your order has been submitted!
+  </div>
 </div>
+
+<script>
+  var submitted = false;
+  document.getElementById('hidden_iframe').onload = function() {
+    if (submitted) {
+      document.getElementById("success").style.display = "block";
+    }
+  };
+</script>
 
 </body>
 </html>
