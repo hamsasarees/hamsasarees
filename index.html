@@ -1,192 +1,126 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Hamsa Sarees - Shop Now</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f8f8f8;
-      margin: 0;
-      padding: 0;
-    }
-
-    header {
-      background: #b30059;
-      color: white;
-      padding: 20px;
-      text-align: center;
-      font-size: 28px;
-      font-weight: bold;
-    }
-
-    .products {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 20px;
-      padding: 20px;
-    }
-
-    .product-card {
-      background: white;
-      border-radius: 10px;
-      padding: 15px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      text-align: center;
-    }
-
-    .product-card img {
-      width: 100%;
-      height: 300px;
-      object-fit: cover;
-      border-radius: 10px;
-      background: #ddd;
-    }
-
-    .product-card h3 {
-      margin: 15px 0 10px;
-    }
-
-    .btn {
-      background: #b30059;
-      color: white;
-      padding: 10px 15px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      margin-top: 10px;
-      font-size: 16px;
-    }
-
-    .btn:hover {
-      background: #99004d;
-    }
-
-    /* Form Popup */
-    #orderPopup {
-      display: none;
-      background: white;
-      width: 90%;
-      max-width: 400px;
-      padding: 20px;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      box-shadow: 0 0 20px rgba(0,0,0,0.2);
-      border-radius: 12px;
-      z-index: 999;
-    }
-
-    .close-btn {
-      float: right;
-      cursor: pointer;
-      font-weight: bold;
-      color: #b30059;
-    }
-
-    input, button {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 16px;
-    }
-
-    #success {
-      text-align: center;
-      color: green;
-      font-size: 18px;
-      display: none;
-      margin-top: 10px;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Cloth Shop</title>
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f5f5f5;
+  }
+  header {
+    background: #222;
+    color: #fff;
+    padding: 15px;
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+  }
+  .container {
+    max-width: 900px;
+    margin: auto;
+    padding: 15px;
+  }
+  .product-card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+  }
+  .product-img {
+    width: 100%;
+    height: 300px;
+    background: #ddd;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px;
+    color: #555;
+  }
+  .product-title {
+    font-size: 20px;
+    font-weight: bold;
+    margin-top: 10px;
+  }
+  .price {
+    color: green;
+    font-size: 18px;
+    margin: 8px 0;
+  }
+  button {
+    width: 100%;
+    padding: 12px;
+    background: #e91e63;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 18px;
+    cursor: pointer;
+  }
+  button:hover {
+    background: #c2185b;
+  }
+  form {
+    background: #fff;
+    padding: 15px;
+    margin-top: 25px;
+    border-radius: 10px;
+    box-shadow: 0 0 5px rgba(0,0,0,0.1);
+  }
+  input, textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+  }
+  @media(max-width:600px){
+    .product-img { height: 200px; }
+    button { font-size: 16px; }
+  }
+</style>
 </head>
 <body>
+<header>Hamsa Sarees - Online Shop</header>
+<div class="container">
 
-<header>Hamsa Sarees - Shop Now</header>
-
-<!-- PRODUCT LIST -->
-<div class="products">
-
-  <!-- PRODUCT 1 -->
   <div class="product-card">
-    <img src="IMAGE1.jpg" alt="Product 1">
-    <h3>Beautiful Silk Saree</h3>
-    <p>₹2,499</p>
-    <button class="btn" onclick="addToCart('Beautiful Silk Saree')">Add to Cart</button>
+    <div class="product-img" id="img1">Upload Image Here</div>
+    <div class="product-title">Beautiful Saree</div>
+    <div class="price">₹1499</div>
+    <button onclick="orderNow('Beautiful Saree')">Order Now</button>
   </div>
 
-  <!-- PRODUCT 2 -->
   <div class="product-card">
-    <img src="IMAGE2.jpg" alt="Product 2">
-    <h3>Royal Designer Saree</h3>
-    <p>₹3,299</p>
-    <button class="btn" onclick="addToCart('Royal Designer Saree')">Add to Cart</button>
+    <div class="product-img" id="img2">Upload Image Here</div>
+    <div class="product-title">Designer Saree</div>
+    <div class="price">₹1799</div>
+    <button onclick="orderNow('Designer Saree')">Order Now</button>
   </div>
 
-  <!-- PRODUCT 3 -->
-  <div class="product-card">
-    <img src="IMAGE3.jpg" alt="Product 3">
-    <h3>Traditional Kanchipuram Saree</h3>
-    <p>₹4,999</p>
-    <button class="btn" onclick="addToCart('Traditional Kanchipuram Saree')">Add to Cart</button>
-  </div>
+  <!-- Add more products if needed -->
 
-</div>
-
-<!-- ORDER POPUP (Google Form Integrated) -->
-<div id="orderPopup">
-  <span class="close-btn" onclick="closePopup()">✖</span>
-  <h3>Complete Your Order</h3>
-
-  <!-- Hidden iframe so Google Form does NOT redirect -->
-  <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
-
-  <form 
-    action="https://docs.google.com/forms/d/e/1FAIpQLSfREKvTld9R59UADJQK6jxQIbM64tt1iP0M-XiPq4ykOOwe5w/formResponse" 
-    method="POST" 
-    target="hidden_iframe"
-    onsubmit="submitted=true;"
-  >
-
-    <label>Name</label>
-    <input type="text" name="entry.1128392407" required>
-
-    <label>Address</label>
-    <input type="text" name="entry.654904844" required>
-
-    <label>Mobile Number</label>
-    <input type="tel" name="entry.1644126654" required>
-
-    <label>Product</label>
-    <input id="productField" type="text" name="entry.1866699911" readonly required>
-
-    <button type="submit">Place Order</button>
+  <form id="orderForm" method="POST" action="https://docs.google.com/forms/d/e/1FAIpQLSfREKvTld9R59UADJQK6jxQIbM64tt1iP0M-XiPq4ykOOwe5w/formResponse" target="hiddenFrame">
+    <h2>Place Your Order</h2>
+    <input type="text" name="entry.1128392407" placeholder="Your Name" required />
+    <textarea name="entry.654904844" placeholder="Address" required></textarea>
+    <input type="tel" name="entry.1644126654" placeholder="Mobile Number" required />
+    <input type="text" id="productField" name="entry.1866699911" placeholder="Selected Product" readonly required />
+    <button type="submit">Submit Order</button>
   </form>
-
-  <div id="success">✔ Order Submitted Successfully!</div>
-
+  <iframe name="hiddenFrame" style="display:none;"></iframe>
 </div>
 
 <script>
-  var submitted = false;
-
-  function addToCart(productName) {
-    document.getElementById("productField").value = productName;
-    document.getElementById("orderPopup").style.display = "block";
-  }
-
-  function closePopup() {
-    document.getElementById("orderPopup").style.display = "none";
-  }
-
-  document.getElementById('hidden_iframe').onload = function() {
-    if (submitted) {
-      document.getElementById("success").style.display = "block";
-      submitted = false;
-    }
-  };
+function orderNow(product){
+  document.getElementById('productField').value = product;
+  window.scrollTo({ top: document.getElementById('orderForm').offsetTop, behavior: 'smooth' });
+}
 </script>
 
 </body>
