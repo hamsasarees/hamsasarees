@@ -1,242 +1,262 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Hamsa Sarees - Online Shop</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Hamsa Sarees — Online Shop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
-  body { margin:0; font-family:Arial, sans-serif; background:#f5f5f5; }
-  header { background:#222; color:#fff; padding:15px; text-align:center; font-size:22px; font-weight:bold; display:flex; align-items:center; justify-content:space-between; gap:12px; }
-  .header-left { flex:1; text-align:center; }
-  .header-right { color:#fff; padding-right:12px; font-size:14px; display:flex; align-items:center; gap:8px; }
-  .container { max-width:1000px; margin:auto; padding:15px; }
-  .product-card { background:#fff; border-radius:12px; padding:15px; box-shadow:0 0 8px rgba(0,0,0,0.1); margin-bottom:22px; }
-  .product-img { width:100%; height:300px; background:#ddd; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:18px; color:#555; }
-  .product-title { font-size:20px; font-weight:bold; margin-top:12px; }
-  .price { font-size:18px; color:green; margin:8px 0; }
-  .order-btn { width:100%; padding:12px; background:#e91e63; color:white; border:none; border-radius:8px; font-size:18px; cursor:pointer; }
-  .order-btn:hover { background:#c2185b; }
+  :root{--accent:#e91e63;--muted:#6b7280;--bg:#f7f7fb;--card:#ffffff}
+  *{box-sizing:border-box}
+  body{font-family:Inter,system-ui,Arial,sans-serif;margin:0;background:var(--bg);color:#0f172a}
+  header{background:linear-gradient(90deg,#111827,#0b1220);color:#fff;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+  .brand{font-weight:700;font-size:20px;letter-spacing:0.2px}
+  nav{display:flex;gap:12px;align-items:center}
+  .btn{cursor:pointer;border-radius:8px;padding:8px 12px;border:none;font-weight:600}
+  .btn-ghost{background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.08)}
+  .btn-primary{background:var(--accent);color:#fff}
+  .container{max-width:1100px;margin:28px auto;padding:0 18px}
 
-  /* LOGIN MODAL (Google only) */
-  #loginModal { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.7); z-index:100000; }
-  #loginBox { background:white; padding:20px; border-radius:12px; width:95%; max-width:420px; box-shadow:0 0 20px rgba(0,0,0,0.4); text-align:center }
-  #loginBox h2 { margin:0 0 12px 0; }
-  .btn { padding:10px; border-radius:8px; border:none; cursor:pointer; font-size:16px; }
-  #googleBtn { background:#fff; color:#444; border:1px solid #ddd; display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:12px 16px; }
-  #loginErr { color:red; text-align:center; margin-top:10px; display:none; word-break:break-word; }
-  #userBadge { background:#fff3; padding:6px 10px; border-radius:6px; font-size:14px }
+  /* hero */
+  .hero{display:flex;gap:24px;align-items:center}
+  .hero-left{flex:1}
+  .hero h1{margin:0;font-size:28px}
+  .hero p{color:var(--muted);margin:8px 0 0}
+  .hero-cta{margin-top:16px;display:flex;gap:10px}
 
-  /* ORDER FORM POPUP */
-  #confirmDialog { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:99999; justify-content:center; align-items:center; padding:20px; }
-  #dialogBox { background:white; padding:20px; border-radius:12px; width:95%; max-width:400px; box-shadow:0 0 10px rgba(0,0,0,0.3); }
-  #dialogBox h2 { text-align:center; margin-bottom:12px; }
-  input, textarea { width:100%; padding:10px; margin-bottom:12px; border:1px solid #ccc; border-radius:8px; font-size:16px; }
-  #submitBtn { background:green; color:white; padding:12px; width:100%; border:none; border-radius:8px; font-size:18px; }
-  #cancelBtn { background:#777; color:white; padding:10px; width:100%; border:none; border-radius:8px; font-size:16px; margin-top:8px; }
-  #successMsg { display:none; color:green; font-size:18px; text-align:center; margin-top:10px; }
-  @media(max-width:600px){ .product-img { height:200px; } }
+  /* products grid */
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:22px}
+  .card{background:var(--card);border-radius:12px;padding:14px;box-shadow:0 6px 18px rgba(12,20,40,0.06);display:flex;flex-direction:column}
+  .imgwrap{height:220px;border-radius:10px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-weight:600}
+  .card h3{margin:12px 0 6px;font-size:18px}
+  .price{color:#059669;font-weight:700}
+  .card-foot{margin-top:auto}
+
+  /* order modal */
+  .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(2,6,23,0.6);z-index:1000;padding:18px}
+  .modal-box{max-width:520px;width:100%;background:#fff;border-radius:12px;padding:18px}
+  .modal-box h2{margin:0 0 8px}
+  .field{display:flex;flex-direction:column;margin-bottom:10px}
+  .field input,.field textarea{padding:10px;border-radius:8px;border:1px solid #e6e9ef;font-size:15px}
+  .modal-footer{display:flex;gap:10px;margin-top:10px}
+  .small{font-size:13px;color:var(--muted)}
+
+  /* login modal */
+  #loginModal .modal-box{max-width:380px;text-align:center}
+  #loginModal p.small{margin:8px 0 14px}
+
+  footer{max-width:1100px;margin:36px auto 80px;padding:0 18px;color:var(--muted);font-size:14px}
+
+  @media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}.hero{flex-direction:column;align-items:flex-start}}
+  @media(max-width:600px){.grid{grid-template-columns:1fr}.imgwrap{height:180px}}
 </style>
 </head>
 <body>
 
 <header>
-  <div class="header-left">Hamsa Sarees - Online Shop</div>
-  <div class="header-right" id="userArea">
-    <span id="userName" style="display:none; font-weight:600"></span>
-    <button id="signOutBtn" style="display:none; margin-left:10px; background:#ff5252; color:white; border:none; padding:8px 10px; border-radius:8px; cursor:pointer;">Sign Out</button>
-  </div>
+  <div class="brand">Hamsa Sarees</div>
+  <nav>
+    <div id="userBadge" style="display:none;background:rgba(255,255,255,0.06);padding:8px 10px;border-radius:8px;color:#fff;font-weight:600"></div>
+    <button id="signOutBtn" class="btn btn-ghost" style="display:none">Sign out</button>
+    <button id="loginShowBtn" class="btn btn-primary">Sign in with Google</button>
+  </nav>
 </header>
 
-<div class="container">
+<main class="container">
+  <section class="hero">
+    <div class="hero-left">
+      <h1>Handpicked sarees. Fast delivery.</h1>
+      <p class="small">Quality fabrics, classic designs — order securely. Sign in with Google to place orders.</p>
+      <div class="hero-cta">
+        <button id="shopNow" class="btn btn-primary">Shop Now</button>
+        <a class="small" href="#" style="align-self:center;color:var(--muted);text-decoration:none">Contact: +91 98765 43210</a>
+      </div>
+    </div>
+    <div class="hero-right">
+      <!-- small promo area -->
+      <div style="background:#fff;border-radius:12px;padding:12px;box-shadow:0 6px 18px rgba(12,20,40,0.04);width:260px">
+        <strong>Best Seller</strong>
+        <div style="margin-top:8px;color:var(--muted)">Elegant Cotton Saree</div>
+        <div style="margin-top:10px;font-weight:700;color:#059669">₹1499</div>
+      </div>
+    </div>
+  </section>
 
-  <!-- PRODUCT 1 -->
-  <div class="product-card">
-    <div class="product-img" id="img1">Upload Image Here</div>
-    <div class="product-title">Beautiful Saree</div>
-    <div class="price">₹1499</div>
-    <button class="order-btn" onclick="openOrder('Beautiful Saree')">Order Now</button>
+  <section>
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <h2 style="margin:22px 0 0">Products</h2>
+      <div class="small" style="margin-top:22px">Signed-in users can place orders</div>
+    </div>
+
+    <div class="grid" id="productGrid">
+      <!-- keep original product entries unchanged -->
+      <div class="card">
+        <div class="imgwrap" id="img1">Upload Image Here</div>
+        <h3>Beautiful Saree</h3>
+        <div class="price">₹1499</div>
+        <div class="card-foot"><button class="btn btn-primary" style="width:100%;margin-top:12px" data-product="Beautiful Saree">Order Now</button></div>
+      </div>
+
+      <div class="card">
+        <div class="imgwrap" id="img2">Upload Image Here</div>
+        <h3>Designer Saree</h3>
+        <div class="price">₹1799</div>
+        <div class="card-foot"><button class="btn btn-primary" style="width:100%;margin-top:12px" data-product="Designer Saree">Order Now</button></div>
+      </div>
+
+      <!-- placeholder slots for professional look -->
+      <div class="card">
+        <div class="imgwrap">New Arrival</div>
+        <h3>Silk Blend Saree</h3>
+        <div class="price">₹2199</div>
+        <div class="card-foot"><button class="btn btn-primary" style="width:100%;margin-top:12px" data-product="Silk Blend Saree">Order Now</button></div>
+      </div>
+
+    </div>
+  </section>
+</main>
+
+<!-- Order Modal (keeps original Google Form action and fields unchanged) -->
+<div class="modal" id="orderModal">
+  <div class="modal-box">
+    <h2>Confirm Your Order</h2>
+    <p class="small" id="selectedProduct"> </p>
+    <form id="orderForm" method="POST" action="https://docs.google.com/forms/d/e/1FAIpQLSfREKvTld9R59UADJQK6jxQIbM64tt1iP0M-XiPq4ykOOwe5w/formResponse" target="hiddenFrame">
+      <div class="field"><input id="custName" name="entry.1128392407" placeholder="Your Name" required></div>
+      <div class="field"><textarea id="custAddress" name="entry.654904844" placeholder="Address" required></textarea></div>
+      <div class="field"><input id="custPhone" name="entry.1644126654" placeholder="Mobile Number" required></div>
+      <div class="field"><input id="productField" name="entry.1866699911" readonly></div>
+      <div style="display:flex;gap:10px;align-items:center">
+        <button class="btn btn-primary" id="placeOrder">Place Order</button>
+        <button type="button" class="btn btn-ghost" id="cancelOrder">Cancel</button>
+      </div>
+    </form>
+    <div id="orderStatus" class="small" style="margin-top:10px;color:green;display:none">Order placed. Thank you!</div>
   </div>
-
-  <!-- PRODUCT 2 -->
-  <div class="product-card">
-    <div class="product-img" id="img2">Upload Image Here</div>
-    <div class="product-title">Designer Saree</div>
-    <div class="price">₹1799</div>
-    <button class="order-btn" onclick="openOrder('Designer Saree')">Order Now</button>
-  </div>
-
 </div>
 
-<!-- ORDER POPUP -->
-<div id="confirmDialog">
-  <div id="dialogBox">
-    <h2>Confirm Your Order</h2>
-    <p id="selectedProduct" style="font-size:16px; text-align:center; margin-bottom:15px;"></p>
-
-    <form id="orderForm" method="POST" action="https://docs.google.com/forms/d/e/1FAIpQLSfREKvTld9R59UADJQK6jxQIbM64tt1iP0M-XiPq4ykOOwe5w/formResponse" target="hiddenFrame" onsubmit="submitForm(event)">
-      <input type="text" name="entry.1128392407" placeholder="Your Name" required />
-      <textarea name="entry.654904844" placeholder="Address" required></textarea>
-      <input type="tel" name="entry.1644126654" placeholder="Mobile Number" required />
-      <input type="text" id="productField" name="entry.1866699911" readonly />
-      <button id="submitBtn">Place Order</button>
-    </form>
-
-    <button id="cancelBtn" onclick="closeOrder()">Cancel</button>
-    <div id="successMsg">Your order placed successfully!</div>
+<!-- Login Modal (Google-only) -->
+<div class="modal" id="loginModal">
+  <div class="modal-box">
+    <h2>Sign in with Google</h2>
+    <p class="small">Use your Google account to sign in. No email typing required.</p>
+    <div style="display:flex;gap:10px;justify-content:center;margin-top:12px">
+      <button id="googleBtnLarge" class="btn btn-primary">Sign in with Google</button>
+    </div>
+    <p id="loginErr" class="small" style="margin-top:12px;color:#b91c1c;display:none"></p>
+    <p class="small" style="margin-top:10px">If popup is blocked, allow popups or try again in a new tab.</p>
   </div>
 </div>
 
 <iframe name="hiddenFrame" style="display:none;"></iframe>
 
-<!-- LOGIN MODAL (Google only) -->
-<div id="loginModal">
-  <div id="loginBox">
-    <h2>Sign in with Google to continue</h2>
-    <p style="color:#666; margin-bottom:12px;">Tap the button below — no typing needed.</p>
-    <button class="btn" id="googleBtn" aria-label="Sign in with Google"> <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 48 48'><path fill='%23EA4335' d='M24 9.5c3.9 0 7.3 1.3 10 3.6l7.3-7.3C36.6 2 30.8 0 24 0 14.7 0 6.9 4.7 2.7 11.5l8.9 6.9C13.7 13.2 18.3 9.5 24 9.5z'/><path fill='%234285F4' d='M46.5 24.5c0-1.6-.1-3.1-.4-4.6H24v9.1h12.6c-.5 2.7-2 5-4.3 6.6l6.9 5.3c4-3.7 6.3-9 6.3-16.4z'/><path fill='%23FBBC05' d='M9.6 28.4c-1.1-3.2-1.1-6.6 0-9.8L.7 12.8C-2.7 17.7-2.7 30.3.7 35.2l8.9-6.8z'/><path fill='%2340A057' d='M24 48c6.6 0 12.2-2.2 16.3-6l-6.9-5.3c-3 2-6.9 3.1-9.4 3.1-5.7 0-10.3-3.7-12.4-8.6l-8.9 6.9C6.9 43.3 14.7 48 24 48z'/></svg>' alt='G' style='vertical-align:middle'/> Sign in with Google</button>
-    <div id="loginErr"></div>
-    <p style="margin-top:12px; font-size:13px; color:#666;">If popup is blocked, allow popups for this site or try again.</p>
-  </div>
-</div>
-
-<script>
-// UI helpers and order control
-let selectedProduct = '';
-function openOrder(product){
-  // ensure user is signed in
-  if(!window.currentUser){
-    // show login modal if not signed in
-    document.getElementById('loginModal').style.display = 'flex';
-    document.getElementById('loginErr').innerText = 'Please sign in with Google to place an order.';
-    document.getElementById('loginErr').style.display = 'block';
-    return;
-  }
-  selectedProduct = product;
-  document.getElementById('productField').value = product;
-  document.getElementById('selectedProduct').innerText = "You are ordering: " + product;
-  document.getElementById('confirmDialog').style.display = 'flex';
-  document.getElementById('successMsg').style.display = 'none';
-}
-function closeOrder(){
-  document.getElementById('confirmDialog').style.display = 'none';
-}
-function submitForm(event){
-  event.preventDefault();
-  const form = document.getElementById('orderForm');
-  form.submit();
-  document.getElementById('successMsg').style.display = 'block';
-  form.reset();
-  setTimeout(closeOrder, 3000);
-}
-</script>
+<footer>
+  © Hamsa Sarees • Built with care
+</footer>
 
 <script type="module">
-  document.addEventListener('DOMContentLoaded', async () => {
-    try{
-      const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
-      const { getAuth, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
-      const { getFirestore } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
-      const { getStorage } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js');
+document.addEventListener('DOMContentLoaded', async () => {
+  // dynamic import ensures firebase modules load only after DOM
+  try{
+    const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
+    const { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
+    const { getFirestore, collection, addDoc, serverTimestamp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
 
-      const firebaseConfig = {
-        apiKey: "AIzaSyBozW19Rjc9nj0YabOIE3DlW0qVHtU5XLA",
-        authDomain: "hamsasarees-24738.firebaseapp.com",
-        projectId: "hamsasarees-24738",
-        storageBucket: "hamsasarees-24738.firebasestorage.app",
-        messagingSenderId: "16303342424",
-        appId: "1:16303342424:web:d68d26160d45472713db2d",
-        measurementId: "G-1G1HQGJ5XS"
-      };
+    const firebaseConfig = {
+      apiKey: "AIzaSyBozW19Rjc9nj0YabOIE3DlW0qVHtU5XLA",
+      authDomain: "hamsasarees-24738.firebaseapp.com",
+      projectId: "hamsasarees-24738",
+      storageBucket: "hamsasarees-24738.firebasestorage.app",
+      messagingSenderId: "16303342424",
+      appId: "1:16303342424:web:d68d26160d45472713db2d",
+      measurementId: "G-1G1HQGJ5XS"
+    };
 
-      const app = initializeApp(firebaseConfig);
-      const auth = getAuth(app);
-      const db = getFirestore(app);
-      const storage = getStorage(app);
-      const provider = new GoogleAuthProvider();
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const provider = new GoogleAuthProvider();
 
-      // cache DOM elements safely after DOMContentLoaded
-      const googleBtn = document.getElementById('googleBtn');
-      const loginModal = document.getElementById('loginModal');
-      const loginErr = document.getElementById('loginErr');
-      const signOutBtn = document.getElementById('signOutBtn');
-      const userName = document.getElementById('userName');
+    // DOM refs
+    const loginModal = document.getElementById('loginModal');
+    const orderModal = document.getElementById('orderModal');
+    const loginErr = document.getElementById('loginErr');
+    const loginShowBtn = document.getElementById('loginShowBtn');
+    const googleBtnLarge = document.getElementById('googleBtnLarge');
+    const userBadge = document.getElementById('userBadge');
+    const signOutBtn = document.getElementById('signOutBtn');
 
-      window.currentUser = null;
+    function showLoginError(msg){ if(loginErr){ loginErr.innerText = msg; loginErr.style.display = msg ? 'block' : 'none'; } }
 
-      // Process redirect result (if redirected back)
-      try{
-        const redirectResult = await getRedirectResult(auth);
-        if(redirectResult && redirectResult.user){
-          console.log('Redirect sign-in success', redirectResult.user);
-        }
-      }catch(rr){
-        console.warn('getRedirectResult no-op or failed', rr && rr.code);
-      }
+    // Handle redirect result (if fallback used)
+    try{ const rr = await getRedirectResult(auth); if(rr && rr.user) console.log('Redirect signin OK', rr.user.uid); }catch(e){ console.warn('redirect result error', e && e.code); }
 
-      if(googleBtn){
-        googleBtn.addEventListener('click', async (evt) => {
-          loginErr.style.display = 'none';
-          try{
-            // Try popup sign-in first
-            const result = await signInWithPopup(auth, provider);
-            console.log('Google sign-in success', result.user);
-          }catch(e){
-            console.error('Google sign-in error', e && e.code, e && e.message);
-            // If popup related, fall back to redirect
-            const popupErrors = ['auth/popup-blocked','auth/popup-closed-by-user','auth/cancelled-popup-request'];
-            if(popupErrors.includes(e.code)){
-              try{
-                console.log('Falling back to signInWithRedirect');
-                await signInWithRedirect(auth, provider);
-                return;
-              }catch(err){
-                console.error('Redirect fallback failed', err && err.code, err && err.message);
-                loginErr.innerText = 'Popup blocked and redirect failed. Allow popups or try another browser.';
-                loginErr.style.display = 'block';
-                return;
-              }
-            }
-            if(e.code === 'auth/unauthorized-domain'){
-              loginErr.innerText = 'Domain not authorized. Add your GitHub Pages domain in Firebase console → Authentication → Authorized domains.';
-            } else {
-              loginErr.innerText = e.message || 'Google sign-in failed';
-            }
-            loginErr.style.display = 'block';
-          }
-        });
-      } else {
-        console.warn('googleBtn not found');
-      }
+    // sign-in handlers
+    async function signInPopup(){ showLoginError(''); try{ const res = await signInWithPopup(auth, provider); console.log('signed in', res.user.uid); }catch(e){ console.error('popup error', e); const popupErrors = ['auth/popup-blocked','auth/popup-closed-by-user','auth/cancelled-popup-request']; if(e && popupErrors.includes(e.code)){ try{ await signInWithRedirect(auth, provider); return; }catch(err){ showLoginError('Popup blocked and redirect failed. Allow popups or try another browser.'); return; } } if(e && e.code === 'auth/unauthorized-domain'){ showLoginError('Domain not authorized. Add your GitHub Pages domain in Firebase console → Authentication → Authorized domains.'); } else{ showLoginError(e && e.message ? e.message : 'Sign-in failed'); } } }
 
-      if(signOutBtn){
-        signOutBtn.addEventListener('click', async () => {
-          try{ await signOut(auth); }catch(e){ console.error('signOut failed', e); }
-        });
-      }
+    googleBtnLarge && googleBtnLarge.addEventListener('click', () => signInPopup());
+    loginShowBtn && loginShowBtn.addEventListener('click', () => { if(loginModal) loginModal.style.display = 'flex'; });
 
-      onAuthStateChanged(auth, (user) => {
-        window.currentUser = user;
-        if(user){
-          loginModal.style.display = 'none';
-          userName.style.display = 'inline-block';
-          userName.innerText = 'Signed in as ' + (user.displayName || user.email || 'User');
-          signOutBtn.style.display = 'inline-block';
-        } else {
-          loginModal.style.display = 'flex';
-          userName.style.display = 'none';
-          signOutBtn.style.display = 'none';
-        }
+    // sign out
+    signOutBtn && signOutBtn.addEventListener('click', async () => { try{ await signOut(auth); }catch(e){ console.error('signout failed', e); } });
+
+    // product order buttons
+    document.querySelectorAll('[data-product]').forEach(btn => {
+      btn.addEventListener('click', (ev) => {
+        const prod = ev.currentTarget.getAttribute('data-product');
+        // if not signed in — prompt login
+        if(!auth.currentUser){ if(loginModal) loginModal.style.display = 'flex'; showLoginError('Please sign in with Google to place orders'); return; }
+        // open order modal and prefill
+        document.getElementById('selectedProduct').innerText = prod;
+        document.getElementById('productField').value = prod;
+        if(orderModal) orderModal.style.display = 'flex';
       });
+    });
 
-      // ensure modal shows on load if user not signed in
-      if(!auth.currentUser){ loginModal.style.display = 'flex'; }
+    // cancel order
+    document.getElementById('cancelOrder').addEventListener('click', () => { if(orderModal) orderModal.style.display = 'none'; });
 
-    }catch(globalErr){
-      console.error('Firebase init or DOM setup failed', globalErr);
-      const loginErr = document.getElementById('loginErr');
-      if(loginErr){ loginErr.innerText = 'Initialization failed. Check console for details.'; loginErr.style.display = 'block'; }
-    }
-  });
+    // place order: submits Google form AND writes to Firestore
+    document.getElementById('placeOrder').addEventListener('click', async (ev) => {
+      ev.preventDefault();
+      const name = document.getElementById('custName').value.trim();
+      const address = document.getElementById('custAddress').value.trim();
+      const phone = document.getElementById('custPhone').value.trim();
+      const product = document.getElementById('productField').value;
+      if(!name || !address || !phone){ alert('Fill all fields'); return; }
+
+      // submit the google form via iframe (keeps original behavior)
+      const form = document.getElementById('orderForm');
+      form.submit();
+
+      // also write to Firestore for admin tracking (no keys changed)
+      try{
+        await addDoc(collection(db, 'orders'), {
+          product, name, address, phone,
+          user: auth.currentUser ? auth.currentUser.uid : null,
+          userEmail: auth.currentUser ? auth.currentUser.email : null,
+          createdAt: serverTimestamp()
+        });
+        document.getElementById('orderStatus').style.display = 'block';
+        setTimeout(()=>{ if(orderModal) orderModal.style.display='none'; document.getElementById('orderStatus').style.display='none'; document.getElementById('orderForm').reset(); }, 1800);
+      }catch(e){ console.error('firestore write failed', e); showLoginError('Order recorded to form but server save failed. Check console.'); }
+    });
+
+    // auth state changes: show/hide modals and UI
+    onAuthStateChanged(auth, (user) => {
+      if(user){ if(loginModal) loginModal.style.display = 'none'; if(userBadge){ userBadge.style.display='inline-block'; userBadge.innerText = user.displayName || user.email; } if(signOutBtn) signOutBtn.style.display = 'inline-block'; } else { if(loginModal) loginModal.style.display = 'flex'; if(userBadge) userBadge.style.display='none'; if(signOutBtn) signOutBtn.style.display='none'; }
+    });
+
+    // small UX: shopNow scrolls to products
+    document.getElementById('shopNow').addEventListener('click', () => { document.getElementById('productGrid').scrollIntoView({behavior:'smooth'}); });
+
+    // initial UI state
+    if(!auth.currentUser){ if(loginModal) loginModal.style.display = 'flex'; }
+
+  }catch(err){ console.error('Init error', err); const le = document.getElementById('loginErr'); if(le){ le.innerText='Initialization error. See console.'; le.style.display='block'; } }
+});
 </script>
 
 </body>
