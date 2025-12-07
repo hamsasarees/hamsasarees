@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Hamsa Sarees — Rebuilt (ratings + admin)</title>
+<title>Hamsa Sarees — Single Page (Admin + Ratings + Persistent Orders)</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -35,17 +35,16 @@
   h3{margin:10px 0 6px;color:#eaf6ff}
   .price{color:#7ee0b2;font-weight:800}
   .tag{position:absolute;top:10px;left:10px;background:rgba(0,0,0,0.4);padding:6px 8px;border-radius:8px;font-size:12px}
-  .product-rating{font-weight:700}
-  /* modals */
+  .product-rating{font-weight:700;margin-left:8px}
+  .rating-ui{display:flex;gap:6px;margin-top:6px}
+  .rating-ui .rateBtn{width:34px;height:34px;padding:0;border-radius:8px}
+  .orders-list{max-height:60vh;overflow:auto;border-radius:10px;padding:8px;background:linear-gradient(180deg,#06131a,#071722)}
   .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(3,8,20,0.6),rgba(2,8,18,0.85));z-index:1200;padding:12px}
   .modal-box{max-width:720px;width:100%;background:linear-gradient(180deg,#071522,#06121a);border-radius:12px;padding:16px;color:#eaf6ff;position:relative;box-shadow:0 30px 80px rgba(2,6,23,0.6)}
   .close-x{position:absolute;top:12px;right:12px;background:transparent;border:none;color:#ff3b3b;font-weight:800;font-size:18px;cursor:pointer}
   .field{display:flex;flex-direction:column;margin-top:10px}
   .field input,.field textarea,select{padding:12px;border-radius:10px;border:none;background:#08121a;color:#dbeafe}
   .small{color:var(--muted)}
-  .orders-list{max-height:60vh;overflow:auto;border-radius:10px;padding:8px;background:linear-gradient(180deg,#06131a,#071722)}
-  .toast{position:fixed;right:16px;bottom:16px;background:#0b1220;padding:10px 14px;border-radius:10px;color:#d1fae5;border-left:4px solid var(--success);box-shadow:0 8px 30px rgba(2,6,23,0.6);display:none}
-  /* responsive */
   @media (max-width:1000px){ .grid{grid-template-columns:repeat(2,1fr)} .promo{display:none} .search input{width:140px} }
   @media (max-width:640px){
     header{flex-direction:column;align-items:stretch;padding:12px 16px}
@@ -54,12 +53,10 @@
     .imgwrap{height:200px}
     .modal-box{width:100%;height:100%;border-radius:12px 12px 0 0;max-width:none;display:flex;flex-direction:column;overflow:auto;padding:14px}
   }
-  /* subtle image float */
   @keyframes floaty{0%{transform:translateY(0)}50%{transform:translateY(-6px)}100%{transform:translateY(0)}}
   .imgwrap img{animation:floaty 6s ease-in-out infinite}
   button:focus,input:focus,select:focus{outline:3px solid rgba(0,170,255,0.12);outline-offset:3px}
-  .rating-ui{display:flex;gap:6px;margin-top:6px}
-  .rating-ui .rateBtn{width:34px;height:34px;padding:0;border-radius:8px}
+  .toast{position:fixed;right:16px;bottom:16px;background:#0b1220;padding:10px 14px;border-radius:10px;color:#d1fae5;border-left:4px solid var(--success);box-shadow:0 8px 30px rgba(2,6,23,0.6);display:none}
 </style>
 </head>
 <body>
@@ -81,8 +78,8 @@
       </div>
 
       <div class="actions">
-        <div id="userBadge" style="display:none;background:rgba(255,255,255,0.03);padding:8px 10px;border-radius:10px;color:#fff;font-weight:700"></div>
         <button id="adminBtn" class="btn-ghost" style="display:none">Admin</button>
+        <div id="userBadge" style="display:none;background:rgba(255,255,255,0.03);padding:8px 10px;border-radius:10px;color:#fff;font-weight:700"></div>
         <button id="myOrdersBtn" class="btn-ghost" style="display:none">My Orders</button>
         <button id="signOutBtn" class="btn-ghost" style="display:none">Sign out</button>
         <button id="loginShowBtn" class="btn">Sign in</button>
@@ -114,70 +111,40 @@
         </div>
 
         <div class="grid" id="productGrid">
-          <!-- Original two -->
-          <div class="card">
+          <!-- fallback static products (rendered only if Firestore empty) -->
+          <div class="card" data-pid="beautiful-saree">
             <div class="tag">New</div>
-            <div class="imgwrap" id="img1"><img src="https://images.unsplash.com/photo-1520975918016-4d0b5b0b2f3d?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder" alt="Beautiful Saree"/></div>
+            <div class="imgwrap"><img src="https://images.unsplash.com/photo-1520975918016-4d0b5b0b2f3d?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder" alt="Beautiful Saree"/></div>
             <h3>Beautiful Saree</h3>
-            <div style="display:flex;justify-content:space-between;align-items:center"><div class="price">₹1499</div><div class="small">★★★★☆</div></div>
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div class="price">₹1499</div>
+              <div style="display:flex;align-items:center"><div class="product-rating small">No ratings</div></div>
+            </div>
+            <div class="rating-ui" style="margin-top:8px">
+              <button class="rateBtn btn-ghost" data-rating="1">1</button>
+              <button class="rateBtn btn-ghost" data-rating="2">2</button>
+              <button class="rateBtn btn-ghost" data-rating="3">3</button>
+              <button class="rateBtn btn-ghost" data-rating="4">4</button>
+              <button class="rateBtn btn-ghost" data-rating="5">5</button>
+            </div>
             <div style="margin-top:8px"><button class="orderBtn btn" data-product="Beautiful Saree">Order Now</button></div>
           </div>
 
-          <div class="card">
-            <div class="imgwrap" id="img2"><img src="https://images.unsplash.com/photo-1541099649105-f69ad21f3246?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder" alt="Designer Saree"/></div>
+          <div class="card" data-pid="designer-saree">
+            <div class="imgwrap"><img src="https://images.unsplash.com/photo-1541099649105-f69ad21f3246?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder" alt="Designer Saree"/></div>
             <h3>Designer Saree</h3>
-            <div style="display:flex;justify-content:space-between;align-items:center"><div class="price">₹1799</div><div class="small">★★★★★</div></div>
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div class="price">₹1799</div>
+              <div style="display:flex;align-items:center"><div class="product-rating small">No ratings</div></div>
+            </div>
+            <div class="rating-ui" style="margin-top:8px">
+              <button class="rateBtn btn-ghost" data-rating="1">1</button>
+              <button class="rateBtn btn-ghost" data-rating="2">2</button>
+              <button class="rateBtn btn-ghost" data-rating="3">3</button>
+              <button class="rateBtn btn-ghost" data-rating="4">4</button>
+              <button class="rateBtn btn-ghost" data-rating="5">5</button>
+            </div>
             <div style="margin-top:8px"><button class="orderBtn btn" data-product="Designer Saree">Order Now</button></div>
-          </div>
-
-          <div class="card">
-            <div class="imgwrap"><img src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder" alt="Silk Blend"/></div>
-            <h3>Silk Blend Saree</h3>
-            <div style="display:flex;justify-content:space-between;align-items:center"><div class="price">₹2199</div><div class="small">★★★★☆</div></div>
-            <div style="margin-top:8px"><button class="orderBtn btn" data-product="Silk Blend Saree">Order Now</button></div>
-          </div>
-
-          <!-- 6 added products -->
-          <div class="card">
-            <div class="imgwrap"><img src="https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?q=80&w=800" alt="Traditional Silk"/></div>
-            <h3>Traditional Silk Saree</h3>
-            <div style="display:flex;justify-content:space-between;align-items:center"><div class="price">₹2499</div><div class="small">★★★★★</div></div>
-            <div style="margin-top:8px"><button class="orderBtn btn" data-product="Traditional Silk Saree">Order Now</button></div>
-          </div>
-
-          <div class="card">
-            <div class="imgwrap"><img src="https://images.unsplash.com/photo-1520975708797-6c2adbb7b6f8?q=80&w=800" alt="Printed Saree"/></div>
-            <h3>Printed Saree</h3>
-            <div style="display:flex;justify-content:space-between;align-items:center"><div class="price">₹1299</div><div class="small">★★★★☆</div></div>
-            <div style="margin-top:8px"><button class="orderBtn btn" data-product="Printed Saree">Order Now</button></div>
-          </div>
-
-          <div class="card">
-            <div class="imgwrap"><img src="https://images.unsplash.com/photo-1600093463592-573f8b75edc0?q=80&w=800" alt="Kanchipuram"/></div>
-            <h3>Kanchipuram Saree</h3>
-            <div style="display:flex;justify-content:space-between;align-items:center"><div class="price">₹3999</div><div class="small">★★★★★</div></div>
-            <div style="margin-top:8px"><button class="orderBtn btn" data-product="Kanchipuram Saree">Order Now</button></div>
-          </div>
-
-          <div class="card">
-            <div class="imgwrap"><img src="https://images.unsplash.com/photo-1583391733956-3cfb32c36ffa?q=80&w=800" alt="Banarasi"/></div>
-            <h3>Banarasi Saree</h3>
-            <div style="display:flex;justify-content:space-between;align-items:center"><div class="price">₹3499</div><div class="small">★★★★★</div></div>
-            <div style="margin-top:8px"><button class="orderBtn btn" data-product="Banarasi Saree">Order Now</button></div>
-          </div>
-
-          <div class="card">
-            <div class="imgwrap"><img src="https://images.unsplash.com/photo-1607345366925-3b4a2b50b5df?q=80&w=800" alt="Cotton"/></div>
-            <h3>Cotton Daily Wear Saree</h3>
-            <div style="display:flex;justify-content:space-between;align-items:center"><div class="price">₹999</div><div class="small">★★★☆☆</div></div>
-            <div style="margin-top:8px"><button class="orderBtn btn" data-product="Cotton Daily Wear Saree">Order Now</button></div>
-          </div>
-
-          <div class="card">
-            <div class="imgwrap"><img src="https://images.unsplash.com/photo-1610030462145-49d1c7e5d0a4?q=80&w=800" alt="Georgette"/></div>
-            <h3>Georgette Saree</h3>
-            <div style="display:flex;justify-content:space-between;align-items:center"><div class="price">₹1599</div><div class="small">★★★★☆</div></div>
-            <div style="margin-top:8px"><button class="orderBtn btn" data-product="Georgette Saree">Order Now</button></div>
           </div>
 
         </div>
@@ -185,7 +152,7 @@
     </main>
   </div>
 
-  <!-- Modals (Order, Login, Payment, My Orders) -->
+  <!-- Modals (Order, Login, Payment, My Orders, Admin) -->
   <div class="modal" id="orderModal" aria-hidden="true">
     <div class="modal-box" role="dialog" aria-modal="true">
       <button class="close-x" id="closeOrderModal" title="Close">✕</button>
@@ -244,6 +211,23 @@
     </div>
   </div>
 
+  <!-- Admin modal -->
+  <div class="modal" id="adminModal" aria-hidden="true">
+    <div class="modal-box" role="dialog" aria-modal="true">
+      <button class="close-x" id="closeAdmin" title="Close">✕</button>
+      <h2>Admin — Add Product</h2>
+      <p class="small">Products added here are saved to Firestore (admin-only).</p>
+      <div class="field"><label class="small">Title</label><input id="admin_pTitle" placeholder="Product title"></div>
+      <div class="field"><label class="small">Price (₹)</label><input id="admin_pPrice" type="number" placeholder="1499"></div>
+      <div class="field"><label class="small">Tag</label><input id="admin_pTag" placeholder="e.g. New, Best"></div>
+      <div class="field"><label class="small">Image URL</label><input id="admin_pImg" placeholder="https://..."></div>
+      <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
+        <button id="adminSave" class="btn">Add Product</button>
+        <button id="adminCancel" class="btn-ghost">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <iframe name="hiddenFrame" style="display:none"></iframe>
   <div id="toast" class="toast" role="status" aria-live="polite">Saved.</div>
 
@@ -251,55 +235,51 @@
 (async function(){
   if(document.readyState === 'loading') await new Promise(r=>document.addEventListener('DOMContentLoaded', r));
 
-  // Firebase dynamic imports
+  // ---- CONFIG ----
+  const ADMIN_UID = 'EenXHJIvZpavhkGTCI8EZyFAfH93'; // your admin UID (already provided)
+  const firebaseConfig = {
+    apiKey: "AIzaSyBozW19Rjc9nj0YabOIE3DlW0qVHtU5XLA",
+    authDomain: "hamsasarees-24738.firebaseapp.com",
+    projectId: "hamsasarees-24738",
+    storageBucket: "hamsasarees-24738.firebasestorage.app",
+    messagingSenderId: "16303342424",
+    appId: "1:16303342424:web:d68d26160d45472713db2d",
+    measurementId: "G-1G1HQGJ5XS"
+  };
+
+  // ---- Firebase imports ----
   try{
     const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
     const authMod = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
     const fsMod = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
 
     const { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } = authMod;
-    // include setDoc, doc, onSnapshot for ratings
-    const { getFirestore, collection, addDoc, setDoc, doc, serverTimestamp, query, orderBy, getDocs, onSnapshot } = fsMod;
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyBozW19Rjc9nj0YabOIE3DlW0qVHtU5XLA",
-      authDomain: "hamsasarees-24738.firebaseapp.com",
-      projectId: "hamsasarees-24738",
-      storageBucket: "hamsasarees-24738.firebasestorage.app",
-      messagingSenderId: "16303342424",
-      appId: "1:16303342424:web:d68d26160d45472713db2d",
-      measurementId: "G-1G1HQGJ5XS"
-    };
+    const { getFirestore, collection, addDoc, setDoc, doc, deleteDoc, serverTimestamp, query, orderBy, getDocs, onSnapshot } = fsMod;
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
     const googleProvider = new GoogleAuthProvider();
 
-    // DOM refs (safe)
+    // ---- DOM refs ----
     const $ = id => document.getElementById(id);
-    const loginModal = $('loginModal'), orderModal = $('orderModal'), paymentModal = $('paymentModal'), myOrdersModal = $('myOrdersModal');
+    const loginModal = $('loginModal'), orderModal = $('orderModal'), paymentModal = $('paymentModal'), myOrdersModal = $('myOrdersModal'), adminModal = $('adminModal');
     const loginErr = $('loginErr'), userBadge = $('userBadge'), signOutBtn = $('signOutBtn'), loginShowBtn = $('loginShowBtn'), googleBtnLarge = $('googleBtnLarge');
     const myOrdersBtn = $('myOrdersBtn'), ordersList = $('ordersList'), toastEl = $('toast');
     const adminBtn = $('adminBtn');
 
-    function toast(msg){
-      if(!toastEl) return;
-      toastEl.innerText = msg; toastEl.style.display = 'block';
-      setTimeout(()=>toastEl.style.display = 'none', 2000);
-    }
+    function toast(msg){ if(!toastEl) return; toastEl.innerText = msg; toastEl.style.display = 'block'; setTimeout(()=>toastEl.style.display = 'none', 1800); }
     function showLoginError(msg){ if(!loginErr) return; loginErr.innerText = msg; loginErr.style.display = msg ? 'block' : 'none'; }
 
-    // handle redirect sign-in result (fallback)
+    // handle redirect sign-in fallback
     try{ const rr = await getRedirectResult(auth); if(rr && rr.user) console.log('redirect sign-in OK', rr.user.uid); }catch(e){ console.warn('redirect result', e && e.code); }
 
-    // sign-in helper
+    // sign-in
     async function signInPopup(){
       showLoginError('');
       try{
-        const res = await signInWithPopup(auth, googleProvider);
+        await signInWithPopup(auth, googleProvider);
         toast('Signed in');
-        console.log('signed-in', res.user.uid);
       }catch(e){
         console.error('sign-in error', e && e.code, e && e.message);
         const popupErrors = ['auth/popup-blocked','auth/popup-closed-by-user','auth/cancelled-popup-request'];
@@ -307,128 +287,264 @@
           try{ await signInWithRedirect(auth, googleProvider); return; }catch(err){ showLoginError('Popup blocked and redirect failed. Allow popups or try another browser.'); return; }
         }
         if(e && e.code === 'auth/unauthorized-domain'){
-          showLoginError('Domain not authorized. Add your GitHub Pages domain in Firebase console → Authentication → Authorized domains.');
+          showLoginError('Domain not authorized. Add your hosting domain in Firebase console → Authentication → Authorized domains.');
         } else showLoginError(e && e.message ? e.message : 'Sign-in failed');
       }
     }
-
     googleBtnLarge && googleBtnLarge.addEventListener('click', signInPopup);
     loginShowBtn && loginShowBtn.addEventListener('click', ()=>{ if(loginModal) loginModal.style.display='flex'; });
 
     signOutBtn && signOutBtn.addEventListener('click', async () => { try{ await signOut(auth); toast('Signed out'); }catch(e){ console.error('signout failed', e); } });
 
-    // product "Order Now" buttons
-    document.querySelectorAll('.orderBtn').forEach(btn=>{
-      btn.addEventListener('click', ev=>{
-        const prod = ev.currentTarget.getAttribute('data-product') || '';
-        if(!auth.currentUser){
-          if(loginModal) loginModal.style.display='flex';
-          showLoginError('Please sign in with Google to place orders');
+    // ---- PRODUCTS: load from Firestore (live) ----
+    const productGrid = $('productGrid');
+    const productsColRef = collection(db, 'products');
+
+    // render helper
+    function renderProductCard(id, data){
+      const title = data.title || 'Untitled';
+      const pid = id || (title.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9\-]/g,''));
+      const tagHtml = data.tag ? `<div class="tag">${data.tag}</div>` : '';
+      const img = data.img || 'https://images.unsplash.com/photo-1520975918016-4d0b5b0b2f3d?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder';
+      const price = data.price || '0';
+      const avgDisplay = data._avg ? `★ ${Number(data._avg).toFixed(1)} (${data._count||0})` : 'No ratings';
+      const card = document.createElement('div'); card.className = 'card'; card.dataset.pid = pid;
+      card.innerHTML = `
+        ${tagHtml}
+        <div class="imgwrap"><img src="${img}" alt="${title}"></div>
+        <h3>${title}</h3>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div class="price">₹${price}</div>
+          <div style="display:flex;align-items:center"><div class="product-rating small" data-pid="${pid}">${avgDisplay}</div></div>
+        </div>
+        <div class="rating-ui" style="margin-top:8px">
+          <button class="rateBtn btn-ghost" data-rating="1">1</button>
+          <button class="rateBtn btn-ghost" data-rating="2">2</button>
+          <button class="rateBtn btn-ghost" data-rating="3">3</button>
+          <button class="rateBtn btn-ghost" data-rating="4">4</button>
+          <button class="rateBtn btn-ghost" data-rating="5">5</button>
+        </div>
+        <div style="margin-top:8px"><button class="orderBtn btn" data-product="${title}">Order Now</button></div>
+      `;
+      return card;
+    }
+
+    // live listener: show products from Firestore; if empty, keep fallback static ones
+    let productsUnsub = null;
+    try{
+      productsUnsub = onSnapshot(productsColRef, snap=>{
+        if(snap.empty){
+          // keep static fallback — but still attach rating listeners later
+          attachRatingListenersToGrid();
           return;
         }
-        const sel = $('selectedProduct'); if(sel) sel.innerText = prod;
-        const pf = $('productField'); if(pf) pf.value = prod;
-        if(orderModal) orderModal.style.display='flex';
+        // clear grid and render from DB
+        productGrid.innerHTML = '';
+        snap.forEach(d => {
+          const id = d.id; const data = d.data();
+          const card = renderProductCard(id, data);
+          productGrid.appendChild(card);
+        });
+        attachRatingListenersToGrid();
+      }, err => {
+        console.error('products snapshot error', err);
+        // fallback: attach listeners to existing static grid
+        attachRatingListenersToGrid();
       });
+    }catch(e){
+      console.warn('products onSnapshot not available (maybe offline)', e);
+      attachRatingListenersToGrid();
+    }
+
+    // If admin adds product, it will be added to Firestore (admin-only). See admin handler below.
+
+    // ---- Attach order button delegation (works for dynamic cards) ----
+    productGrid.addEventListener('click', ev=>{
+      const btn = ev.target.closest('.orderBtn');
+      if(!btn) return;
+      const prod = btn.getAttribute('data-product') || '';
+      if(!auth.currentUser){
+        if(loginModal) loginModal.style.display='flex';
+        showLoginError('Please sign in with Google to place orders');
+        return;
+      }
+      const sel = $('selectedProduct'); if(sel) sel.innerText = prod;
+      const pf = $('productField'); if(pf) pf.value = prod;
+      if(orderModal) orderModal.style.display='flex';
     });
 
-    // close/cancel handlers (defensive)
-    ['closeOrderModal','cancelOrder','closeLogin','closePayment','closeMyOrdersX','closeOrders'].forEach(id=>{
-      const el = $(id);
-      if(el) el.addEventListener('click', ()=>{ const modal = el.closest('.modal'); if(modal) modal.style.display='none'; });
-    });
+    // ---- Rating listeners and live averages per product ----
+    // helper to attach to all cards currently in grid
+    function attachRatingListenersToGrid(){
+      document.querySelectorAll('#productGrid .card').forEach(card=>{
+        const pid = card.dataset.pid || (card.querySelector('h3') && card.querySelector('h3').innerText.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9\-]/g,'')) ;
+        if(!pid) return;
+        // attach click handlers for rate buttons (idempotent)
+        card.querySelectorAll('.rateBtn').forEach(btn=>{
+          if(btn._bound) return; btn._bound = true;
+          btn.addEventListener('click', async (ev)=>{
+            if(!auth.currentUser){ alert('Sign in to rate products'); return; }
+            const uid = auth.currentUser.uid; const rating = Number(ev.currentTarget.dataset.rating);
+            try{
+              const ratingRef = doc(db, `products/${pid}/ratings/${uid}`);
+              await setDoc(ratingRef, { rating: rating, createdAt: serverTimestamp() });
+              toast('Thanks for rating');
+            }catch(err){ console.error('rating save failed', err); alert('Failed to save rating'); }
+          });
+        });
 
-    // Place Order -> open Payment modal (do NOT submit Google Form here)
+        // realtime average listener for this product
+        // store unsub on element to avoid duplicates
+        if(card._ratingsUnsub) return;
+        try{
+          const ratingsColRef = collection(db, `products/${pid}/ratings`);
+          card._ratingsUnsub = onSnapshot(ratingsColRef, snap=>{
+            let sum = 0, cnt = 0;
+            snap.forEach(s => { const d = s.data(); if(d && typeof d.rating === 'number'){ sum += d.rating; cnt++; }});
+            const avg = cnt ? (sum / cnt) : null;
+            const rEl = card.querySelector(`.product-rating[data-pid="${pid}"]`);
+            if(rEl) rEl.innerText = avg ? `★ ${avg.toFixed(1)} (${cnt})` : 'No ratings';
+          }, err => { console.error('ratings snapshot failed', err); });
+        }catch(e){ console.warn('ratings onSnapshot error', e); }
+      });
+    }
+
+    // run attach initially in case fallback static products exist
+    attachRatingListenersToGrid();
+
+    // ---- Orders: place & persist in users/{uid}/orders ----
     $('placeOrder').addEventListener('click', ev=>{
       ev.preventDefault();
       const name = $('custName').value.trim(), address = $('custAddress').value.trim(), phone = $('custPhone').value.trim();
       const product = $('productField').value || '';
       if(!name || !address || !phone){ alert('Fill all fields'); return; }
+      if(!/^[6-9]\d{9}$/.test(phone)){ alert('Enter a valid 10-digit Indian mobile number'); return; }
       window.pendingOrder = { product, name, address, phone };
-      // open payment modal
-      if(orderModal) orderModal.style.display='none';
+      if(orderModal){ orderModal.style.display='none'; orderModal.setAttribute('aria-hidden','true'); }
       const ps = $('paymentSummary'); if(ps) ps.innerText = `${product}\nName: ${name}\nPhone: ${phone}`;
-      if(paymentModal) paymentModal.style.display='flex';
+      if(paymentModal){ paymentModal.style.display='flex'; paymentModal.removeAttribute('aria-hidden'); }
     });
 
-    // Pay Now -> submit Google Form + save order to Firestore
     $('payNow').addEventListener('click', async ()=>{
-      const payNowBtn = $('payNow');
-      const paymentMsg = $('paymentMsg');
+      const payNowBtn = $('payNow'); const paymentMsg = $('paymentMsg');
       if(paymentMsg) paymentMsg.style.display = 'block';
       if(payNowBtn) payNowBtn.disabled = true;
-
-      // Submit Google Form (iframe target) - moved to Pay Now per your request
-      try{ document.getElementById('orderForm').submit(); }catch(e){ console.warn('form.submit failed', e); }
-
-      // simulate payment processing time then save record
-      setTimeout(async ()=>{
-        try{
-          const uid = auth.currentUser ? auth.currentUser.uid : null;
-          const orderData = { ...(window.pendingOrder || {}), user: uid, userEmail: auth.currentUser ? auth.currentUser.email : null, createdAt: serverTimestamp() };
-          if(uid) await addDoc(collection(db, `users/${uid}/orders`), orderData);
-          await addDoc(collection(db, 'orders'), orderData);
-          if(paymentMsg) paymentMsg.style.display = 'none';
-          const os = $('orderStatus'); if(os){ os.innerText = 'Order placed and payment received. Thank you!'; os.style.display='block'; }
-          toast('Order successful');
-          // cleanup & close after small delay
-          setTimeout(()=>{
-            if(paymentModal) paymentModal.style.display='none';
-            if(os) os.style.display='none';
-            if(document.getElementById('orderForm')) document.getElementById('orderForm').reset();
-            window.pendingOrder = null;
-            if(myOrdersModal) myOrdersModal.style.display='none';
-            if(payNowBtn) payNowBtn.disabled = false;
-          }, 1200);
-        }catch(err){
-          console.error('save after payment failed', err);
-          showLoginError('Payment succeeded but saving order failed. See console.');
-          if(payNowBtn) payNowBtn.disabled = false;
+      try{
+        try{ document.getElementById('orderForm').submit(); }catch(e){ console.warn('form.submit failed', e); }
+        await new Promise(res => setTimeout(res, 800));
+        const uid = auth.currentUser ? auth.currentUser.uid : null;
+        const orderData = { ...(window.pendingOrder || {}), user: uid, userEmail: auth.currentUser ? auth.currentUser.email : null, createdAt: serverTimestamp() };
+        if(uid){
+          const userOrderRef = await addDoc(collection(db, `users/${uid}/orders`), orderData);
+          await addDoc(collection(db, 'orders'), { ...orderData, userRef: userOrderRef.id });
+          window.lastOrderId = userOrderRef.id;
+        } else {
+          const globalOrderRef = await addDoc(collection(db, 'orders'), orderData);
+          window.lastOrderId = globalOrderRef.id;
         }
-      }, 900);
+        if(paymentMsg) paymentMsg.style.display = 'none';
+        const os = $('orderStatus'); if(os){ os.innerText = 'Order placed and payment received. Thank you!'; os.style.display='block'; }
+        toast('Order successful');
+        setTimeout(()=>{
+          if(paymentModal){ paymentModal.style.display='none'; paymentModal.setAttribute('aria-hidden','true'); }
+          if(os) os.style.display='none';
+          if(document.getElementById('orderForm')) document.getElementById('orderForm').reset();
+          window.pendingOrder = null;
+          if(myOrdersModal) myOrdersModal.style.display='none';
+          if(payNowBtn) payNowBtn.disabled = false;
+        }, 1200);
+      }catch(err){
+        console.error('save after payment failed', err);
+        showLoginError('Payment succeeded but saving order failed. See console.');
+        if(payNowBtn) payNowBtn.disabled = false;
+        if(paymentMsg) paymentMsg.style.display = 'none';
+      }
     });
 
-    // My Orders - fetch user orders
-    myOrdersBtn && myOrdersBtn.addEventListener('click', async ()=>{
-      if(!auth.currentUser){ if(loginModal) loginModal.style.display='flex'; showLoginError('Please sign in to view your orders'); return; }
+    // Load user orders (persistent) and allow delete
+    async function loadUserOrders(){
+      if(!auth.currentUser){ ordersList.innerHTML = '<div class="small">Please sign in</div>'; return; }
       ordersList.innerHTML = '<div class="small">Loading...</div>';
       try{
         const uid = auth.currentUser.uid;
         const q = query(collection(db, `users/${uid}/orders`), orderBy('createdAt','desc'));
         const snap = await getDocs(q);
-        if(snap.empty){ ordersList.innerHTML = '<div class="small">No orders yet</div>'; }
-        else {
-          ordersList.innerHTML = '';
-          snap.forEach(doc=>{
-            const o = doc.data();
-            const el = document.createElement('div');
-            el.style.padding = '10px'; el.style.borderBottom = '1px solid rgba(255,255,255,0.03)';
-            const dt = o.createdAt && o.createdAt.seconds ? new Date(o.createdAt.seconds*1000).toLocaleString() : '';
-            el.innerHTML = `<strong style="color:#fff">${o.product||''}</strong><div class="small">${o.name||''} • ${o.phone||''}</div><div class="small">${o.address||''}</div><div class="small" style="color:var(--muted)">${dt}</div>`;
-            ordersList.appendChild(el);
+        if(snap.empty){ ordersList.innerHTML = '<div class="small">No orders yet</div>'; return; }
+        ordersList.innerHTML = '';
+        snap.forEach(docSnap=>{
+          const o = docSnap.data(); const id = docSnap.id;
+          const el = document.createElement('div'); el.style.padding='10px'; el.style.borderBottom='1px solid rgba(255,255,255,0.03)';
+          const dt = (o.createdAt && o.createdAt.toDate) ? o.createdAt.toDate().toLocaleString() : '';
+          el.innerHTML = `
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <strong style="color:#fff">${o.product||''}</strong>
+                <div class="small">${o.name||''} • ${o.phone||''}</div>
+                <div class="small" style="color:var(--muted)">${dt}</div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+                <button class="btn-ghost viewOrderBtn" data-id="${id}" type="button">View</button>
+                <button class="btn deleteOrderBtn" data-id="${id}" type="button">Delete</button>
+              </div>
+            </div>`;
+          ordersList.appendChild(el);
+        });
+        // attach delete handlers
+        ordersList.querySelectorAll('.deleteOrderBtn').forEach(b=>{
+          b.addEventListener('click', async ev=>{
+            const id = ev.currentTarget.getAttribute('data-id'); if(!id) return;
+            const ok = confirm('Delete this order permanently from your account? This cannot be undone.');
+            if(!ok) return;
+            try{
+              const uid = auth.currentUser.uid;
+              await deleteDoc(doc(db, `users/${uid}/orders/${id}`));
+              toast('Order deleted');
+              await loadUserOrders();
+            }catch(err){ console.error('delete failed', err); alert('Failed to delete order. See console.'); }
           });
-        }
-        if(myOrdersModal) myOrdersModal.style.display='flex';
-      }catch(e){
-        console.error('fetch orders failed', e);
-        ordersList.innerHTML = '<div class="small">Failed to load orders</div>';
-      }
+        });
+      }catch(e){ console.error('fetch orders failed', e); ordersList.innerHTML = '<div class="small">Failed to load orders</div>'; }
+    }
+
+    myOrdersBtn && myOrdersBtn.addEventListener('click', async ()=>{
+      if(!auth.currentUser){ if(loginModal) loginModal.style.display='flex'; showLoginError('Please sign in to view your orders'); return; }
+      await loadUserOrders();
+      if(myOrdersModal){ myOrdersModal.style.display='flex'; myOrdersModal.removeAttribute('aria-hidden'); }
     });
 
-    // Auth state updates UI
+    // ---- Admin UI: open modal only if user is admin, and persist product to Firestore ----
+    adminBtn && adminBtn.addEventListener('click', ()=>{
+      if(!auth.currentUser){ alert('Sign in as admin'); return; }
+      if(auth.currentUser.uid !== ADMIN_UID){ alert('You are not admin'); return; }
+      if(adminModal){ adminModal.style.display='flex'; adminModal.removeAttribute('aria-hidden'); }
+    });
+    $('closeAdmin').addEventListener('click', ()=>{ if(adminModal){ adminModal.style.display='none'; adminModal.setAttribute('aria-hidden','true'); }});
+    $('adminCancel').addEventListener('click', ()=>{ if(adminModal){ adminModal.style.display='none'; adminModal.setAttribute('aria-hidden','true'); }});
+
+    $('adminSave').addEventListener('click', async ()=>{
+      const title = $('admin_pTitle').value.trim(); const price = Number($('admin_pPrice').value.trim()); const tag = $('admin_pTag').value.trim(); const img = $('admin_pImg').value.trim();
+      if(!title || !price){ alert('Title and price required'); return; }
+      if(!auth.currentUser || auth.currentUser.uid !== ADMIN_UID){ alert('Only admin can add products'); return; }
+      try{
+        const payload = { title, price, tag, img, createdAt: serverTimestamp() };
+        await addDoc(collection(db, 'products'), payload);
+        toast('Product added (Firestore)');
+        if(adminModal){ adminModal.style.display='none'; adminModal.setAttribute('aria-hidden','true'); }
+        $('admin_pTitle').value=''; $('admin_pPrice').value=''; $('admin_pTag').value=''; $('admin_pImg').value='';
+      }catch(err){ console.error('add product failed', err); alert('Failed to add product'); }
+    });
+
+    // ---- Auth state changes: UI toggle ----
     onAuthStateChanged(auth, user=>{
-      const adminUID = 'EenXHJIvZpavhkGTCI8EZyFAfH93'; // your admin UID
       if(user){
         if(loginModal) loginModal.style.display='none';
         if(userBadge){ userBadge.style.display='inline-block'; userBadge.innerText = user.displayName || user.email; }
         if(signOutBtn) signOutBtn.style.display='inline-block';
         if(myOrdersBtn) myOrdersBtn.style.display='inline-block';
         if(loginShowBtn) loginShowBtn.style.display='none';
-        if(adminBtn){
-          if(user.uid === adminUID) adminBtn.style.display='inline-block'; else adminBtn.style.display='none';
-        }
+        if(adminBtn) adminBtn.style.display = (user.uid === ADMIN_UID) ? 'inline-block' : 'none';
       }else{
-        if(loginModal) loginModal.style.display='flex';
+        if(loginModal) loginModal.style.display='none';
         if(userBadge) userBadge.style.display='none';
         if(signOutBtn) signOutBtn.style.display='none';
         if(myOrdersBtn) myOrdersBtn.style.display='none';
@@ -437,7 +553,7 @@
       }
     });
 
-    // search filter
+    // ---- Search and shopNow ----
     const searchBox = $('searchBox');
     if(searchBox) searchBox.addEventListener('input', e=>{
       const v = e.target.value.toLowerCase();
@@ -446,68 +562,13 @@
         card.style.display = t.includes(v) ? 'block' : 'none';
       });
     });
-
-    // shopNow scroll
     const shopNow = $('shopNow'); if(shopNow) shopNow.addEventListener('click', ()=>{ const grid=document.getElementById('productGrid'); if(grid) grid.scrollIntoView({behavior:'smooth'}); });
 
-    // initial UI: ensure login modal visible if not signed in
-    if(!auth.currentUser && loginModal) loginModal.style.display='flex';
-
-    // ---- Customer rating setup ----
-    // This will add rating UI to each static product card, save rating to
-    // products/{productId}/ratings/{uid}, and show realtime averages.
-    async function setupRatings(){
-      const cards = document.querySelectorAll('#productGrid .card');
-      cards.forEach(card=>{
-        const titleEl = card.querySelector('h3');
-        if(!titleEl) return;
-        const pid = titleEl.innerText.trim().toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9\-]/g,'');
-        card.setAttribute('data-pid', pid);
-        // add rating display if not present
-        if(card.querySelector('.product-rating')) return;
-        const ratingDiv = document.createElement('div');
-        ratingDiv.className='product-rating small';
-        ratingDiv.innerText='No ratings';
-        // append ratingDiv below price row
-        const priceRow = titleEl.nextElementSibling; if(priceRow) priceRow.appendChild(ratingDiv);
-        // build rating buttons
-        const ratingUI = document.createElement('div');
-        ratingUI.className='rating-ui';
-        for(let r=1;r<=5;r++){
-          const b=document.createElement('button'); b.className='rateBtn btn-ghost'; b.type='button'; b.innerText=r; b.dataset.rating=r;
-          ratingUI.appendChild(b);
-        }
-        card.appendChild(ratingUI);
-
-        // listeners for rating buttons
-        ratingUI.querySelectorAll('.rateBtn').forEach(btn=>{
-          btn.addEventListener('click', async (ev)=>{
-            if(!auth.currentUser){ alert('Sign in to rate products'); return; }
-            const uid = auth.currentUser.uid; const rating = Number(ev.currentTarget.dataset.rating);
-            try{
-              await setDoc(doc(db, `products/${pid}/ratings/${uid}`), { rating: rating, createdAt: serverTimestamp() });
-              toast('Thanks for rating');
-            }catch(err){ console.error('rating save failed', err); alert('Failed to save rating'); }
-          });
-        });
-
-        // realtime average listener for this product
-        const ratingsColRef = collection(db, `products/${pid}/ratings`);
-        onSnapshot(ratingsColRef, snap=>{
-          let sum=0,cnt=0; snap.forEach(s=>{ const d=s.data(); if(d && typeof d.rating==='number'){ sum += d.rating; cnt++; } });
-          const avg = cnt ? (sum / cnt).toFixed(1) : null;
-          ratingDiv.innerText = avg ? `★ ${avg} (${cnt})` : 'No ratings';
-        }, err=>{ console.error('ratings snapshot failed', err); });
-      });
-    }
-
-    setupRatings();
-
-    console.log('UI ready');
+    // initial UI ready
+    console.log('Hamsa Sarees SPA ready');
   }catch(err){
-    console.error('Initialization error', err);
-    const le = document.getElementById('loginErr');
-    if(le){ le.innerText = 'Initialization error — see console.'; le.style.display = 'block'; }
+    console.error('Init error', err);
+    alert('Initialization failed — check console.');
   }
 })();
 </script>
