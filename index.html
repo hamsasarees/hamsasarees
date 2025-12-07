@@ -299,6 +299,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     btn.style.top = '12px';
     btn.style.right = '12px';
     btn.innerText = '✕';
+    btn.style.color = '#ff2b2b';
+    btn.style.fontWeight = '700';
     box.style.position = box.style.position || 'relative';
     box.appendChild(btn);
     btn.addEventListener('click', ()=>{ modal.style.display = 'none'; });
