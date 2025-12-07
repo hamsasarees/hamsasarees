@@ -93,7 +93,7 @@
   <div id="loginBox">
     <h2>Sign in with Google to continue</h2>
     <p style="color:#666; margin-bottom:12px;">Tap the button below — no typing needed.</p>
-    <button class="btn" id="googleBtn"> <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 48 48'><path fill='%23EA4335' d='M24 9.5c3.9 0 7.3 1.3 10 3.6l7.3-7.3C36.6 2 30.8 0 24 0 14.7 0 6.9 4.7 2.7 11.5l8.9 6.9C13.7 13.2 18.3 9.5 24 9.5z'/><path fill='%234285F4' d='M46.5 24.5c0-1.6-.1-3.1-.4-4.6H24v9.1h12.6c-.5 2.7-2 5-4.3 6.6l6.9 5.3c4-3.7 6.3-9 6.3-16.4z'/><path fill='%23FBBC05' d='M9.6 28.4c-1.1-3.2-1.1-6.6 0-9.8L.7 12.8C-2.7 17.7-2.7 30.3.7 35.2l8.9-6.8z'/><path fill='%2340A057' d='M24 48c6.6 0 12.2-2.2 16.3-6l-6.9-5.3c-3 2-6.9 3.1-9.4 3.1-5.7 0-10.3-3.7-12.4-8.6l-8.9 6.9C6.9 43.3 14.7 48 24 48z'/></svg>' alt='G' style='vertical-align:middle'/> Sign in with Google</button>
+    <button class="btn" id="googleBtn" aria-label="Sign in with Google"> <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 48 48'><path fill='%23EA4335' d='M24 9.5c3.9 0 7.3 1.3 10 3.6l7.3-7.3C36.6 2 30.8 0 24 0 14.7 0 6.9 4.7 2.7 11.5l8.9 6.9C13.7 13.2 18.3 9.5 24 9.5z'/><path fill='%234285F4' d='M46.5 24.5c0-1.6-.1-3.1-.4-4.6H24v9.1h12.6c-.5 2.7-2 5-4.3 6.6l6.9 5.3c4-3.7 6.3-9 6.3-16.4z'/><path fill='%23FBBC05' d='M9.6 28.4c-1.1-3.2-1.1-6.6 0-9.8L.7 12.8C-2.7 17.7-2.7 30.3.7 35.2l8.9-6.8z'/><path fill='%2340A057' d='M24 48c6.6 0 12.2-2.2 16.3-6l-6.9-5.3c-3 2-6.9 3.1-9.4 3.1-5.7 0-10.3-3.7-12.4-8.6l-8.9 6.9C6.9 43.3 14.7 48 24 48z'/></svg>' alt='G' style='vertical-align:middle'/> Sign in with Google</button>
     <div id="loginErr"></div>
     <p style="margin-top:12px; font-size:13px; color:#666;">If popup is blocked, allow popups for this site or try again.</p>
   </div>
@@ -133,7 +133,7 @@ function submitForm(event){
 <script type="module">
   import { initializeApp } 
     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getAuth, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } 
+  import { getAuth, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect } 
     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
   import { getFirestore } 
     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -165,33 +165,48 @@ function submitForm(event){
   const signOutBtn = document.getElementById('signOutBtn');
   const userName = document.getElementById('userName');
 
-  // Google sign-in
-  googleBtn.addEventListener('click', async () => {
-    loginErr.style.display = 'none';
-    try{
-      // popup-based sign-in
-      const result = await signInWithPopup(auth, provider);
-      console.log('Google sign-in success', result.user);
-    }catch(e){
-      console.error('Google sign-in error', e.code, e.message);
-      // friendly messages
-      if(e.code === 'auth/popup-blocked'){
-        loginErr.innerText = 'Popup blocked. Allow popups for this site.';
-      } else if(e.code === 'auth/cancelled-popup-request'){
-        loginErr.innerText = 'Popup cancelled. Try again.';
-      } else if(e.code === 'auth/unauthorized-domain'){
-        loginErr.innerText = 'Domain not authorized in Firebase console. Add your GitHub Pages domain.';
-      } else {
-        loginErr.innerText = e.message || 'Google sign-in failed';
+  // Defensive attach: ensure button exists
+  if(googleBtn){
+    googleBtn.addEventListener('click', async (evt) => {
+      loginErr.style.display = 'none';
+      // Try popup first. If blocked or fails with popup errors, fall back to redirect.
+      try{
+        // popup should be allowed; this must be called inside a user gesture event
+        const result = await signInWithPopup(auth, provider);
+        console.log('Google sign-in success', result.user);
+      }catch(e){
+        console.error('Google sign-in error', e.code, e.message);
+        // handle known popup issues by using redirect fallback
+        if(e.code === 'auth/popup-blocked' || e.code === 'auth/popup-closed-by-user' || e.code === 'auth/cancelled-popup-request'){
+          try{
+            console.log('Falling back to signInWithRedirect due to popup issue');
+            await signInWithRedirect(auth, provider);
+            return;
+          }catch(err){
+            console.error('Redirect fallback failed', err.code, err.message);
+            loginErr.innerText = 'Popup blocked and redirect failed. Allow popups or try another browser.';
+            loginErr.style.display = 'block';
+            return;
+          }
+        }
+        if(e.code === 'auth/unauthorized-domain'){
+          loginErr.innerText = 'Domain not authorized. Add your GitHub Pages domain in Firebase console → Authentication → Authorized domains.';
+        } else {
+          loginErr.innerText = e.message || 'Google sign-in failed';
+        }
+        loginErr.style.display = 'block';
       }
-      loginErr.style.display = 'block';
-    }
-  });
+    });
+  } else {
+    console.warn('googleBtn not found in DOM');
+  }
 
   // Sign out
-  signOutBtn.addEventListener('click', async () => {
-    await signOut(auth);
-  });
+  if(signOutBtn){
+    signOutBtn.addEventListener('click', async () => {
+      await signOut(auth);
+    });
+  }
 
   onAuthStateChanged(auth, (user) => {
     window.currentUser = user;
