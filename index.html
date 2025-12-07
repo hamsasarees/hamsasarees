@@ -8,7 +8,7 @@
   body { margin:0; font-family:Arial, sans-serif; background:#f5f5f5; }
   header { background:#222; color:#fff; padding:15px; text-align:center; font-size:22px; font-weight:bold; display:flex; align-items:center; justify-content:space-between; gap:12px; }
   .header-left { flex:1; text-align:center; }
-  .header-right { color:#fff; padding-right:12px; font-size:14px; }
+  .header-right { color:#fff; padding-right:12px; font-size:14px; display:flex; align-items:center; gap:8px; }
   .container { max-width:1000px; margin:auto; padding:15px; }
   .product-card { background:#fff; border-radius:12px; padding:15px; box-shadow:0 0 8px rgba(0,0,0,0.1); margin-bottom:22px; }
   .product-img { width:100%; height:300px; background:#ddd; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:18px; color:#555; }
@@ -26,6 +26,7 @@
   .btn { padding:10px; border-radius:8px; border:none; cursor:pointer; font-size:16px; flex:1; }
   .btn-primary { background:#2196f3; color:white; }
   .btn-ghost { background:#eee; color:#333; }
+  #googleBtn { background:#fff; color:#444; border:1px solid #ddd; display:flex; align-items:center; justify-content:center; gap:8px; }
   #loginErr { color:red; text-align:center; margin-bottom:8px; display:none; }
 
   /* ORDER FORM POPUP */
@@ -44,7 +45,7 @@
 <header>
   <div class="header-left">Hamsa Sarees - Online Shop</div>
   <div class="header-right" id="userArea">
-    <span id="userName" style="display:none"></span>
+    <span id="userName" style="display:none; font-weight:600"></span>
     <button id="signOutBtn" style="display:none; margin-left:10px; background:#ff5252; color:white; border:none; padding:8px 10px; border-radius:8px; cursor:pointer;">Sign Out</button>
   </div>
 </header>
@@ -101,6 +102,8 @@
       <button class="btn btn-primary" id="signInBtn">Sign In</button>
       <button class="btn btn-ghost" id="signUpBtn">Create Account</button>
     </div>
+    <div style="height:8px"></div>
+    <button class="btn" id="googleBtn"> <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 48 48'><path fill='%23EA4335' d='M24 9.5c3.9 0 7.3 1.3 10 3.6l7.3-7.3C36.6 2 30.8 0 24 0 14.7 0 6.9 4.7 2.7 11.5l8.9 6.9C13.7 13.2 18.3 9.5 24 9.5z'/><path fill='%234285F4' d='M46.5 24.5c0-1.6-.1-3.1-.4-4.6H24v9.1h12.6c-.5 2.7-2 5-4.3 6.6l6.9 5.3c4-3.7 6.3-9 6.3-16.4z'/><path fill='%23FBBC05' d='M9.6 28.4c-1.1-3.2-1.1-6.6 0-9.8L.7 12.8C-2.7 17.7-2.7 30.3.7 35.2l8.9-6.8z'/><path fill='%2340A057' d='M24 48c6.6 0 12.2-2.2 16.3-6l-6.9-5.3c-3 2-6.9 3.1-9.4 3.1-5.7 0-10.3-3.7-12.4-8.6l-8.9 6.9C6.9 43.3 14.7 48 24 48z'/></svg>' alt='G' style='vertical-align:middle'/> Sign in with Google</button>
     <p style="text-align:center; margin-top:10px; font-size:13px; color:#666;">By signing in you can place orders. No account info is stored on this page.</p>
   </div>
 </div>
@@ -139,7 +142,7 @@ function submitForm(event){
 <script type="module">
   import { initializeApp } 
     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } 
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } 
     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
   import { getFirestore } 
     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -160,6 +163,7 @@ function submitForm(event){
   const auth = getAuth(app);
   const db = getFirestore(app);
   const storage = getStorage(app);
+  const provider = new GoogleAuthProvider();
 
   // Expose current user for simple checks
   window.currentUser = null;
@@ -168,6 +172,7 @@ function submitForm(event){
   const signInBtn = document.getElementById('signInBtn');
   const signUpBtn = document.getElementById('signUpBtn');
   const signOutBtn = document.getElementById('signOutBtn');
+  const googleBtn = document.getElementById('googleBtn');
   const loginModal = document.getElementById('loginModal');
   const loginErr = document.getElementById('loginErr');
 
@@ -175,11 +180,21 @@ function submitForm(event){
     const email = document.getElementById('loginEmail').value.trim();
     const pass = document.getElementById('loginPass').value;
     loginErr.style.display = 'none';
-    try{
-      await signInWithEmailAndPassword(auth, email, pass);
-      // success handled by onAuthStateChanged
-    }catch(e){
-      loginErr.innerText = e.message || 'Sign in failed';
+    console.log('Attempt signIn', email);
+    try {
+      const cred = await signInWithEmailAndPassword(auth, email, pass);
+      console.log('signIn success', cred.user);
+    } catch (e) {
+      console.error('signIn error', e.code, e.message);
+      if (e.code === 'auth/user-not-found') {
+        loginErr.innerText = 'Account illa — Create Account press pannunga.';
+      } else if (e.code === 'auth/wrong-password') {
+        loginErr.innerText = 'Password thavaru. Reset pannala try pannunga.';
+      } else if (e.code === 'auth/invalid-email') {
+        loginErr.innerText = 'Email format thavaru — sariyaa type pannunga.';
+      } else {
+        loginErr.innerText = e.message || 'Sign in failed';
+      }
       loginErr.style.display = 'block';
     }
   });
@@ -188,11 +203,41 @@ function submitForm(event){
     const email = document.getElementById('loginEmail').value.trim();
     const pass = document.getElementById('loginPass').value;
     loginErr.style.display = 'none';
+    console.log('Attempt signUp', email);
+    if (!email || !pass) {
+      loginErr.innerText = 'Email & password kudunga.';
+      loginErr.style.display = 'block';
+      return;
+    }
+    if (pass.length < 6) {
+      loginErr.innerText = 'Password minimum 6 characters venum.';
+      loginErr.style.display = 'block';
+      return;
+    }
+    try {
+      const cred = await createUserWithEmailAndPassword(auth, email, pass);
+      console.log('signUp success', cred.user);
+    } catch (e) {
+      console.error('signUp error', e.code, e.message);
+      if (e.code === 'auth/email-already-in-use') {
+        loginErr.innerText = 'Ippo already registered — Sign In pannunga.';
+      } else if (e.code === 'auth/invalid-email') {
+        loginErr.innerText = 'Email format thavaru.';
+      } else {
+        loginErr.innerText = e.message || 'Sign up failed';
+      }
+      loginErr.style.display = 'block';
+    }
+  });
+
+  googleBtn.addEventListener('click', async () => {
+    loginErr.style.display = 'none';
     try{
-      await createUserWithEmailAndPassword(auth, email, pass);
-      // success handled by onAuthStateChanged
+      const result = await signInWithPopup(auth, provider);
+      console.log('Google sign-in success', result.user);
     }catch(e){
-      loginErr.innerText = e.message || 'Sign up failed';
+      console.error('Google sign-in error', e.code, e.message);
+      loginErr.innerText = e.message || 'Google sign-in failed';
       loginErr.style.display = 'block';
     }
   });
@@ -209,7 +254,7 @@ function submitForm(event){
       // hide login modal
       loginModal.style.display = 'none';
       userName.style.display = 'inline-block';
-      userName.innerText = 'Signed in as ' + (user.email || 'User');
+      userName.innerText = 'Signed in as ' + (user.displayName || user.email || 'User');
       signOutBtnEl.style.display = 'inline-block';
       // clear login inputs
       document.getElementById('loginEmail').value = '';
