@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Hamsa Sarees — Single Page (Admin + Ratings + Persistent Orders)</title>
+<title>Hamsa Sarees — Single Page (Fixed)</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -112,7 +112,6 @@
           <div class="small">Sign in to place orders; orders saved to your account</div>
         </div>
         <div class="grid" id="productGrid" aria-live="polite">
-          <!-- No products included in the canvas. Admin will add products via Admin modal. -->
           <div class="card" style="grid-column:1/-1;text-align:center;color:var(--muted);padding:32px;background:transparent">
             <strong style="color:#eaf6ff">No products yet</strong>
             <div class="small" style="margin-top:8px">As admin, open Admin → Add Product to upload items. The product grid updates live for users.</div>
@@ -182,7 +181,6 @@
     </div>
   </div>
 
-  <!-- Order detail modal (replaces alert) -->
   <div class="modal" id="orderDetailModal" aria-hidden="true">
     <div class="modal-box" role="dialog" aria-modal="true">
       <button class="close-x" id="closeOrderDetail" title="Close">✕</button>
@@ -192,7 +190,6 @@
     </div>
   </div>
 
-  <!-- Admin modal -->
   <div class="modal" id="adminModal" aria-hidden="true">
     <div class="modal-box" role="dialog" aria-modal="true">
       <button class="close-x" id="closeAdmin" title="Close">✕</button>
@@ -217,7 +214,7 @@
   if(document.readyState === 'loading') await new Promise(r=>document.addEventListener('DOMContentLoaded', r));
 
   // ---- CONFIG ----
-  const ADMIN_UID = 'EenXHJIvZpavhkGTCI8EZyFAfH93'; // your admin UID (already provided)
+  const ADMIN_UID = 'EenXHJIvZpavhkGTCI8EZyFAfH93'; // UI-only sentinel; enforce admin in Firestore rules / backend
   const firebaseConfig = {
     apiKey: "AIzaSyBozW19Rjc9nj0YabOIE3DlW0qVHtU5XLA",
     authDomain: "hamsasarees-24738.firebaseapp.com",
@@ -228,7 +225,10 @@
     measurementId: "G-1G1HQGJ5XS"
   };
 
-  // ---- Firebase imports ----
+  // ---- helper: escape text for safe insertion ----
+  function escapeHtml(s){ return String(s===undefined||s===null?'':s).replace(/[&<>\"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+  // ---- Firebase imports (modular) ----
   try{
     const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
     const authMod = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
@@ -250,16 +250,14 @@
     const adminBtn = $('adminBtn');
     const orderDetailModal = $('orderDetailModal'), orderDetailContent = $('orderDetailContent');
 
-    function toast(msg){ if(!toastEl) return; toastEl.innerText = msg; toastEl.style.display = 'block'; setTimeout(()=>toastEl.style.display = 'none', 1800); }
+    function toast(msg){ if(!toastEl) return; toastEl.innerText = msg; toastEl.style.display = 'block'; setTimeout(()=>toastEl.style.display = 'none', 2200); }
     function showLoginError(msg){ if(!loginErr) return; loginErr.innerText = msg; loginErr.style.display = msg ? 'block' : 'none'; }
 
-    // small utility: open/close modal with focus trap basic handling (non-perfect but good)
     function openModal(modal){ if(!modal) return; modal.classList.add('show'); modal.removeAttribute('aria-hidden'); document.body.style.overflow = 'hidden'; }
     function closeModal(modal){ if(!modal) return; modal.classList.remove('show'); modal.setAttribute('aria-hidden','true'); document.body.style.overflow = ''; }
 
-    // close on backdrop click and Esc
+    // backdrop click and Esc
     document.addEventListener('click', (ev)=>{
-      // if click on modal backdrop (element with class 'modal' but not inside modal-box)
       const m = ev.target.closest('.modal');
       if(m && !ev.target.closest('.modal-box')){
         closeModal(m);
@@ -267,16 +265,11 @@
     });
     document.addEventListener('keydown', (ev)=>{ if(ev.key === 'Escape'){ document.querySelectorAll('.modal.show').forEach(m=>closeModal(m)); } });
 
-    // handle redirect sign-in fallback
     try{ const rr = await getRedirectResult(auth); if(rr && rr.user) console.log('redirect sign-in OK', rr.user.uid); }catch(e){ console.warn('redirect result', e && e.code); }
 
-    // sign-in
     async function signInPopup(){
       showLoginError('');
-      try{
-        await signInWithPopup(auth, googleProvider);
-        toast('Signed in');
-      }catch(e){
+      try{ await signInWithPopup(auth, googleProvider); toast('Signed in'); }catch(e){
         console.error('sign-in error', e && e.code, e && e.message);
         const popupErrors = ['auth/popup-blocked','auth/popup-closed-by-user','auth/cancelled-popup-request'];
         if(e && popupErrors.includes(e.code)){
@@ -296,62 +289,68 @@
     const productGrid = $('productGrid');
     const productsColRef = collection(db, 'products');
 
-    // render helper
-    function renderProductCard(id, data){
+    // render helper using doc snapshot (safe)
+    function renderProductCard(docSnap){
+      const id = docSnap.id;
+      const data = docSnap.data() || {};
       const title = data.title || 'Untitled';
-      const pid = id || (title.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9\-]/g,''));
-      const tagHtml = data.tag ? `<div class="tag">${data.tag}</div>` : '';
+      const tag = data.tag || '';
       const img = data.img || 'https://images.unsplash.com/photo-1520975918016-4d0b5b0b2f3d?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder';
       const price = data.price || '0';
-      const avgDisplay = data._avg ? `★ ${Number(data._avg).toFixed(1)} (${data._count||0})` : 'No ratings';
-      const card = document.createElement('div'); card.className = 'card'; card.dataset.pid = pid;
-      card.innerHTML = `
-        ${tagHtml}
-        <div class="imgwrap"><img src="${img}" alt="${title}"></div>
-        <h3>${title}</h3>
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <div class="price">₹${price}</div>
-          <div style="display:flex;align-items:center"><div class="product-rating small" data-pid="${pid}">${avgDisplay}</div></div>
-        </div>
-        <div class="rating-ui" style="margin-top:8px">
-          <button class="rateBtn btn-ghost" data-rating="1">1</button>
-          <button class="rateBtn btn-ghost" data-rating="2">2</button>
-          <button class="rateBtn btn-ghost" data-rating="3">3</button>
-          <button class="rateBtn btn-ghost" data-rating="4">4</button>
-          <button class="rateBtn btn-ghost" data-rating="5">5</button>
-        </div>
-        <div style="margin-top:8px"><button class="orderBtn btn" data-product="${title}">Order Now</button></div>
-      `;
+      const avg = data._avg ? Number(data._avg).toFixed(1) : null;
+      const avgDisplay = avg ? `★ ${avg} (${data._count||0})` : 'No ratings';
+
+      const card = document.createElement('div'); card.className = 'card'; card.dataset.pid = id;
+
+      // build DOM safely (no raw innerHTML from user content)
+      if(tag){ const tagEl = document.createElement('div'); tagEl.className = 'tag'; tagEl.textContent = tag; card.appendChild(tagEl); }
+      const imgWrap = document.createElement('div'); imgWrap.className = 'imgwrap';
+      const imgEl = document.createElement('img'); imgEl.loading = 'lazy'; imgEl.src = img; imgEl.alt = title; imgWrap.appendChild(imgEl); card.appendChild(imgWrap);
+
+      const h3 = document.createElement('h3'); h3.textContent = title; card.appendChild(h3);
+
+      const row = document.createElement('div'); row.style.display = 'flex'; row.style.justifyContent = 'space-between'; row.style.alignItems = 'center';
+      const priceEl = document.createElement('div'); priceEl.className = 'price'; priceEl.textContent = `₹${price}`;
+      const ratingWrap = document.createElement('div'); ratingWrap.style.display='flex'; ratingWrap.style.alignItems='center';
+      const rEl = document.createElement('div'); rEl.className = 'product-rating small'; rEl.dataset.pid = id; rEl.textContent = avgDisplay;
+      ratingWrap.appendChild(rEl);
+      row.appendChild(priceEl); row.appendChild(ratingWrap);
+      card.appendChild(row);
+
+      const ratingUI = document.createElement('div'); ratingUI.className = 'rating-ui'; ratingUI.style.marginTop='8px';
+      for(let i=1;i<=5;i++){ const b = document.createElement('button'); b.className='rateBtn btn-ghost'; b.dataset.rating = String(i); b.type='button'; b.textContent = String(i); ratingUI.appendChild(b); }
+      card.appendChild(ratingUI);
+
+      const orderWrap = document.createElement('div'); orderWrap.style.marginTop='8px';
+      const orderBtn = document.createElement('button'); orderBtn.className='orderBtn btn'; orderBtn.type='button'; orderBtn.dataset.product = title; orderBtn.textContent='Order Now'; orderWrap.appendChild(orderBtn);
+      card.appendChild(orderWrap);
+
       return card;
     }
 
-    // live listener: show products from Firestore; if empty, keep fallback static ones
     let productsUnsub = null;
     try{
       productsUnsub = onSnapshot(productsColRef, snap=>{
+        // render from DB
+        productGrid.innerHTML = '';
         if(snap.empty){
-          // keep static fallback — but still attach rating listeners later
-          attachRatingListenersToGrid();
+          const fallback = document.createElement('div'); fallback.className='card'; fallback.style.gridColumn='1/-1'; fallback.style.textAlign='center'; fallback.style.color='var(--muted)'; fallback.style.padding='32px';
+          fallback.innerHTML = '<strong style="color:#eaf6ff">No products yet</strong><div class="small" style="margin-top:8px">As admin, open Admin → Add Product to upload items. The product grid updates live for users.</div><div style="margin-top:12px"><button id="openAdminFromEmptyInner" class="btn-ghost">Open Admin</button></div>';
+          productGrid.appendChild(fallback);
+          // attach handler to that button
+          setTimeout(()=>{ document.getElementById('openAdminFromEmptyInner')?.addEventListener('click', ()=>{ if(!auth.currentUser){ openModal(loginModal); showLoginError('Sign in as admin to add products'); return; } if(auth.currentUser.uid !== ADMIN_UID){ alert('You are not admin'); return; } openModal(adminModal); }); },50);
           return;
         }
-        // clear grid and render from DB
-        productGrid.innerHTML = '';
+
         snap.forEach(d => {
-          const id = d.id; const data = d.data();
-          const card = renderProductCard(id, data);
+          const card = renderProductCard(d);
           productGrid.appendChild(card);
         });
         attachRatingListenersToGrid();
-      }, err => {
-        console.error('products snapshot error', err);
-        attachRatingListenersToGrid();
-      });
-    }catch(e){
-      console.warn('products onSnapshot not available (maybe offline)', e);
-      attachRatingListenersToGrid();
-    }
+      }, err => { console.error('products snapshot error', err); });
+    }catch(e){ console.warn('products onSnapshot not available', e); }
 
-    // attach order button delegation (works for dynamic cards)
+    // delegate order button via productGrid click
     productGrid.addEventListener('click', ev=>{
       const btn = ev.target.closest('.orderBtn');
       if(!btn) return;
@@ -365,24 +364,27 @@
     // ---- Rating listeners and live averages per product ----
     function attachRatingListenersToGrid(){
       document.querySelectorAll('#productGrid .card').forEach(card=>{
-        const pid = card.dataset.pid || (card.querySelector('h3') && card.querySelector('h3').innerText.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9\-]/g,'')) ;
+        const pid = card.dataset.pid;
         if(!pid) return;
+
+        // bind click for rating buttons
         card.querySelectorAll('.rateBtn').forEach(btn=>{
           if(btn._bound) return; btn._bound = true;
           btn.addEventListener('click', async (ev)=>{
             if(!auth.currentUser){ alert('Sign in to rate products'); return; }
             const uid = auth.currentUser.uid; const rating = Number(ev.currentTarget.dataset.rating);
             try{
-              const ratingRef = doc(db, `products/${pid}/ratings/${uid}`);
+              const ratingRef = doc(db, 'products', pid, 'ratings', uid);
               await setDoc(ratingRef, { rating: rating, createdAt: serverTimestamp() });
               toast('Thanks for rating');
             }catch(err){ console.error('rating save failed', err); alert('Failed to save rating'); }
           });
         });
 
+        // attach subcollection listener if not already
         if(card._ratingsUnsub) return;
         try{
-          const ratingsColRef = collection(db, `products/${pid}/ratings`);
+          const ratingsColRef = collection(db, 'products', pid, 'ratings');
           card._ratingsUnsub = onSnapshot(ratingsColRef, snap=>{
             let sum = 0, cnt = 0;
             snap.forEach(s => { const d = s.data(); if(d && typeof d.rating === 'number'){ sum += d.rating; cnt++; }});
@@ -393,6 +395,7 @@
         }catch(e){ console.warn('ratings onSnapshot error', e); }
       });
     }
+
     attachRatingListenersToGrid();
 
     // ---- Orders: place & persist in users/{uid}/orders ----
@@ -460,23 +463,22 @@
           el.innerHTML = `
             <div style="display:flex;justify-content:space-between;align-items:center">
               <div>
-                <strong style="color:#fff">${o.product||''}</strong>
-                <div class="small">${o.name||''} • ${o.phone||''}</div>
-                <div class="small" style="color:var(--muted)">${dt}</div>
+                <strong style="color:#fff">${escapeHtml(o.product||'')}</strong>
+                <div class="small">${escapeHtml(o.name||'')} • ${escapeHtml(o.phone||'')}</div>
+                <div class="small" style="color:var(--muted)">${escapeHtml(dt)}</div>
               </div>
               <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
                 <button class="btn-ghost viewOrderBtn" data-id="${id}" type="button">View</button>
                 <button class="btn deleteOrderBtn" data-id="${id}" type="button">Delete</button>
               </div>
             </div>`;
-          // store order data for quick view without extra read
           el.querySelector('.viewOrderBtn').dataset.product = o.product || '';
           el.querySelector('.viewOrderBtn').dataset.name = o.name || '';
           el.querySelector('.viewOrderBtn').dataset.phone = o.phone || '';
           el.querySelector('.viewOrderBtn').dataset.address = o.address || '';
           ordersList.appendChild(el);
         });
-        // attach delete handlers and view handlers
+
         ordersList.querySelectorAll('.deleteOrderBtn').forEach(b=>{
           b.addEventListener('click', async ev=>{
             const id = ev.currentTarget.getAttribute('data-id'); if(!id) return;
@@ -484,7 +486,7 @@
             if(!ok) return;
             try{
               const uid = auth.currentUser.uid;
-              await deleteDoc(doc(db, `users/${uid}/orders/${id}`));
+              await deleteDoc(doc(db, 'users', uid, 'orders', id));
               toast('Order deleted');
               await loadUserOrders();
             }catch(err){ console.error('delete failed', err); alert('Failed to delete order. See console.'); }
@@ -512,7 +514,7 @@
       openModal(myOrdersModal);
     });
 
-    // ---- Admin UI: open modal only if user is admin, and persist product to Firestore ----
+    // ---- Admin UI: persist product to Firestore (must be guarded by rules) ----
     adminBtn && adminBtn.addEventListener('click', ()=>{
       if(!auth.currentUser){ alert('Sign in as admin'); return; }
       if(auth.currentUser.uid !== ADMIN_UID){ alert('You are not admin'); return; }
@@ -560,33 +562,38 @@
       }
     });
 
-    // ---- Search and shopNow ----
+    // ---- Search and shopNow (debounced) ----
     const searchBox = $('searchBox');
-    if(searchBox) searchBox.addEventListener('input', e=>{
-      const v = e.target.value.toLowerCase();
-      document.querySelectorAll('#productGrid .card').forEach(card=>{
-        const t = (card.querySelector('h3')||{innerText:''}).innerText.toLowerCase();
-        const tag = (card.querySelector('.tag')||{innerText:''}).innerText.toLowerCase();
-        card.style.display = (t.includes(v) || tag.includes(v)) ? 'block' : 'none';
+    if(searchBox){
+      let searchTimer = null;
+      searchBox.addEventListener('input', e=>{
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(()=>{
+          const v = e.target.value.toLowerCase();
+          document.querySelectorAll('#productGrid .card').forEach(card=>{
+            const t = (card.querySelector('h3')||{innerText:''}).innerText.toLowerCase();
+            const tag = (card.querySelector('.tag')||{innerText:''}).innerText.toLowerCase();
+            const show = !v || t.includes(v) || tag.includes(v);
+            card.style.display = show ? '' : 'none';
+          });
+        }, 180);
       });
-    });
+    }
     const shopNow = $('shopNow'); if(shopNow) shopNow.addEventListener('click', ()=>{ const grid=document.getElementById('productGrid'); if(grid) grid.scrollIntoView({behavior:'smooth'}); });
 
     // initial UI ready
-    // quick-open admin from empty state
     document.getElementById('openAdminFromEmpty')?.addEventListener('click', ()=>{
       if(!auth.currentUser){ openModal(loginModal); showLoginError('Sign in as admin to add products'); return; }
       if(auth.currentUser.uid !== ADMIN_UID){ alert('You are not admin'); return; }
       openModal(adminModal);
     });
-    console.log('Hamsa Sarees SPA ready — polished canvas');
+    console.log('Hamsa Sarees SPA ready — fixed');
   }catch(err){
     console.error('Init error', err);
     alert('Initialization failed — check console.');
   }
 })();
 </script>
-
 
   <!-- Image zoom modal (added) -->
   <div class="modal zoom-modal" id="zoomModal" aria-hidden="true">
@@ -601,7 +608,6 @@
     document.addEventListener('click', function(ev){
       try{
         var target = ev.target;
-        // support closest if available
         var imgEl = (target && target.closest) ? target.closest('.imgwrap img') : null;
         if(imgEl){
           var src = imgEl.getAttribute('src');
