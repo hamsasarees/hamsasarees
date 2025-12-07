@@ -3,416 +3,460 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Hamsa Sarees — Boutique (Responsive)</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<title>Hamsa Sarees — Rebuilt</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg-start:#001f3f; /* deep navy */
-  --bg-mid:#00306b;  /* rich ocean */
-  --bg-end:#00539c;  /* electric blue */
-  --muted:#9fb8d9;   /* soft blue-grey */
-  --accent:#00aaff;  /* limitless blue accent */
-  --accent-2:#4dd0e1; /* cyan highlight */
-  --glass:rgba(255,255,255,0.03);
-  --glass-2:rgba(255,255,255,0.02);
-  --success:#10b981;
-  --glow: 0 12px 40px rgba(0,170,255,0.12);
-}
-
-/* Extra polished UI rules for a more "perfect" look */
-.logo{background:linear-gradient(135deg,var(--accent),var(--accent-2));box-shadow:var(--glow);}
-.btn{transition:transform .18s ease, box-shadow .18s ease, filter .18s ease}
-.btn:hover{transform:translateY(-3px);box-shadow:0 18px 40px rgba(0,170,255,0.14);filter:brightness(1.03)}
-.card{transition:transform .28s cubic-bezier(.2,.9,.2,1), box-shadow .28s}
-.card:hover{transform:translateY(-10px) rotate(-0.2deg);box-shadow:0 28px 60px rgba(2,20,60,0.45)}
-/* gentle floating animation for images */
-@keyframes floaty{0%{transform:translateY(0)}50%{transform:translateY(-6px)}100%{transform:translateY(0)}}
-.imgwrap img{animation:floaty 6s ease-in-out infinite}
-/* improve modal contrast on blue background */
-.modal-box{background:linear-gradient(180deg, rgba(8,24,40,0.9), rgba(3,12,26,0.95));border:1px solid rgba(255,255,255,0.03)}
-.toast{backdrop-filter:blur(6px)}
-
-/* accessibility: better focus outlines */
-button:focus, a:focus, input:focus, select:focus{outline:3px solid rgba(0,170,255,0.12);outline-offset:3px}
-
-*{box-sizing:border-box}
-html,body{height:100%;}
-body{margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:linear-gradient(180deg,var(--bg-start) 0%, var(--bg-end) 60%);color:#e6eef8;-webkit-font-smoothing:antialiased}
-.container{max-width:1200px;margin:20px auto;padding:0 16px}
-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;background:transparent}
-.brand{display:flex;align-items:center;gap:12px}
-.logo{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#ff7ab6,#ff6a9a);display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff}
-.title{font-weight:800;font-size:18px;color:#fff}
-.search{display:flex;align-items:center;background:rgba(255,255,255,0.03);padding:8px;border-radius:10px;gap:8px;border:1px solid rgba(255,255,255,0.02)}
-.search input{background:transparent;border:none;color:#e6eef8;outline:none;width:220px}
-.actions{display:flex;gap:10px;align-items:center}
-.btn{cursor:pointer;border-radius:10px;padding:9px 14px;border:none;font-weight:700;background:linear-gradient(90deg,var(--accent),#ff5aa3);color:#fff;box-shadow:0 8px 24px rgba(233,30,99,0.14)}
-.btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#fff;padding:8px 10px;border-radius:10px}
-.header-note{font-size:13px;color:var(--muted)}
-.hero{display:flex;gap:18px;align-items:stretch;margin-top:10px}
-.hero-card{flex:1;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));padding:18px;border-radius:14px;backdrop-filter: blur(6px);box-shadow:0 12px 34px rgba(2,6,23,0.6)}
-.hero h1{margin:0;font-size:24px}
-.hero p{color:var(--muted);margin-top:8px}
-.hero-cta{display:flex;gap:12px;margin-top:14px}
-.promo{width:300px;padding:16px;border-radius:12px;background:linear-gradient(135deg,#071a2a,#0f2430);box-shadow:0 10px 40px rgba(2,6,23,0.4)}
-.promo strong{display:block;color:#fff}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:18px}
-.card{background:linear-gradient(180deg,#071728,#081622);padding:12px;border-radius:12px;transition:transform .22s,box-shadow .22s;position:relative;overflow:hidden}
-.card:hover{transform:translateY(-6px);box-shadow:0 18px 36px rgba(2,6,23,0.6)}
-.imgwrap{height:200px;border-radius:10px;background:linear-gradient(180deg,#071b28,#08212b);display:flex;align-items:center;justify-content:center;color:#8aa0bb;font-weight:700;position:relative;overflow:hidden}
-.imgwrap img{width:100%;height:100%;object-fit:cover}
-.card h3{margin:10px 0 6px;font-size:16px;color:#fff}
-.price{color:#34d399;font-weight:700}
-.card .orderBtn{width:100%;margin-top:10px;padding:10px;border-radius:10px;background:linear-gradient(90deg,var(--accent),#ff5aa3);border:none;font-weight:800;cursor:pointer}
-.tag{position:absolute;top:10px;left:10px;background:rgba(0,0,0,0.4);padding:6px 8px;border-radius:8px;font-size:12px}
-.modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(2,6,23,0.6),rgba(2,6,23,0.85));z-index:1200;padding:14px}
-.modal-box{max-width:720px;width:100%;background:linear-gradient(180deg,#071522,#06121a);border-radius:12px;padding:16px;color:#e6eef8;position:relative;box-shadow:0 30px 80px rgba(2,6,23,0.6)}
-.modal-box h2{margin:0;font-size:18px}
-.field{display:flex;flex-direction:column;margin-top:10px}
-.field input,.field textarea,select{padding:12px;border-radius:10px;border:none;background:#08121a;color:#dbeafe}
-.small{color:var(--muted)}
-.modal-footer{display:flex;gap:10px;align-items:center;margin-top:12px}
-.close-x{position:absolute;top:12px;right:12px;background:transparent;border:none;color:#ff6b6b;font-weight:800;font-size:18px;cursor:pointer}
-.toast{position:fixed;right:18px;bottom:18px;background:#0b1220;padding:10px 14px;border-radius:10px;color:#d1fae5;border-left:4px solid var(--success);box-shadow:0 8px 30px rgba(2,6,23,0.6)}
-.orders-list{max-height:360px;overflow:auto;border-radius:10px;padding:10px;background:linear-gradient(180deg,#06131a,#071722)}
-/* MOBILE OPTIMIZATIONS */
-@media (max-width:900px){
-  .grid{grid-template-columns:repeat(2,1fr)}
-  .promo{display:none}
-  .search input{width:160px}
-}
-@media (max-width:640px){
-  header{flex-direction:column;align-items:stretch;padding:12px}
-  .brand{gap:8px}
-  .title{font-size:16px}
-  .search{width:100%;margin-top:8px}
-  .search input{width:100%}
-  .actions{justify-content:flex-end}
-  .hero{flex-direction:column}
-  .hero-card{order:2}
-  .promo{order:1;width:100%}
-  .grid{grid-template-columns:1fr;gap:12px}
-  .imgwrap{height:180px}
-  .btn{padding:12px 16px}
-  .btn-ghost{padding:10px 12px}
-  .modal-box{width:100%;height:100%;border-radius:12px 12px 0 0;max-width:100%;display:flex;flex-direction:column;justify-content:flex-start;overflow:auto;padding:16px}
-  .close-x{right:14px;top:10px}
-  .orders-list{max-height:50vh}
-}
+  :root{
+    --bg1:#001f3f; --bg2:#00306b; --accent:#00aaff; --accent2:#4dd0e1; --muted:#9fb8d9; --success:#10b981;
+    --card:#071522; --glass:rgba(255,255,255,0.03);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:#eaf6ff;-webkit-font-smoothing:antialiased}
+  a{color:inherit}
+  .container{max-width:1100px;margin:20px auto;padding:0 16px}
+  header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px}
+  .brand{display:flex;gap:12px;align-items:center}
+  .logo{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:800;color:#032033;box-shadow:0 12px 40px rgba(0,170,255,0.12)}
+  .title{font-weight:800}
+  .search{display:flex;align-items:center;background:var(--glass);padding:8px;border-radius:10px;gap:8px;border:1px solid rgba(255,255,255,0.02)}
+  .search input{background:transparent;border:none;color:#eaf6ff;outline:none;width:220px}
+  .actions{display:flex;gap:8px;align-items:center}
+  .btn{cursor:pointer;border-radius:10px;padding:9px 14px;border:none;font-weight:700;background:linear-gradient(90deg,var(--accent),#ff5aa3);color:#fff;box-shadow:0 8px 24px rgba(0,170,255,0.12);transition:transform .15s,filter .15s}
+  .btn:active{transform:translateY(1px)}
+  .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#fff;padding:8px 12px;border-radius:10px}
+  .hero{display:flex;gap:16px;align-items:flex-start;margin-top:8px}
+  .hero-card{flex:1;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:18px;border-radius:12px;backdrop-filter: blur(6px)}
+  .promo{width:260px;padding:12px;border-radius:10px;background:linear-gradient(135deg,#061526,#072234);box-shadow:0 10px 40px rgba(0,0,0,0.4)}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:16px}
+  .card{background:linear-gradient(180deg,#071522,#06121a);padding:12px;border-radius:12px;transition:transform .2s,box-shadow .2s;overflow:hidden}
+  .card:hover{transform:translateY(-8px);box-shadow:0 24px 60px rgba(2,6,23,0.6)}
+  .imgwrap{height:180px;border-radius:10px;background:#081522;display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .imgwrap img{width:100%;height:100%;object-fit:cover;display:block}
+  h3{margin:10px 0 6px;color:#eaf6ff}
+  .price{color:#7ee0b2;font-weight:800}
+  .tag{position:absolute;top:10px;left:10px;background:rgba(0,0,0,0.4);padding:6px 8px;border-radius:8px;font-size:12px}
+  /* modals */
+  .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(3,8,20,0.6),rgba(2,8,18,0.85));z-index:1200;padding:12px}
+  .modal-box{max-width:720px;width:100%;background:linear-gradient(180deg,#071522,#06121a);border-radius:12px;padding:16px;color:#eaf6ff;position:relative;box-shadow:0 30px 80px rgba(2,6,23,0.6)}
+  .close-x{position:absolute;top:12px;right:12px;background:transparent;border:none;color:#ff3b3b;font-weight:800;font-size:18px;cursor:pointer}
+  .field{display:flex;flex-direction:column;margin-top:10px}
+  .field input,.field textarea,select{padding:12px;border-radius:10px;border:none;background:#08121a;color:#dbeafe}
+  .small{color:var(--muted)}
+  .orders-list{max-height:60vh;overflow:auto;border-radius:10px;padding:8px;background:linear-gradient(180deg,#06131a,#071722)}
+  .toast{position:fixed;right:16px;bottom:16px;background:#0b1220;padding:10px 14px;border-radius:10px;color:#d1fae5;border-left:4px solid var(--success);box-shadow:0 8px 30px rgba(2,6,23,0.6);display:none}
+  /* responsive */
+  @media (max-width:1000px){ .grid{grid-template-columns:repeat(2,1fr)} .promo{display:none} .search input{width:140px} }
+  @media (max-width:640px){
+    header{flex-direction:column;align-items:stretch;padding:12px 16px}
+    .search{width:100%;margin-top:8px}
+    .grid{grid-template-columns:1fr}
+    .imgwrap{height:200px}
+    .modal-box{width:100%;height:100%;border-radius:12px 12px 0 0;max-width:none;display:flex;flex-direction:column;overflow:auto;padding:14px}
+  }
+  /* subtle image float */
+  @keyframes floaty{0%{transform:translateY(0)}50%{transform:translateY(-6px)}100%{transform:translateY(0)}}
+  .imgwrap img{animation:floaty 6s ease-in-out infinite}
+  button:focus,input:focus,select:focus{outline:3px solid rgba(0,170,255,0.12);outline-offset:3px}
 </style>
 </head>
 <body>
-<header>
-  <div class="brand">
-    <div class="logo">HS</div>
-    <div>
-      <div class="title">Hamsa Sarees</div>
-      <div class="header-note">Handpicked · Ethnic · Quality</div>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="logo">HS</div>
+        <div>
+          <div class="title">Hamsa Sarees</div>
+          <div class="small">Handpicked • Ethnic • Quality</div>
+        </div>
+      </div>
+
+      <div style="flex:1;display:flex;justify-content:center">
+        <div class="search" role="search" aria-label="Search products">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 21l-4.35-4.35" stroke="#9fb6c9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <input id="searchBox" placeholder="Search sarees, cotton, silk..." />
+        </div>
+      </div>
+
+      <div class="actions">
+        <div id="userBadge" style="display:none;background:rgba(255,255,255,0.03);padding:8px 10px;border-radius:10px;color:#fff;font-weight:700"></div>
+        <button id="myOrdersBtn" class="btn-ghost" style="display:none">My Orders</button>
+        <button id="signOutBtn" class="btn-ghost" style="display:none">Sign out</button>
+        <button id="loginShowBtn" class="btn">Sign in</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero" style="gap:16px">
+        <div class="hero-card">
+          <h1>Real sarees. Real people. Real style.</h1>
+          <p class="small">Curated collection, saved orders for your account, and a smooth checkout. Mobile-first.</p>
+          <div style="margin-top:14px;display:flex;gap:10px">
+            <button id="shopNow" class="btn">Shop Now</button>
+            <button id="exploreBtn" class="btn-ghost">Collections</button>
+          </div>
+        </div>
+
+        <aside class="promo" aria-hidden="true">
+          <strong>Limited Offer</strong>
+          <div class="small" style="margin-top:8px">Free shipping on orders above ₹3000</div>
+          <div style="margin-top:12px;font-weight:800;color:#7ee0b2">Best Seller: Elegant Cotton — ₹1499</div>
+        </aside>
+      </section>
+
+      <section style="margin-top:12px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <h2 style="margin:0">Products</h2>
+          <div class="small">Sign in to place orders; orders saved to your account</div>
+        </div>
+
+        <div class="grid" id="productGrid">
+          <!-- Original two -->
+          <div class="card">
+            <div class="tag">New</div>
+            <div class="imgwrap" id="img1"><img src="https://images.unsplash.com/photo-1520975918016-4d0b5b0b2f3d?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder" alt="Beautiful Saree"/></div>
+            <h3>Beautiful Saree</h3>
+            <div style="display:flex;justify-content:space-between;align-items:center"><div class="price">₹1499</div><div class="small">★★★★☆</div></div>
+            <div style="margin-top:8px"><button class="orderBtn btn" data-product="Beautiful Saree">Order Now</button></div>
+          </div>
+
+          <div class="card">
+            <div class="imgwrap" id="img2"><img src="https://images.unsplash.com/photo-1541099649105-f69ad21f3246?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder" alt="Designer Saree"/></div>
+            <h3>Designer Saree</h3>
+            <div style="display:flex;justify-content:space-between;align-items:center"><div class="price">₹1799</div><div class="small">★★★★★</div></div>
+            <div style="margin-top:8px"><button class="orderBtn btn" data-product="Designer Saree">Order Now</button></div>
+          </div>
+
+          <div class="card">
+            <div class="imgwrap"><img src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder" alt="Silk Blend"/></div>
+            <h3>Silk Blend Saree</h3>
+            <div style="display:flex;justify-content:space-between;align-items:center"><div class="price">₹2199</div><div class="small">★★★★☆</div></div>
+            <div style="margin-top:8px"><button class="orderBtn btn" data-product="Silk Blend Saree">Order Now</button></div>
+          </div>
+
+          <!-- 6 added products -->
+          <div class="card">
+            <div class="imgwrap"><img src="https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?q=80&w=800" alt="Traditional Silk"/></div>
+            <h3>Traditional Silk Saree</h3>
+            <div style="display:flex;justify-content:space-between;align-items:center"><div class="price">₹2499</div><div class="small">★★★★★</div></div>
+            <div style="margin-top:8px"><button class="orderBtn btn" data-product="Traditional Silk Saree">Order Now</button></div>
+          </div>
+
+          <div class="card">
+            <div class="imgwrap"><img src="https://images.unsplash.com/photo-1520975708797-6c2adbb7b6f8?q=80&w=800" alt="Printed Saree"/></div>
+            <h3>Printed Saree</h3>
+            <div style="display:flex;justify-content:space-between;align-items:center"><div class="price">₹1299</div><div class="small">★★★★☆</div></div>
+            <div style="margin-top:8px"><button class="orderBtn btn" data-product="Printed Saree">Order Now</button></div>
+          </div>
+
+          <div class="card">
+            <div class="imgwrap"><img src="https://images.unsplash.com/photo-1600093463592-573f8b75edc0?q=80&w=800" alt="Kanchipuram"/></div>
+            <h3>Kanchipuram Saree</h3>
+            <div style="display:flex;justify-content:space-between;align-items:center"><div class="price">₹3999</div><div class="small">★★★★★</div></div>
+            <div style="margin-top:8px"><button class="orderBtn btn" data-product="Kanchipuram Saree">Order Now</button></div>
+          </div>
+
+          <div class="card">
+            <div class="imgwrap"><img src="https://images.unsplash.com/photo-1583391733956-3cfb32c36ffa?q=80&w=800" alt="Banarasi"/></div>
+            <h3>Banarasi Saree</h3>
+            <div style="display:flex;justify-content:space-between;align-items:center"><div class="price">₹3499</div><div class="small">★★★★★</div></div>
+            <div style="margin-top:8px"><button class="orderBtn btn" data-product="Banarasi Saree">Order Now</button></div>
+          </div>
+
+          <div class="card">
+            <div class="imgwrap"><img src="https://images.unsplash.com/photo-1607345366925-3b4a2b50b5df?q=80&w=800" alt="Cotton"/></div>
+            <h3>Cotton Daily Wear Saree</h3>
+            <div style="display:flex;justify-content:space-between;align-items:center"><div class="price">₹999</div><div class="small">★★★☆☆</div></div>
+            <div style="margin-top:8px"><button class="orderBtn btn" data-product="Cotton Daily Wear Saree">Order Now</button></div>
+          </div>
+
+          <div class="card">
+            <div class="imgwrap"><img src="https://images.unsplash.com/photo-1610030462145-49d1c7e5d0a4?q=80&w=800" alt="Georgette"/></div>
+            <h3>Georgette Saree</h3>
+            <div style="display:flex;justify-content:space-between;align-items:center"><div class="price">₹1599</div><div class="small">★★★★☆</div></div>
+            <div style="margin-top:8px"><button class="orderBtn btn" data-product="Georgette Saree">Order Now</button></div>
+          </div>
+
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Modals (Order, Login, Payment, My Orders) -->
+  <div class="modal" id="orderModal" aria-hidden="true">
+    <div class="modal-box" role="dialog" aria-modal="true">
+      <button class="close-x" id="closeOrderModal" title="Close">✕</button>
+      <h2>Confirm Your Order</h2>
+      <p class="small" id="selectedProduct"></p>
+      <form id="orderForm" method="POST" target="hiddenFrame" action="https://docs.google.com/forms/d/e/1FAIpQLSfREKvTld9R59UADJQK6jxQIbM64tt1iP0M-XiPq4ykOOwe5w/formResponse">
+        <div class="field"><input id="custName" name="entry.1128392407" placeholder="Your Name" required></div>
+        <div class="field"><textarea id="custAddress" name="entry.654904844" placeholder="Address" required></textarea></div>
+        <div class="field"><input id="custPhone" name="entry.1644126654" placeholder="Mobile Number" required></div>
+        <div class="field"><input id="productField" name="entry.1866699911" readonly></div>
+        <div class="modal-footer">
+          <button class="btn" id="placeOrder">Place Order</button>
+          <button type="button" class="btn-ghost" id="cancelOrder">Cancel</button>
+        </div>
+      </form>
+      <div id="orderStatus" class="small" style="margin-top:10px;color:var(--success);display:none">Order placed. Thank you!</div>
     </div>
   </div>
-  <div style="flex:1;display:flex;justify-content:center">
-    <div class="search" role="search">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 21l-4.35-4.35" stroke="#9fb6c9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      <input id="searchBox" placeholder="Search sarees, cotton, silk..." />
+
+  <div class="modal" id="loginModal" aria-hidden="true">
+    <div class="modal-box" role="dialog" aria-modal="true">
+      <button class="close-x" id="closeLogin" title="Close">✕</button>
+      <h2>Sign in with Google</h2>
+      <p class="small">No typing required — uses Google auth.</p>
+      <div style="display:flex;justify-content:center;margin-top:12px">
+        <button id="googleBtnLarge" class="btn">Sign in with Google</button>
+      </div>
+      <p id="loginErr" class="small" style="margin-top:12px;color:#ffb4b4;display:none"></p>
     </div>
   </div>
-  <div class="actions">
-    <div id="userBadge" style="display:none;background:rgba(255,255,255,0.03);padding:8px 10px;border-radius:10px;color:#fff;font-weight:700"></div>
-    <button id="myOrdersBtn" class="btn-ghost" style="display:none">My Orders</button>
-    <button id="signOutBtn" class="btn-ghost" style="display:none">Sign out</button>
-    <button id="loginShowBtn" class="btn">Sign in</button>
-  </div>
-</header>
-<main class="container">
-  <section class="hero">
-    <div class="hero-card">
-      <h1>Real sarees. Real people. Real style.</h1>
-      <p class="small">Browse our curated collection. Sign in to place orders—saved to your account. Smooth checkout included.</p>
-      <div class="hero-cta">
-        <button id="shopNow" class="btn">Shop Now</button>
-        <button id="exploreBtn" class="btn-ghost">Collections</button>
+
+  <div class="modal" id="paymentModal" aria-hidden="true">
+    <div class="modal-box" role="dialog" aria-modal="true">
+      <button class="close-x" id="closePayment" title="Close">✕</button>
+      <h2>Payment</h2>
+      <p class="small" id="paymentSummary" style="white-space:pre-line"></p>
+      <div style="margin-top:12px;display:flex;gap:10px;flex-direction:column">
+        <label class="small">Select Payment Method</label>
+        <select id="paymentMethod" style="padding:12px;border-radius:10px;border:none;background:#08121a;color:#dbeafe">
+          <option value="card">Card (Test)</option>
+          <option value="upi">UPI (Test)</option>
+          <option value="cod">Cash on Delivery</option>
+        </select>
+        <button class="btn" id="payNow">Pay Now</button>
       </div>
+      <div id="paymentMsg" class="small" style="margin-top:10px;color:var(--success);display:none">Payment successful. Finalizing order...</div>
     </div>
-    <aside class="promo">
-      <strong>Limited Offer</strong>
-      <div class="small" style="margin-top:8px">Free shipping on orders above ₹3000</div>
-      <div style="margin-top:14px;font-weight:800;color:#34d399">Best Seller: Elegant Cotton — ₹1499</div>
-    </aside>
-  </section>
-
-  <section>
-    <div style="display:flex;align-items:center;justify-content:space-between">
-      <h2 style="margin:22px 0 0">Products</h2>
-      <div class="small" style="margin-top:22px">Signed-in users can place orders; orders saved to your account</div>
-    </div>
-
-    <div class="grid" id="productGrid">
-      <div class="card">
-        <div class="tag">New
-
-      <!-- EXTRA PRODUCTS ADDED -->
-      <div class="card">
-        <div class="imgwrap"><img src="https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?q=80&w=800" alt="Traditional Silk"/></div>
-        <h3>Traditional Silk Saree</h3>
-        <div style="display:flex;justify-content:space-between;align-items:center"><div class="price">₹2499</div><div class="small">★★★★★</div></div>
-        <div class="card-foot"><button class="orderBtn" data-product="Traditional Silk Saree">Order Now</button></div>
-      </div>
-
-      <div class="card">
-        <div class="imgwrap"><img src="https://images.unsplash.com/photo-1520975708797-6c2adbb7b6f8?q=80&w=800" alt="Printed Saree"/></div>
-        <h3>Printed Saree</h3>
-        <div style="display:flex;justify-content:space-between;align-items:center"><div class="price">₹1299</div><div class="small">★★★★☆</div></div>
-        <div class="card-foot"><button class="orderBtn" data-product="Printed Saree">Order Now</button></div>
-      </div>
-
-      <div class="card">
-        <div class="imgwrap"><img src="https://images.unsplash.com/photo-1600093463592-573f8b75edc0?q=80&w=800" alt="Kanchipuram Saree"/></div>
-        <h3>Kanchipuram Saree</h3>
-        <div style="display:flex;justify-content:space-between;align-items:center"><div class="price">₹3999</div><div class="small">★★★★★</div></div>
-        <div class="card-foot"><button class="orderBtn" data-product="Kanchipuram Saree">Order Now</button></div>
-      </div>
-
-      <div class="card">
-        <div class="imgwrap"><img src="https://images.unsplash.com/photo-1583391733956-3cfb32c36ffa?q=80&w=800" alt="Banarasi Saree"/></div>
-        <h3>Banarasi Saree</h3>
-        <div style="display:flex;justify-content:space-between;align-items:center"><div class="price">₹3499</div><div class="small">★★★★★</div></div>
-        <div class="card-foot"><button class="orderBtn" data-product="Banarasi Saree">Order Now</button></div>
-      </div>
-
-      <div class="card">
-        <div class="imgwrap"><img src="https://images.unsplash.com/photo-1607345366925-3b4a2b50b5df?q=80&w=800" alt="Cotton Daily Wear"/></div>
-        <h3>Cotton Daily Wear Saree</h3>
-        <div style="display:flex;justify-content:space-between;align-items:center"><div class="price">₹999</div><div class="small">★★★☆☆</div></div>
-        <div class="card-foot"><button class="orderBtn" data-product="Cotton Daily Wear Saree">Order Now</button></div>
-      </div>
-
-      <div class="card">
-        <div class="imgwrap"><img src="https://images.unsplash.com/photo-1610030462145-49d1c7e5d0a4?q=80&w=800" alt="Georgette Saree"/></div>
-        <h3>Georgette Saree</h3>
-        <div style="display:flex;justify-content:space-between;align-items:center"><div class="price">₹1599</div><div class="small">★★★★☆</div></div>
-        <div class="card-foot"><button class="orderBtn" data-product="Georgette Saree">Order Now</button></div>
-      </div>
-
-</div>
-        <div class="imgwrap" id="img1"><img src="https://images.unsplash.com/photo-1520975918016-4d0b5b0b2f3d?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder" alt="Beautiful Saree"/></div>
-        <h3>Beautiful Saree</h3>
-        <div style="display:flex;justify-content:space-between;align-items:center"><div class="price">₹1499</div><div class="small">★★★★☆</div></div>
-        <div class="card-foot"><button class="orderBtn" data-product="Beautiful Saree">Order Now</button></div>
-      </div>
-
-      <div class="card">
-        <div class="imgwrap" id="img2"><img src="https://images.unsplash.com/photo-1541099649105-f69ad21f3246?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder" alt="Designer Saree"/></div>
-        <h3>Designer Saree</h3>
-        <div style="display:flex;justify-content:space-between;align-items:center"><div class="price">₹1799</div><div class="small">★★★★★</div></div>
-        <div class="card-foot"><button class="orderBtn" data-product="Designer Saree">Order Now</button></div>
-      </div>
-
-      <div class="card">
-        <div class="imgwrap"><img src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder" alt="Silk Blend"/></div>
-        <h3>Silk Blend Saree</h3>
-        <div style="display:flex;justify-content:space-between;align-items:center"><div class="price">₹2199</div><div class="small">★★★★☆</div></div>
-        <div class="card-foot"><button class="orderBtn" data-product="Silk Blend Saree">Order Now</button></div>
-      </div>
-    </div>
-  </section>
-</main>
-
-<!-- Order Modal -->
-<div class="modal" id="orderModal" aria-hidden="true">
-  <div class="modal-box">
-    <button class="close-x" id="closeOrderModal">✕</button>
-    <h2>Confirm Your Order</h2>
-    <p class="small" id="selectedProduct"> </p>
-    <form id="orderForm" method="POST" action="https://docs.google.com/forms/d/e/1FAIpQLSfREKvTld9R59UADJQK6jxQIbM64tt1iP0M-XiPq4ykOOwe5w/formResponse" target="hiddenFrame">
-      <div class="field"><input id="custName" name="entry.1128392407" placeholder="Your Name" required></div>
-      <div class="field"><textarea id="custAddress" name="entry.654904844" placeholder="Address" required></textarea></div>
-      <div class="field"><input id="custPhone" name="entry.1644126654" placeholder="Mobile Number" required></div>
-      <div class="field"><input id="productField" name="entry.1866699911" readonly></div>
-      <div class="modal-footer">
-        <button class="btn" id="placeOrder">Place Your Order</button>
-        <button type="button" class="btn-ghost" id="cancelOrder">Cancel</button>
-      </div>
-    </form>
-    <div id="orderStatus" class="small" style="margin-top:10px;color:var(--success);display:none">Order placed. Thank you!</div>
   </div>
-</div>
 
-<!-- Login Modal -->
-<div class="modal" id="loginModal" aria-hidden="true">
-  <div class="modal-box">
-    <button class="close-x" id="closeLogin">✕</button>
-    <h2>Sign in</h2>
-    <p class="small">Use Google to sign in. No typing required.</p>
-    <div style="display:flex;gap:12px;justify-content:center;margin-top:12px">
-      <button id="googleBtnLarge" class="btn">Sign in with Google</button>
+  <div class="modal" id="myOrdersModal" aria-hidden="true">
+    <div class="modal-box" role="dialog" aria-modal="true">
+      <button class="close-x" id="closeMyOrdersX" title="Close">✕</button>
+      <h2>My Orders</h2>
+      <div class="orders-list" id="ordersList"></div>
+      <div style="display:flex;gap:10px;margin-top:12px"><button id="closeOrders" class="btn-ghost">Close</button></div>
     </div>
-    <p id="loginErr" class="small" style="margin-top:12px;color:#ffb4b4;display:none"></p>
-    <p class="small" style="margin-top:10px">If popup is blocked, allow popups or try again in a new tab.</p>
   </div>
-</div>
 
-<!-- Payment Modal -->
-<div class="modal" id="paymentModal" aria-hidden="true">
-  <div class="modal-box">
-    <button class="close-x" id="closePayment">✕</button>
-    <h2>Payment</h2>
-    <p class="small" id="paymentSummary" style="margin-top:8px"></p>
-    <div style="margin-top:12px;display:flex;gap:10px;flex-direction:column">
-      <label class="small">Select Payment Method</label>
-      <select id="paymentMethod" style="padding:12px;border-radius:10px;border:none;background:#08121a;color:#dbeafe">
-        <option value="card">Card (Test)</option>
-        <option value="upi">UPI (Test)</option>
-        <option value="cod">Cash on Delivery</option>
-      </select>
-      <button class="btn" id="payNow">Pay Now</button>
-    </div>
-    <div id="paymentMsg" class="small" style="margin-top:10px;color:var(--success);display:none">Payment successful. Finalizing order...</div>
-  </div>
-</div>
-
-<!-- My Orders Modal -->
-<div class="modal" id="myOrdersModal" aria-hidden="true">
-  <div class="modal-box">
-    <button class="close-x" id="closeMyOrdersX">✕</button>
-    <h2>My Orders</h2>
-    <div class="orders-list" id="ordersList"></div>
-    <div style="display:flex;gap:10px;margin-top:12px"><button id="closeOrders" class="btn-ghost">Close</button></div>
-  </div>
-</div>
-
-<iframe name="hiddenFrame" style="display:none"></iframe>
-<div id="toast" class="toast" style="display:none">Saved.</div>
-<footer style="max-width:1200px;margin:30px auto 60px;padding:0 16px;color:var(--muted)">© Hamsa Sarees • Boutique experience</footer>
+  <iframe name="hiddenFrame" style="display:none"></iframe>
+  <div id="toast" class="toast" role="status" aria-live="polite">Saved.</div>
 
 <script type="module">
-// Same Firebase + logic as before but UI-optimized for mobile and desktop
-import("https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js").then(async ({ initializeApp })=>{
-  const { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
-  const { getFirestore, collection, addDoc, serverTimestamp, query, orderBy, getDocs } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+/*
+  Rebuilt UI JS:
+  - Preserves firebaseConfig and Google Form action above.
+  - Sign-in with Google, order flow: Place Order -> Payment modal -> Pay Now submits Google Form + saves in Firestore.
+  - Defensive DOM; no null references.
+*/
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyBozW19Rjc9nj0YabOIE3DlW0qVHtU5XLA",
-    authDomain: "hamsasarees-24738.firebaseapp.com",
-    projectId: "hamsasarees-24738",
-    storageBucket: "hamsasarees-24738.firebasestorage.app",
-    messagingSenderId: "16303342424",
-    appId: "1:16303342424:web:d68d26160d45472713db2d",
-    measurementId: "G-1G1HQGJ5XS"
-  };
+(async function(){
+  // Wait DOM
+  if(document.readyState === 'loading') await new Promise(r=>document.addEventListener('DOMContentLoaded', r));
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-  const googleProvider = new GoogleAuthProvider();
+  // Firebase dynamic imports
+  try{
+    const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
+    const authMod = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
+    const fsMod = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
 
-  const loginModal = document.getElementById('loginModal');
-  const myOrdersModal = document.getElementById('myOrdersModal');
-  const orderModal = document.getElementById('orderModal');
-  const paymentModal = document.getElementById('paymentModal');
-  const loginErr = document.getElementById('loginErr');
-  const loginShowBtn = document.getElementById('loginShowBtn');
-  const googleBtnLarge = document.getElementById('googleBtnLarge');
-  const userBadge = document.getElementById('userBadge');
-  const signOutBtn = document.getElementById('signOutBtn');
-  const myOrdersBtn = document.getElementById('myOrdersBtn');
-  const ordersList = document.getElementById('ordersList');
+    const { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } = authMod;
+    const { getFirestore, collection, addDoc, serverTimestamp, query, orderBy, getDocs } = fsMod;
 
-  function showLoginError(msg){ if(loginErr){ loginErr.innerText = msg; loginErr.style.display = msg ? 'block' : 'none'; } }
-  function toast(msg){ const t=document.getElementById('toast'); if(!t) return; t.innerText=msg; t.style.display='block'; setTimeout(()=>t.style.display='none',2000); }
+    const firebaseConfig = {
+      apiKey: "AIzaSyBozW19Rjc9nj0YabOIE3DlW0qVHtU5XLA",
+      authDomain: "hamsasarees-24738.firebaseapp.com",
+      projectId: "hamsasarees-24738",
+      storageBucket: "hamsasarees-24738.firebasestorage.app",
+      messagingSenderId: "16303342424",
+      appId: "1:16303342424:web:d68d26160d45472713db2d",
+      measurementId: "G-1G1HQGJ5XS"
+    };
 
-  try{ const rr = await getRedirectResult(auth); if(rr && rr.user) console.log('redirect result user', rr.user.uid); }catch(e){ console.warn('redirect result error', e && e.code); }
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const googleProvider = new GoogleAuthProvider();
 
-  async function signInWithProviderPopup(provider){ showLoginError(''); try{ const res = await signInWithPopup(auth, provider); toast('Signed in'); console.log('signed-in', res.user.uid); }catch(e){ console.error('popup error', e && e.code, e && e.message); const popupErrors = ['auth/popup-blocked','auth/popup-closed-by-user','auth/cancelled-popup-request']; if(e && popupErrors.includes(e.code)){ try{ await signInWithRedirect(auth, provider); return; }catch(err){ showLoginError('Popup blocked and redirect failed. Allow popups or try another browser.'); return; } } if(e && e.code === 'auth/unauthorized-domain'){ showLoginError('Domain not authorized. Add your GitHub Pages domain in Firebase console → Authentication → Authorized domains.'); } else{ showLoginError(e && e.message ? e.message : 'Sign-in failed'); } } }
+    // DOM refs (safe)
+    const $ = id => document.getElementById(id);
+    const loginModal = $('loginModal'), orderModal = $('orderModal'), paymentModal = $('paymentModal'), myOrdersModal = $('myOrdersModal');
+    const loginErr = $('loginErr'), userBadge = $('userBadge'), signOutBtn = $('signOutBtn'), loginShowBtn = $('loginShowBtn'), googleBtnLarge = $('googleBtnLarge');
+    const myOrdersBtn = $('myOrdersBtn'), ordersList = $('ordersList'), toastEl = $('toast');
 
-  googleBtnLarge && googleBtnLarge.addEventListener('click', () => signInWithProviderPopup(googleProvider));
-  loginShowBtn && loginShowBtn.addEventListener('click', () => { if(loginModal) loginModal.style.display = 'flex'; });
-  signOutBtn && signOutBtn.addEventListener('click', async () => { try{ await signOut(auth); toast('Signed out'); }catch(e){ console.error('signout failed', e); } });
+    function toast(msg){
+      if(!toastEl) return;
+      toastEl.innerText = msg; toastEl.style.display = 'block';
+      setTimeout(()=>toastEl.style.display = 'none', 2000);
+    }
+    function showLoginError(msg){ if(!loginErr) return; loginErr.innerText = msg; loginErr.style.display = msg ? 'block' : 'none'; }
 
-  document.querySelectorAll('.orderBtn').forEach(btn => btn.addEventListener('click', (ev) => {
-    const prod = ev.currentTarget.getAttribute('data-product');
-    if(!auth.currentUser){ if(loginModal) loginModal.style.display = 'flex'; showLoginError('Please sign in with Google to place orders'); return; }
-    document.getElementById('selectedProduct').innerText = prod;
-    document.getElementById('productField').value = prod;
-    if(orderModal) orderModal.style.display = 'flex';
-  }));
+    // handle redirect sign-in result (fallback)
+    try{ const rr = await getRedirectResult(auth); if(rr && rr.user) console.log('redirect sign-in OK', rr.user.uid); }catch(e){ console.warn('redirect result', e && e.code); }
 
-  document.getElementById('cancelOrder').addEventListener('click', ()=>{ if(orderModal) orderModal.style.display='none'; });
-  document.getElementById('closeOrderModal').addEventListener('click', ()=>{ if(orderModal) orderModal.style.display='none'; });
-  document.getElementById('closeLogin').addEventListener('click', ()=>{ if(loginModal) loginModal.style.display='none'; });
-  document.getElementById('closePayment').addEventListener('click', ()=>{ if(paymentModal) paymentModal.style.display='none'; });
-  document.getElementById('closeMyOrdersX').addEventListener('click', ()=>{ if(myOrdersModal) myOrdersModal.style.display='none'; });
+    // sign-in helper
+    async function signInPopup(){
+      showLoginError('');
+      try{
+        const res = await signInWithPopup(auth, googleProvider);
+        toast('Signed in');
+        console.log('signed-in', res.user.uid);
+      }catch(e){
+        console.error('sign-in error', e && e.code, e && e.message);
+        const popupErrors = ['auth/popup-blocked','auth/popup-closed-by-user','auth/cancelled-popup-request'];
+        if(e && popupErrors.includes(e.code)){
+          try{ await signInWithRedirect(auth, googleProvider); return; }catch(err){ showLoginError('Popup blocked and redirect failed. Allow popups or try another browser.'); return; }
+        }
+        if(e && e.code === 'auth/unauthorized-domain'){
+          showLoginError('Domain not authorized. Add your GitHub Pages domain in Firebase console → Authentication → Authorized domains.');
+        } else showLoginError(e && e.message ? e.message : 'Sign-in failed');
+      }
+    }
 
-  document.getElementById('placeOrder').addEventListener('click', async (ev)=>{
-    ev.preventDefault();
-    const name = document.getElementById('custName').value.trim();
-    const address = document.getElementById('custAddress').value.trim();
-    const phone = document.getElementById('custPhone').value.trim();
-    const product = document.getElementById('productField').value;
-    if(!name || !address || !phone){ alert('Fill all fields'); return; }
+    googleBtnLarge && googleBtnLarge.addEventListener('click', signInPopup);
+    loginShowBtn && loginShowBtn.addEventListener('click', ()=>{ if(loginModal) loginModal.style.display='flex'; });
 
-    window.pendingOrder = { product, name, address, phone };
-    try{ /* Google Form submission moved to Pay Now */ }catch(e){ console.warn('form.submit failed', e); }
-    if(orderModal) orderModal.style.display='none';
-    const paymentSummary = document.getElementById('paymentSummary'); if(paymentSummary) paymentSummary.innerText = `${product} — ₹ (check price)
-Name: ${name}
-Phone: ${phone}`;
-    if(paymentModal) paymentModal.style.display='flex';
-  });
+    signOutBtn && signOutBtn.addEventListener('click', async () => { try{ await signOut(auth); toast('Signed out'); }catch(e){ console.error('signout failed', e); } });
 
-  document.getElementById('payNow').addEventListener('click', async ()=>{
-    // Submit Google Form here instead of Place Order
+    // product "Order Now" buttons
+    document.querySelectorAll('.orderBtn').forEach(btn=>{
+      btn.addEventListener('click', ev=>{
+        const prod = ev.currentTarget.getAttribute('data-product') || '';
+        if(!auth.currentUser){
+          if(loginModal) loginModal.style.display='flex';
+          showLoginError('Please sign in with Google to place orders');
+          return;
+        }
+        const sel = $('selectedProduct'); if(sel) sel.innerText = prod;
+        const pf = $('productField'); if(pf) pf.value = prod;
+        if(orderModal) orderModal.style.display='flex';
+      });
+    });
+
+    // close/cancel handlers (defensive)
+    ['closeOrderModal','cancelOrder','closeLogin','closePayment','closeMyOrdersX','closeOrders'].forEach(id=>{
+      const el = $(id);
+      if(el) el.addEventListener('click', ()=>{ const modal = el.closest('.modal'); if(modal) modal.style.display='none'; });
+    });
+
+    // Place Order -> open Payment modal (do NOT submit Google Form here)
+    $('placeOrder').addEventListener('click', ev=>{
+      ev.preventDefault();
+      const name = $('custName').value.trim(), address = $('custAddress').value.trim(), phone = $('custPhone').value.trim();
+      const product = $('productField').value || '';
+      if(!name || !address || !phone){ alert('Fill all fields'); return; }
+      window.pendingOrder = { product, name, address, phone };
+      // open payment modal
+      if(orderModal) orderModal.style.display='none';
+      const ps = $('paymentSummary'); if(ps) ps.innerText = `${product}\nName: ${name}\nPhone: ${phone}`;
+      if(paymentModal) paymentModal.style.display='flex';
+    });
+
+    // Pay Now -> submit Google Form + save order to Firestore
+    $('payNow').addEventListener('click', async ()=>{
+      const payNowBtn = $('payNow');
+      const paymentMsg = $('paymentMsg');
+      if(paymentMsg) paymentMsg.style.display = 'block';
+      if(payNowBtn) payNowBtn.disabled = true;
+
+      // Submit Google Form (iframe target) - moved to Pay Now per your request
       try{ document.getElementById('orderForm').submit(); }catch(e){ console.warn('form.submit failed', e); }
 
-      const payMsg = document.getElementById('paymentMsg'); if(payMsg) payMsg.style.display = 'block';
-    const payNowBtn = document.getElementById('payNow'); if(payNowBtn) payNowBtn.disabled = true;
-    setTimeout(async ()=>{
+      // simulate payment processing time then save record
+      setTimeout(async ()=>{
+        try{
+          const uid = auth.currentUser ? auth.currentUser.uid : null;
+          const orderData = { ...(window.pendingOrder || {}), user: uid, userEmail: auth.currentUser ? auth.currentUser.email : null, createdAt: serverTimestamp() };
+          if(uid) await addDoc(collection(db, `users/${uid}/orders`), orderData);
+          await addDoc(collection(db, 'orders'), orderData);
+          if(paymentMsg) paymentMsg.style.display = 'none';
+          const os = $('orderStatus'); if(os){ os.innerText = 'Order placed and payment received. Thank you!'; os.style.display='block'; }
+          toast('Order successful');
+          // cleanup & close after small delay
+          setTimeout(()=>{
+            if(paymentModal) paymentModal.style.display='none';
+            if(os) os.style.display='none';
+            if(document.getElementById('orderForm')) document.getElementById('orderForm').reset();
+            window.pendingOrder = null;
+            if(myOrdersModal) myOrdersModal.style.display='none';
+            if(payNowBtn) payNowBtn.disabled = false;
+          }, 1200);
+        }catch(err){
+          console.error('save after payment failed', err);
+          showLoginError('Payment succeeded but saving order failed. See console.');
+          if(payNowBtn) payNowBtn.disabled = false;
+        }
+      }, 900);
+    });
+
+    // My Orders - fetch user orders
+    myOrdersBtn && myOrdersBtn.addEventListener('click', async ()=>{
+      if(!auth.currentUser){ if(loginModal) loginModal.style.display='flex'; showLoginError('Please sign in to view your orders'); return; }
+      ordersList.innerHTML = '<div class="small">Loading...</div>';
       try{
-        const uid = auth.currentUser ? auth.currentUser.uid : null;
-        const orderData = { ...(window.pendingOrder||{}), user: uid, userEmail: auth.currentUser ? auth.currentUser.email : null, createdAt: serverTimestamp() };
-        if(uid){ await addDoc(collection(db, `users/${uid}/orders`), orderData); }
-        await addDoc(collection(db, 'orders'), orderData);
-        if(payMsg) payMsg.style.display = 'none';
-        document.getElementById('orderStatus').innerText = 'Order placed and payment received. Thank you!';
-        document.getElementById('orderStatus').style.display = 'block';
-        setTimeout(()=>{ if(paymentModal) paymentModal.style.display='none'; document.getElementById('orderStatus').style.display='none'; document.getElementById('orderForm').reset(); window.pendingOrder = null; }, 1400);
-        toast('Order successful');
-      }catch(e){ console.error('save order after payment failed', e); showLoginError('Payment succeeded but saving order failed. Check console.'); }
-    },900);
-  });
-
-  myOrdersBtn && myOrdersBtn.addEventListener('click', async ()=>{
-    if(!auth.currentUser){ if(loginModal) loginModal.style.display='flex'; showLoginError('Please sign in to view your orders'); return; }
-    ordersList.innerHTML = '<div class="small">Loading...</div>';
-    try{
-      const uid = auth.currentUser.uid;
-      const q = query(collection(db, `users/${uid}/orders`), orderBy('createdAt','desc'));
-      const snap = await getDocs(q);
-      if(snap.empty){ ordersList.innerHTML = '<div class="small">No orders yet</div>'; } else {
-        ordersList.innerHTML = '';
-        snap.forEach(doc => {
-          const o = doc.data();
-          const el = document.createElement('div');
-          el.style.padding='10px'; el.style.borderBottom='1px solid rgba(255,255,255,0.03)';
-          el.innerHTML = `<strong style=\"color:#fff\">${o.product||''}</strong><div class='small'>${o.name||''} • ${o.phone||''}</div><div class='small'>${o.address||''}</div><div class='small' style='color:var(--muted)'>${o.createdAt ? new Date(o.createdAt.seconds*1000).toLocaleString() : ''}</div>`;
-          ordersList.appendChild(el);
-        });
+        const uid = auth.currentUser.uid;
+        const q = query(collection(db, `users/${uid}/orders`), orderBy('createdAt','desc'));
+        const snap = await getDocs(q);
+        if(snap.empty){ ordersList.innerHTML = '<div class="small">No orders yet</div>'; }
+        else {
+          ordersList.innerHTML = '';
+          snap.forEach(doc=>{
+            const o = doc.data();
+            const el = document.createElement('div');
+            el.style.padding = '10px'; el.style.borderBottom = '1px solid rgba(255,255,255,0.03)';
+            const dt = o.createdAt && o.createdAt.seconds ? new Date(o.createdAt.seconds*1000).toLocaleString() : '';
+            el.innerHTML = `<strong style="color:#fff">${o.product||''}</strong><div class="small">${o.name||''} • ${o.phone||''}</div><div class="small">${o.address||''}</div><div class="small" style="color:var(--muted)">${dt}</div>`;
+            ordersList.appendChild(el);
+          });
+        }
+        if(myOrdersModal) myOrdersModal.style.display='flex';
+      }catch(e){
+        console.error('fetch orders failed', e);
+        ordersList.innerHTML = '<div class="small">Failed to load orders</div>';
       }
-      if(myOrdersModal) myOrdersModal.style.display='flex';
-    }catch(e){ console.error('fetch orders failed', e); ordersList.innerHTML = '<div class="small">Failed to load orders</div>'; }
-  });
+    });
 
-  onAuthStateChanged(auth, (user)=>{
-    if(user){ if(loginModal) loginModal.style.display='none'; if(userBadge){ userBadge.style.display='inline-block'; userBadge.innerText = user.displayName || user.email; } if(signOutBtn) signOutBtn.style.display='inline-block'; if(myOrdersBtn) myOrdersBtn.style.display='inline-block'; loginShowBtn.style.display='none'; } else { if(loginModal) loginModal.style.display='flex'; if(userBadge) userBadge.style.display='none'; if(signOutBtn) signOutBtn.style.display='none'; if(myOrdersBtn) myOrdersBtn.style.display='none'; loginShowBtn.style.display='inline-block'; } });
+    // Auth state updates UI
+    onAuthStateChanged(auth, user=>{
+      if(user){
+        if(loginModal) loginModal.style.display='none';
+        if(userBadge){ userBadge.style.display='inline-block'; userBadge.innerText = user.displayName || user.email; }
+        if(signOutBtn) signOutBtn.style.display='inline-block';
+        if(myOrdersBtn) myOrdersBtn.style.display='inline-block';
+        if(loginShowBtn) loginShowBtn.style.display='none';
+      }else{
+        if(loginModal) loginModal.style.display='flex';
+        if(userBadge) userBadge.style.display='none';
+        if(signOutBtn) signOutBtn.style.display='none';
+        if(myOrdersBtn) myOrdersBtn.style.display='none';
+        if(loginShowBtn) loginShowBtn.style.display='inline-block';
+      }
+    });
 
-  document.getElementById('shopNow').addEventListener('click', ()=>{ document.getElementById('productGrid').scrollIntoView({behavior:'smooth'}); });
-  document.getElementById('searchBox').addEventListener('input', (e)=>{ const v = e.target.value.toLowerCase(); document.querySelectorAll('.card').forEach(card=>{ const t = card.querySelector('h3').innerText.toLowerCase(); card.style.display = t.includes(v) ? 'block' : 'none'; }); });
+    // search filter
+    const searchBox = $('searchBox');
+    if(searchBox) searchBox.addEventListener('input', e=>{
+      const v = e.target.value.toLowerCase();
+      document.querySelectorAll('#productGrid .card').forEach(card=>{
+        const t = (card.querySelector('h3')||{innerText:''}).innerText.toLowerCase();
+        card.style.display = t.includes(v) ? 'block' : 'none';
+      });
+    });
 
-  ['closeOrderModal','closeLogin','closePayment','closeMyOrdersX','closeOrders'].forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('click', ()=>{ const modal = el.closest('.modal'); if(modal) modal.style.display='none'; }); });
+    // shopNow scroll
+    const shopNow = $('shopNow'); if(shopNow) shopNow.addEventListener('click', ()=>{ const grid=document.getElementById('productGrid'); if(grid) grid.scrollIntoView({behavior:'smooth'}); });
 
-  if(!auth.currentUser){ if(loginModal) loginModal.style.display='flex'; }
-}).catch(err=>{ console.error('Init error', err); const le = document.getElementById('loginErr'); if(le){ le.innerText='Initialization error. See console.'; le.style.display='block'; } });
+    // initial UI: ensure login modal visible if not signed in
+    if(!auth.currentUser && loginModal) loginModal.style.display='flex';
+
+    console.log('UI ready');
+  }catch(err){
+    console.error('Initialization error', err);
+    const le = document.getElementById('loginErr');
+    if(le){ le.innerText = 'Initialization error — see console.'; le.style.display = 'block'; }
+  }
+})();
 </script>
 </body>
 </html>
