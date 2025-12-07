@@ -232,7 +232,28 @@
 
     }catch(e){ console.warn('Firebase not available or failed to load. Continuing in fallback mode.', e); firebaseAvailable = false; if(googleBtnLarge) googleBtnLarge.addEventListener('click', ()=> showLoginError('Firebase auth not loaded. Deploy on HTTPS hosting for Google sign-in.')); if(loginShowBtn) loginShowBtn.addEventListener('click', ()=> openModal(loginModal)); }
 
-    document.addEventListener('click', (ev) => { const btn = ev.target.closest && ev.target.closest('.orderBtn'); if(!btn) return; const prod = btn.getAttribute('data-product') || ''; const isSignedIn = window._firebaseHelpers && window._firebaseHelpers.auth && window._firebaseHelpers.auth.currentUser; if(!isSignedIn){ openModal(loginModal); showLoginError('Please sign in with Google to place orders'); return; } const sel = $('selectedProduct'); if(sel) sel.innerText = prod; const pf = $('productField'); if(pf) pf.value = prod; openModal(orderModal); });
+    document.addEventListener('click', (ev) => {
+      const btn = ev.target.closest && ev.target.closest('.orderBtn');
+      if(!btn) return;
+      const prod = btn.getAttribute('data-product') || '';
+      const isSignedIn = window._firebaseHelpers && window._firebaseHelpers.auth && window._firebaseHelpers.auth.currentUser;
+      // Allow guest checkout: if signed in, great. If not, let user continue but show gentle warning and offer sign-in.
+      if(!isSignedIn){
+        // show login modal as an option but allow guest order
+        showLoginError('Not signed in — you can continue as guest or sign in for saved orders.');
+        // auto-clear message after a short time so it doesn't block UX
+        setTimeout(()=> showLoginError(''), 3500);
+        // proceed as guest: prefill product and open order modal
+        const sel = $('selectedProduct'); if(sel) sel.innerText = prod + ' (Guest)';
+        const pf = $('productField'); if(pf) pf.value = prod;
+        openModal(orderModal);
+        return;
+      }
+      // signed-in flow
+      const sel = $('selectedProduct'); if(sel) sel.innerText = prod;
+      const pf = $('productField'); if(pf) pf.value = prod;
+      openModal(orderModal);
+    });
 
     ['closeOrderModal','cancelOrder','closeLogin','closePayment','closeMyOrdersX','closeOrders'].forEach(id=>{ const el = $(id); if(el) el.addEventListener('click', ()=>{ const modal = el.closest('.modal'); if(modal) closeModal(modal); }); });
 
