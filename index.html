@@ -3,69 +3,98 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Hamsa Sarees — Professional Shop</title>
+<title>Hamsa Sarees — Boutique</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 <style>
-  :root{--accent:#e91e63;--muted:#6b7280;--bg:#f7f7fb;--card:#ffffff}
-  *{box-sizing:border-box}
-  body{font-family:Inter,system-ui,Arial,sans-serif;margin:0;background:var(--bg);color:#0f172a}
-  header{background:linear-gradient(90deg,#0b1220,#111827);color:#fff;padding:14px 24px;display:flex;align-items:center;justify-content:space-between}
-  .brand{font-weight:700;font-size:20px}
-  nav{display:flex;gap:12px;align-items:center}
-  .btn{cursor:pointer;border-radius:8px;padding:8px 12px;border:none;font-weight:600}
-  .btn-ghost{background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.08)}
-  .btn-primary{background:var(--accent);color:#fff}
-  .container{max-width:1100px;margin:28px auto;padding:0 18px}
-  .hero{display:flex;gap:24px;align-items:center}
-  .hero-left{flex:1}
-  .hero h1{margin:0;font-size:28px}
-  .small{color:var(--muted)}
-  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:22px}
-  .card{background:var(--card);border-radius:12px;padding:14px;box-shadow:0 6px 18px rgba(12,20,40,0.06);display:flex;flex-direction:column}
-  .imgwrap{height:220px;border-radius:10px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-weight:600}
-  .card h3{margin:12px 0 6px;font-size:18px}
-  .price{color:#059669;font-weight:700}
-  .card-foot{margin-top:auto}
-  .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(2,6,23,0.6);z-index:1000;padding:18px}
-  .modal-box{max-width:720px;width:100%;background:#fff;border-radius:12px;padding:18px}
-  .modal-box h2{margin:0 0 8px}
-  .field{display:flex;flex-direction:column;margin-bottom:10px}
-  .field input,.field textarea{padding:10px;border-radius:8px;border:1px solid #e6e9ef;font-size:15px}
-  .modal-footer{display:flex;gap:10px;margin-top:10px}
-  footer{max-width:1100px;margin:36px auto 80px;padding:0 18px;color:var(--muted);font-size:14px}
-  .orders-list{max-height:300px;overflow:auto;border:1px solid #eef2f6;padding:10px;border-radius:8px}
-  @media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}.hero{flex-direction:column;align-items:flex-start}}
-  @media(max-width:600px){.grid{grid-template-columns:1fr}.imgwrap{height:180px}}
+:root{
+  --bg:#0f1724;--card:#0b1220;--muted:#94a3b8;--accent:#e91e63;--glass:rgba(255,255,255,0.04);
+  --glass-2:rgba(255,255,255,0.03);--success:#10b981
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:linear-gradient(180deg,#071023 0%, #071a2a 60%);color:#e6eef8;}
+.container{max-width:1200px;margin:28px auto;padding:0 20px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 20px;background:transparent}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:46px;height:46px;border-radius:10px;background:linear-gradient(135deg,#ff7ab6,#ff6a9a);display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff}
+.title{font-weight:800;font-size:20px;color:#fff}
+.search{display:flex;align-items:center;background:var(--glass);padding:8px;border-radius:10px;gap:8px}
+.search input{background:transparent;border:none;color:#e6eef8;outline:none;width:240px}
+.actions{display:flex;gap:10px;align-items:center}
+.btn{cursor:pointer;border-radius:10px;padding:8px 12px;border:none;font-weight:700;background:linear-gradient(90deg,var(--accent),#ff5aa3);color:#fff;box-shadow:0 6px 18px rgba(233,30,99,0.18)}
+.btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#fff;padding:8px 10px;border-radius:10px}
+.header-note{font-size:13px;color:var(--muted)}
+.hero{display:flex;gap:24px;align-items:center;margin-top:10px}
+.hero-card{flex:1;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));padding:22px;border-radius:16px;backdrop-filter: blur(6px);box-shadow:0 10px 30px rgba(2,6,23,0.6)}
+.hero h1{margin:0;font-size:28px;color:#fff}
+.hero p{color:var(--muted);margin-top:8px}
+.hero-cta{display:flex;gap:12px;margin-top:18px}
+.promo{width:320px;padding:18px;border-radius:14px;background:linear-gradient(135deg,#071a2a,#0f2430);box-shadow:0 10px 40px rgba(2,6,23,0.6)}
+.promo strong{display:block;color:#fff}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:22px}
+.card{background:linear-gradient(180deg,#071728,#081622);padding:14px;border-radius:14px;transition:transform .25s, box-shadow .25s;position:relative;overflow:hidden}
+.card:hover{transform:translateY(-8px);box-shadow:0 20px 40px rgba(2,6,23,0.6)}
+.imgwrap{height:220px;border-radius:10px;background:linear-gradient(180deg,#071b28,#08212b);display:flex;align-items:center;justify-content:center;color:#8aa0bb;font-weight:700;position:relative;overflow:hidden}
+.imgwrap img{max-width:100%;height:100%;object-fit:cover}
+.card h3{margin:12px 0 6px;font-size:18px;color:#fff}
+.price{color:#34d399;font-weight:800}
+.card .meta{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.card .orderBtn{width:100%;margin-top:12px;padding:10px;border-radius:10px;background:linear-gradient(90deg,var(--accent),#ff5aa3);border:none;font-weight:800;cursor:pointer}
+.stars{color:#fbbf24}
+/* small interactive tag */
+.tag{position:absolute;top:12px;left:12px;background:#00000044;padding:6px 8px;border-radius:8px;font-size:13px}
+/* modal */
+.modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(2,6,23,0.6),rgba(2,6,23,0.8));z-index:1200;padding:20px}
+.modal-box{max-width:720px;width:100%;background:linear-gradient(180deg,#071522,#06121a);border-radius:12px;padding:18px;color:#e6eef8;position:relative;box-shadow:0 30px 80px rgba(2,6,23,0.6)}
+.modal-box h2{margin:0;font-size:20px}
+.field{display:flex;flex-direction:column;margin-top:12px}
+.field input,.field textarea,select{padding:12px;border-radius:10px;border:none;background:#08121a;color:#dbeafe}
+.small{color:var(--muted)}
+.modal-footer{display:flex;gap:10px;align-items:center;margin-top:12px}
+.close-x{position:absolute;top:12px;right:12px;background:transparent;border:none;color:#ff6b6b;font-weight:800;font-size:18px;cursor:pointer}
+.toast{position:fixed;right:24px;bottom:24px;background:#0b1220;padding:12px 16px;border-radius:12px;color:#d1fae5;border-left:4px solid var(--success);box-shadow:0 8px 30px rgba(2,6,23,0.6)}
+.orders-list{max-height:320px;overflow:auto;border-radius:10px;padding:10px;background:linear-gradient(180deg,#06131a,#071722)}
+/* responsive */
+@media(max-width:980px){.grid{grid-template-columns:repeat(2,1fr)}.promo{display:none}}
+@media(max-width:640px){.grid{grid-template-columns:1fr}.search input{width:120px}}
 </style>
 </head>
 <body>
-
 <header>
-  <div class="brand">Hamsa Sarees</div>
-  <nav>
-    <div id="userBadge" style="display:none;background:rgba(255,255,255,0.06);padding:8px 10px;border-radius:8px;color:#fff;font-weight:600"></div>
-    <button id="myOrdersBtn" class="btn btn-ghost" style="display:none">My Orders</button>
-    <button id="signOutBtn" class="btn btn-ghost" style="display:none">Sign out</button>
-    <button id="loginShowBtn" class="btn btn-primary">Sign in</button>
-  </nav>
+  <div class="brand">
+    <div class="logo">HS</div>
+    <div>
+      <div class="title">Hamsa Sarees</div>
+      <div class="header-note">Handpicked · Ethnic · Quality</div>
+    </div>
+  </div>
+  <div class="search" role="search">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 21l-4.35-4.35" stroke="#9fb6c9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <input id="searchBox" placeholder="Search sarees, cotton, silk..." />
+  </div>
+  <div class="actions">
+    <div id="userBadge" style="display:none;background:var(--glass);padding:8px 10px;border-radius:10px;color:#fff;font-weight:700"></div>
+    <button id="myOrdersBtn" class="btn-ghost" style="display:none">My Orders</button>
+    <button id="signOutBtn" class="btn-ghost" style="display:none">Sign out</button>
+    <button id="loginShowBtn" class="btn">Sign in</button>
+  </div>
 </header>
-
 <main class="container">
   <section class="hero">
-    <div class="hero-left">
-      <h1>Handpicked sarees. Fast delivery.</h1>
-      <p class="small">Quality fabrics, classic designs — sign in with Google or Apple to place orders. Your orders will be saved under your account.</p>
-      <div style="margin-top:16px"><button id="shopNow" class="btn btn-primary">Shop Now</button></div>
-    </div>
-    <div class="hero-right">
-      <div style="background:#fff;border-radius:12px;padding:12px;box-shadow:0 6px 18px rgba(12,20,40,0.04);width:260px">
-        <strong>Best Seller</strong>
-        <div style="margin-top:8px;color:var(--muted)">Elegant Cotton Saree</div>
-        <div style="margin-top:10px;font-weight:700;color:#059669">₹1499</div>
+    <div class="hero-card">
+      <h1>Real sarees. Real people. Real style.</h1>
+      <p class="small">Browse our curated collection. Sign in to place orders—saved to your account. Smooth checkout included.</p>
+      <div class="hero-cta">
+        <button id="shopNow" class="btn">Shop Now</button>
+        <button id="exploreBtn" class="btn-ghost">Collections</button>
       </div>
     </div>
+    <aside class="promo">
+      <strong>Limited Offer</strong>
+      <div class="small" style="margin-top:8px">Free shipping on orders above ₹3000</div>
+      <div style="margin-top:14px;font-weight:800;color:#34d399">Best Seller: Elegant Cotton — ₹1499</div>
+    </aside>
   </section>
 
   <section>
@@ -76,99 +105,105 @@
 
     <div class="grid" id="productGrid">
       <div class="card">
-        <div class="imgwrap" id="img1">Upload Image Here</div>
+        <div class="tag">New</div>
+        <div class="imgwrap" id="img1"><img src="https://images.unsplash.com/photo-1520975918016-4d0b5b0b2f3d?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder" alt="Beautiful Saree"/></div>
         <h3>Beautiful Saree</h3>
-        <div class="price">₹1499</div>
-        <div class="card-foot"><button class="btn btn-primary orderBtn" style="width:100%;margin-top:12px" data-product="Beautiful Saree">Order Now</button></div>
+        <div class="meta"><div class="price">₹1499</div><div class="stars">★★★★☆</div></div>
+        <div class="card-foot"><button class="orderBtn" data-product="Beautiful Saree">Order Now</button></div>
       </div>
 
       <div class="card">
-        <div class="imgwrap" id="img2">Upload Image Here</div>
+        <div class="imgwrap" id="img2"><img src="https://images.unsplash.com/photo-1541099649105-f69ad21f3246?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder" alt="Designer Saree"/></div>
         <h3>Designer Saree</h3>
-        <div class="price">₹1799</div>
-        <div class="card-foot"><button class="btn btn-primary orderBtn" style="width:100%;margin-top:12px" data-product="Designer Saree">Order Now</button></div>
+        <div class="meta"><div class="price">₹1799</div><div class="stars">★★★★★</div></div>
+        <div class="card-foot"><button class="orderBtn" data-product="Designer Saree">Order Now</button></div>
       </div>
 
       <div class="card">
-        <div class="imgwrap">New Arrival</div>
+        <div class="imgwrap"><img src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder" alt="Silk Blend"/></div>
         <h3>Silk Blend Saree</h3>
-        <div class="price">₹2199</div>
-        <div class="card-foot"><button class="btn btn-primary orderBtn" style="width:100%;margin-top:12px" data-product="Silk Blend Saree">Order Now</button></div>
+        <div class="meta"><div class="price">₹2199</div><div class="stars">★★★★☆</div></div>
+        <div class="card-foot"><button class="orderBtn" data-product="Silk Blend Saree">Order Now</button></div>
       </div>
-
     </div>
   </section>
 </main>
 
 <!-- Order Modal -->
 <div class="modal" id="orderModal">
-  <div class="modal-box" style="position:relative">
-    <h2>Confirm Your Order</h2><button id="closeOrderModal" class="btn btn-ghost" style="position:absolute;top:12px;right:12px">✕</button>
+  <div class="modal-box">
+    <button class="close-x" id="closeOrderModal">✕</button>
+    <h2>Confirm Your Order</h2>
     <p class="small" id="selectedProduct"> </p>
     <form id="orderForm" method="POST" action="https://docs.google.com/forms/d/e/1FAIpQLSfREKvTld9R59UADJQK6jxQIbM64tt1iP0M-XiPq4ykOOwe5w/formResponse" target="hiddenFrame">
       <div class="field"><input id="custName" name="entry.1128392407" placeholder="Your Name" required></div>
       <div class="field"><textarea id="custAddress" name="entry.654904844" placeholder="Address" required></textarea></div>
       <div class="field"><input id="custPhone" name="entry.1644126654" placeholder="Mobile Number" required></div>
       <div class="field"><input id="productField" name="entry.1866699911" readonly></div>
-      <div style="display:flex;gap:10px;align-items:center">
-        <button class="btn btn-primary" id="placeOrder">Place Order</button>
-        <button type="button" class="btn btn-ghost" id="cancelOrder">Cancel</button>
+      <div class="modal-footer">
+        <button class="btn" id="placeOrder">Place Your Order</button>
+        <button type="button" class="btn-ghost" id="cancelOrder">Cancel</button>
       </div>
     </form>
-    <div id="orderStatus" class="small" style="margin-top:10px;color:green;display:none">Order placed. Thank you!</div>
+    <div id="orderStatus" class="small" style="margin-top:10px;color:var(--success);display:none">Order placed. Thank you!</div>
   </div>
 </div>
 
 <!-- Login Modal -->
 <div class="modal" id="loginModal">
-  <div class="modal-box" style="position:relative">
-    <h2>Sign in</h2><button id="closeLogin" class="btn btn-ghost" style="position:absolute;top:12px;right:12px">✕</button>
-    <p class="small">Use Google or Apple to sign in. No typing required.</p>
-    <div style="display:flex;gap:10px;justify-content:center;margin-top:12px">
-      <button id="googleBtnLarge" class="btn btn-primary">Sign in with Google</button>
-      <button id="appleBtnLarge" class="btn" style="background:#111;color:#fff">Sign in with Apple</button>
+  <div class="modal-box">
+    <button class="close-x" id="closeLogin">✕</button>
+    <h2>Sign in</h2>
+    <p class="small">Use Google to sign in. No typing required.</p>
+    <div style="display:flex;gap:12px;justify-content:center;margin-top:12px">
+      <button id="googleBtnLarge" class="btn">Sign in with Google</button>
     </div>
-    <p id="loginErr" class="small" style="margin-top:12px;color:#b91c1c;display:none"></p>
+    <p id="loginErr" class="small" style="margin-top:12px;color:#ffb4b4;display:none"></p>
     <p class="small" style="margin-top:10px">If popup is blocked, allow popups or try again in a new tab.</p>
-  </div>
-</div>
-
-<!-- My Orders Modal -->
-<div class="modal" id="myOrdersModal">
-  <div class="modal-box" style="position:relative">
-    <h2>My Orders</h2><button id="closeMyOrdersX" class="btn btn-ghost" style="position:absolute;top:12px;right:12px">✕</button>
-    <div class="orders-list" id="ordersList"></div>
-    <div style="display:flex;gap:10px;margin-top:12px"><button id="closeOrders" class="btn btn-ghost">Close</button></div>
   </div>
 </div>
 
 <!-- Payment Modal -->
 <div class="modal" id="paymentModal">
-  <div class="modal-box" style="position:relative">
+  <div class="modal-box">
+    <button class="close-x" id="closePayment">✕</button>
     <h2>Payment</h2>
-    <button id="closePayment" class="btn btn-ghost" style="position:absolute;top:12px;right:12px">✕</button>
     <p class="small" id="paymentSummary" style="margin-top:8px"></p>
     <div style="margin-top:12px;display:flex;gap:10px;flex-direction:column">
       <label class="small">Select Payment Method</label>
-      <select id="paymentMethod" style="padding:10px;border-radius:8px;border:1px solid #e6e9ef">
+      <select id="paymentMethod" style="padding:12px;border-radius:10px;border:none;background:#08121a;color:#dbeafe">
         <option value="card">Card (Test)</option>
         <option value="upi">UPI (Test)</option>
         <option value="cod">Cash on Delivery</option>
       </select>
-      <button class="btn btn-primary" id="payNow">Pay Now</button>
+      <button class="btn" id="payNow">Pay Now</button>
     </div>
-    <div id="paymentMsg" class="small" style="margin-top:10px;color:green;display:none">Payment successful. Finalizing order...</div>
+    <div id="paymentMsg" class="small" style="margin-top:10px;color:var(--success);display:none">Payment successful. Finalizing order...</div>
   </div>
 </div>
 
-<iframe name="hiddenFrame" style="display:none;"></iframe> 
-<footer>© Hamsa Sarees • Built with care</footer>
+<!-- My Orders Modal -->
+<div class="modal" id="myOrdersModal">
+  <div class="modal-box">
+    <button class="close-x" id="closeMyOrdersX">✕</button>
+    <h2>My Orders</h2>
+    <div class="orders-list" id="ordersList"></div>
+    <div style="display:flex;gap:10px;margin-top:12px"><button id="closeOrders" class="btn-ghost">Close</button></div>
+  </div>
+</div>
+
+<iframe name="hiddenFrame" style="display:none"></iframe>
+
+<div id="toast" class="toast" style="display:none">Saved.</div>
+
+<footer style="max-width:1200px;margin:40px auto 80px;padding:0 20px;color:var(--muted)">© Hamsa Sarees • Boutique experience</footer>
 
 <script type="module">
 document.addEventListener('DOMContentLoaded', async () => {
+  // dynamic Firebase import and setup
   try{
     const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
-    const { getAuth, GoogleAuthProvider, OAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
+    const { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
     const { getFirestore, collection, addDoc, serverTimestamp, query, orderBy, getDocs } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
 
     const firebaseConfig = {
@@ -185,114 +220,87 @@ document.addEventListener('DOMContentLoaded', async () => {
     const auth = getAuth(app);
     const db = getFirestore(app);
     const googleProvider = new GoogleAuthProvider();
-    const appleProvider = new OAuthProvider('apple.com');
-    appleProvider.addScope('email');
 
-    // DOM
+    // Dom refs
     const loginModal = document.getElementById('loginModal');
     const myOrdersModal = document.getElementById('myOrdersModal');
     const orderModal = document.getElementById('orderModal');
+    const paymentModal = document.getElementById('paymentModal');
     const loginErr = document.getElementById('loginErr');
     const loginShowBtn = document.getElementById('loginShowBtn');
     const googleBtnLarge = document.getElementById('googleBtnLarge');
-    const appleBtnLarge = document.getElementById('appleBtnLarge');
     const userBadge = document.getElementById('userBadge');
     const signOutBtn = document.getElementById('signOutBtn');
     const myOrdersBtn = document.getElementById('myOrdersBtn');
     const ordersList = document.getElementById('ordersList');
 
     function showLoginError(msg){ if(loginErr){ loginErr.innerText = msg; loginErr.style.display = msg ? 'block' : 'none'; } }
+    function toast(msg){ const t=document.getElementById('toast'); if(!t) return; t.innerText=msg; t.style.display='block'; setTimeout(()=>t.style.display='none',2000); }
 
-    // handle redirect result
     try{ const rr = await getRedirectResult(auth); if(rr && rr.user) console.log('redirect result user', rr.user.uid); }catch(e){ console.warn('redirect result error', e && e.code); }
 
-    async function signInWithProviderPopup(provider){ showLoginError(''); try{ const res = await signInWithPopup(auth, provider); console.log('signed-in', res.user.uid); }catch(e){ console.error('popup error', e && e.code, e && e.message); const popupErrors = ['auth/popup-blocked','auth/popup-closed-by-user','auth/cancelled-popup-request']; if(e && popupErrors.includes(e.code)){ try{ await signInWithRedirect(auth, provider); return; }catch(err){ showLoginError('Popup blocked and redirect failed. Allow popups or try another browser.'); return; } } if(e && e.code === 'auth/unauthorized-domain'){ showLoginError('Domain not authorized. Add your GitHub Pages domain in Firebase console → Authentication → Authorized domains.'); } else{ showLoginError(e && e.message ? e.message : 'Sign-in failed'); } } }
+    async function signInWithProviderPopup(provider){ showLoginError(''); try{ const res = await signInWithPopup(auth, provider); toast('Signed in'); console.log('signed-in', res.user.uid); }catch(e){ console.error('popup error', e && e.code, e && e.message); const popupErrors = ['auth/popup-blocked','auth/popup-closed-by-user','auth/cancelled-popup-request']; if(e && popupErrors.includes(e.code)){ try{ await signInWithRedirect(auth, provider); return; }catch(err){ showLoginError('Popup blocked and redirect failed. Allow popups or try another browser.'); return; } } if(e && e.code === 'auth/unauthorized-domain'){ showLoginError('Domain not authorized. Add your GitHub Pages domain in Firebase console → Authentication → Authorized domains.'); } else{ showLoginError(e && e.message ? e.message : 'Sign-in failed'); } } }
 
     googleBtnLarge && googleBtnLarge.addEventListener('click', () => signInWithProviderPopup(googleProvider));
-    appleBtnLarge && appleBtnLarge.addEventListener('click', () => signInWithProviderPopup(appleProvider));
     loginShowBtn && loginShowBtn.addEventListener('click', () => { if(loginModal) loginModal.style.display = 'flex'; });
+    signOutBtn && signOutBtn.addEventListener('click', async () => { try{ await signOut(auth); toast('Signed out'); }catch(e){ console.error('signout failed', e); } });
 
-    signOutBtn && signOutBtn.addEventListener('click', async () => { try{ await signOut(auth); }catch(e){ console.error('signout failed', e); } });
-
-    // order button click
-    document.querySelectorAll('.orderBtn').forEach(btn => btn.addEventListener('click', (ev)=>{
+    // product order buttons
+    document.querySelectorAll('.orderBtn').forEach(btn => btn.addEventListener('click', (ev) => {
       const prod = ev.currentTarget.getAttribute('data-product');
-      if(!auth.currentUser){ if(loginModal) loginModal.style.display='flex'; showLoginError('Please sign in to place orders'); return; }
+      if(!auth.currentUser){ if(loginModal) loginModal.style.display = 'flex'; showLoginError('Please sign in with Google to place orders'); return; }
       document.getElementById('selectedProduct').innerText = prod;
       document.getElementById('productField').value = prod;
       if(orderModal) orderModal.style.display = 'flex';
     }));
 
     document.getElementById('cancelOrder').addEventListener('click', ()=>{ if(orderModal) orderModal.style.display='none'; });
+    document.getElementById('closeOrderModal').addEventListener('click', ()=>{ if(orderModal) orderModal.style.display='none'; });
+    document.getElementById('closeLogin').addEventListener('click', ()=>{ if(loginModal) loginModal.style.display='none'; });
+    document.getElementById('closePayment').addEventListener('click', ()=>{ if(paymentModal) paymentModal.style.display='none'; });
+    document.getElementById('closeMyOrdersX').addEventListener('click', ()=>{ if(myOrdersModal) myOrdersModal.style.display='none'; });
 
-    // close buttons for modals
-    const closeLogin = document.getElementById('closeLogin');
-    if(closeLogin) closeLogin.addEventListener('click', ()=>{ if(loginModal) loginModal.style.display='none'; });
-
-    const closeOrderModalBtn = document.getElementById('closeOrderModal');
-    if(closeOrderModalBtn) closeOrderModalBtn.addEventListener('click', ()=>{ if(orderModal) orderModal.style.display='none'; });
-
-    const closeMyOrdersX = document.getElementById('closeMyOrdersX');
-    if(closeMyOrdersX) closeMyOrdersX.addEventListener('click', ()=>{ if(myOrdersModal) myOrdersModal.style.display='none'; });
-
-    // place order: submit form and save under user's account
+    // Place order -> open payment modal with pendingOrder
     document.getElementById('placeOrder').addEventListener('click', async (ev)=>{
       ev.preventDefault();
-      // collect form values and store pending order
       const name = document.getElementById('custName').value.trim();
       const address = document.getElementById('custAddress').value.trim();
       const phone = document.getElementById('custPhone').value.trim();
       const product = document.getElementById('productField').value;
       if(!name || !address || !phone){ alert('Fill all fields'); return; }
 
-      // store pending order globally for payment step
       window.pendingOrder = { product, name, address, phone };
-
-      // submit the original Google Form (iframe)
       try{ document.getElementById('orderForm').submit(); }catch(e){ console.warn('form.submit failed', e); }
-
-      // hide order modal and open payment modal with summary
-      if(orderModal) orderModal.style.display = 'none';
-      const paymentModal = document.getElementById('paymentModal');
-      const summary = document.getElementById('paymentSummary');
-      if(summary) summary.innerText = `${product} — ₹ (check price)
+      if(orderModal) orderModal.style.display='none';
+      const paymentSummary = document.getElementById('paymentSummary'); if(paymentSummary) paymentSummary.innerText = `${product} — ₹ (check price)
 Name: ${name}
 Phone: ${phone}`;
-      if(paymentModal) paymentModal.style.display = 'flex';
-
+      if(paymentModal) paymentModal.style.display='flex';
     });
 
-    // Pay Now handler: simulate payment, then save order to Firestore and show confirmation
+    // Pay Now handler
     document.getElementById('payNow').addEventListener('click', async ()=>{
       const payMsg = document.getElementById('paymentMsg'); if(payMsg) payMsg.style.display = 'block';
       const payNowBtn = document.getElementById('payNow'); if(payNowBtn) payNowBtn.disabled = true;
-      // simulate small delay for payment processing
       setTimeout(async ()=>{
-        // after payment success, save order to Firestore (users/{uid}/orders and root orders)
         try{
           const uid = auth.currentUser ? auth.currentUser.uid : null;
           const orderData = { ...(window.pendingOrder||{}), user: uid, userEmail: auth.currentUser ? auth.currentUser.email : null, createdAt: serverTimestamp() };
           if(uid){ await addDoc(collection(db, `users/${uid}/orders`), orderData); }
           await addDoc(collection(db, 'orders'), orderData);
-          // show final confirmation
-          if(paymentMsg) paymentMsg.style.display = 'none';
+          if(payMsg) payMsg.style.display = 'none';
           document.getElementById('orderStatus').innerText = 'Order placed and payment received. Thank you!';
           document.getElementById('orderStatus').style.display = 'block';
-          // close payment modal after brief pause
-          setTimeout(()=>{ const pm = document.getElementById('paymentModal'); if(pm) pm.style.display='none'; document.getElementById('orderStatus').style.display='none'; document.getElementById('orderForm').reset(); window.pendingOrder = null; if(myOrdersModal) myOrdersModal.style.display='none'; }, 1600);
+          setTimeout(()=>{ if(paymentModal) paymentModal.style.display='none'; document.getElementById('orderStatus').style.display='none'; document.getElementById('orderForm').reset(); window.pendingOrder = null; }, 1400);
+          toast('Order successful');
         }catch(e){ console.error('save order after payment failed', e); showLoginError('Payment succeeded but saving order failed. Check console.'); }
-      }, 900);
+      },900);
     });
 
-    // close payment modal button
-    const closePayment = document.getElementById('closePayment');
-    if(closePayment) closePayment.addEventListener('click', ()=>{ const pm = document.getElementById('paymentModal'); if(pm) pm.style.display='none'; });
-
-    // My Orders
+    // My Orders fetch
     myOrdersBtn && myOrdersBtn.addEventListener('click', async ()=>{
       if(!auth.currentUser){ if(loginModal) loginModal.style.display='flex'; showLoginError('Please sign in to view your orders'); return; }
-      // fetch user's orders
-      ordersList.innerHTML = 'Loading...';
+      ordersList.innerHTML = '<div class="small">Loading...</div>';
       try{
         const uid = auth.currentUser.uid;
         const q = query(collection(db, `users/${uid}/orders`), orderBy('createdAt','desc'));
@@ -302,8 +310,8 @@ Phone: ${phone}`;
           snap.forEach(doc => {
             const o = doc.data();
             const el = document.createElement('div');
-            el.style.padding='8px'; el.style.borderBottom='1px solid #f1f5f9';
-            el.innerHTML = `<strong>${o.product||''}</strong><div class='small'>${o.name||''} • ${o.phone||''}</div><div class='small'>${o.address||''}</div><div class='small' style='color:#64748b'>${o.createdAt ? new Date(o.createdAt.seconds*1000).toLocaleString() : ''}</div>`;
+            el.style.padding='10px'; el.style.borderBottom='1px solid rgba(255,255,255,0.03)';
+            el.innerHTML = `<strong style="color:#fff">${o.product||''}</strong><div class='small'>${o.name||''} • ${o.phone||''}</div><div class='small'>${o.address||''}</div><div class='small' style='color:var(--muted)'>${o.createdAt ? new Date(o.createdAt.seconds*1000).toLocaleString() : ''}</div>`;
             ordersList.appendChild(el);
           });
         }
@@ -311,77 +319,26 @@ Phone: ${phone}`;
       }catch(e){ console.error('fetch orders failed', e); ordersList.innerHTML = '<div class="small">Failed to load orders</div>'; }
     });
 
-    document.getElementById('closeOrders').addEventListener('click', ()=>{ if(myOrdersModal) myOrdersModal.style.display='none'; });
-
     // auth state
     onAuthStateChanged(auth, (user)=>{
       if(user){ if(loginModal) loginModal.style.display='none'; if(userBadge){ userBadge.style.display='inline-block'; userBadge.innerText = user.displayName || user.email; } if(signOutBtn) signOutBtn.style.display='inline-block'; if(myOrdersBtn) myOrdersBtn.style.display='inline-block'; loginShowBtn.style.display='none'; } else { if(loginModal) loginModal.style.display='flex'; if(userBadge) userBadge.style.display='none'; if(signOutBtn) signOutBtn.style.display='none'; if(myOrdersBtn) myOrdersBtn.style.display='none'; loginShowBtn.style.display='inline-block'; } });
 
-    // shop now
     document.getElementById('shopNow').addEventListener('click', ()=>{ document.getElementById('productGrid').scrollIntoView({behavior:'smooth'}); });
+
+    // extra small UX: search filter
+    document.getElementById('searchBox').addEventListener('input', (e)=>{
+      const v = e.target.value.toLowerCase();
+      document.querySelectorAll('.card').forEach(card=>{ const t = card.querySelector('h3').innerText.toLowerCase(); card.style.display = t.includes(v) ? 'block' : 'none'; });
+    });
+
+    // ensure modals have close buttons accessible
+    ['closeOrderModal','closeLogin','closePayment','closeMyOrdersX','closeOrders'].forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('click', ()=>{ const modal = el.closest('.modal'); if(modal) modal.style.display='none'; }); });
 
     // initial UI
     if(!auth.currentUser){ if(loginModal) loginModal.style.display='flex'; }
 
   }catch(err){ console.error('Init error', err); const le = document.getElementById('loginErr'); if(le){ le.innerText='Initialization error. See console.'; le.style.display='block'; } }
 });
-</script>
-
-
-<!-- Extra safety script: ensure modal close buttons exist and placeOrder redirects properly -->
-<script>
-(function(){
-  function safe(q){return document.querySelector(q);} 
-  function addCloseButton(modalId, btnId){
-    const modal = safe('#'+modalId);
-    if(!modal) return;
-    const box = modal.querySelector('.modal-box');
-    if(!box) return;
-    if(box.querySelector('#'+btnId)) return; // already exists
-    const btn = document.createElement('button');
-    btn.id = btnId;
-    btn.className = 'btn btn-ghost';
-    btn.style.position = 'absolute';
-    btn.style.top = '12px';
-    btn.style.right = '12px';
-    btn.innerText = '✕';
-    btn.style.color = '#ff2b2b';
-    btn.style.fontWeight = '700';
-    box.style.position = box.style.position || 'relative';
-    box.appendChild(btn);
-    btn.addEventListener('click', ()=>{ modal.style.display = 'none'; });
-  }
-
-  function ensureCloseButtons(){
-    addCloseButton('loginModal','closeLogin');
-    addCloseButton('orderModal','closeOrderModal');
-    addCloseButton('myOrdersModal','closeMyOrdersX');
-  }
-
-  // Ensure placeOrder redirects after submit/save
-  function ensurePlaceOrderRedirect(){
-    const placeBtn = safe('#placeOrder');
-    if(!placeBtn) return;
-    // remove existing handlers to avoid double-submit
-    placeBtn.replaceWith(placeBtn.cloneNode(true));
-    const newBtn = safe('#placeOrder');
-    newBtn.addEventListener('click', async function(ev){
-      ev.preventDefault();
-      const form = document.getElementById('orderForm');
-      if(!form){ alert('Form not found'); return; }
-      // submit the form to Google Forms (iframe target)
-      try{ form.submit(); }catch(e){ console.warn('form.submit failed', e); }
-      // small delay to let iframe submit, then redirect to payment
-      setTimeout(()=>{
-        try{ window.location.href = 'payment.html'; }catch(e){ console.error('redirect failed', e); }
-      }, 900);
-    });
-  }
-
-  // run after DOM ready
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ()=>{ ensureCloseButtons(); ensurePlaceOrderRedirect(); });
-  else { ensureCloseButtons(); ensurePlaceOrderRedirect(); }
-})();
 </script>
 </body>
 </html>
