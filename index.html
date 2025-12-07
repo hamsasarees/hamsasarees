@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Hamsa Sarees — 1Single Page (Admin + Ratings + Persistent Orders) — Close Fix</title>
+<title>Hamsa Sarees — Single Page (Admin + Ratings + Persistent Orders)</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -40,6 +40,7 @@
   .rating-ui .rateBtn{width:34px;height:34px;padding:0;border-radius:8px}
   .orders-list{max-height:60vh;overflow:auto;border-radius:10px;padding:8px;background:linear-gradient(180deg,#06131a,#071722)}
   .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(3,8,20,0.6),rgba(2,8,18,0.85));z-index:1200;padding:12px}
+  .modal.show{display:flex}
   .modal-box{max-width:720px;width:100%;background:linear-gradient(180deg,#071522,#06121a);border-radius:12px;padding:16px;color:#eaf6ff;position:relative;box-shadow:0 30px 80px rgba(2,6,23,0.6)}
   .close-x{position:absolute;top:12px;right:12px;background:transparent;border:none;color:#ff3b3b;font-weight:800;font-size:18px;cursor:pointer}
   .field{display:flex;flex-direction:column;margin-top:10px}
@@ -57,13 +58,14 @@
   .imgwrap img{animation:floaty 6s ease-in-out infinite}
   button:focus,input:focus,select:focus{outline:3px solid rgba(0,170,255,0.12);outline-offset:3px}
   .toast{position:fixed;right:16px;bottom:16px;background:#0b1220;padding:10px 14px;border-radius:10px;color:#d1fae5;border-left:4px solid var(--success);box-shadow:0 8px 30px rgba(2,6,23,0.6);display:none}
+  .sr-only{position:absolute!important;height:1px;width:1px;overflow:hidden;clip:rect(1px,1px,1px,1px);white-space:nowrap}
 </style>
 </head>
 <body>
   <div class="container">
     <header>
       <div class="brand">
-        <div class="logo">HS</div>
+        <div class="logo" aria-hidden="true">HS</div>
         <div>
           <div class="title">Hamsa Sarees</div>
           <div class="small">Handpicked • Ethnic • Quality</div>
@@ -72,13 +74,13 @@
 
       <div style="flex:1;display:flex;justify-content:center">
         <div class="search" role="search" aria-label="Search products">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 21l-4.35-4.35" stroke="#9fb6c9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <input id="searchBox" placeholder="Search sarees, cotton, silk..." />
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 21l-4.35-4.35" stroke="#9fb6c9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <input id="searchBox" placeholder="Search sarees, cotton, silk..." aria-label="Search products" />
         </div>
       </div>
 
       <div class="actions">
-        <button id="adminBtn" class="btn-ghost" style="display:none">Admin</button>
+        <button id="adminBtn" class="btn-ghost" style="display:none" aria-hidden="true">Admin</button>
         <div id="userBadge" style="display:none;background:rgba(255,255,255,0.03);padding:8px 10px;border-radius:10px;color:#fff;font-weight:700"></div>
         <button id="myOrdersBtn" class="btn-ghost" style="display:none">My Orders</button>
         <button id="signOutBtn" class="btn-ghost" style="display:none">Sign out</button>
@@ -110,8 +112,8 @@
           <div class="small">Sign in to place orders; orders saved to your account</div>
         </div>
 
-        <div class="grid" id="productGrid">
-          <!-- fallback static products -->
+        <div class="grid" id="productGrid" aria-live="polite">
+          <!-- fallback static products (rendered only if Firestore empty) -->
           <div class="card" data-pid="beautiful-saree">
             <div class="tag">New</div>
             <div class="imgwrap"><img src="https://images.unsplash.com/photo-1520975918016-4d0b5b0b2f3d?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder" alt="Beautiful Saree"/></div>
@@ -152,20 +154,20 @@
     </main>
   </div>
 
-  <!-- Modals -->
+  <!-- Modals (Order, Login, Payment, My Orders, Admin, Detail) -->
   <div class="modal" id="orderModal" aria-hidden="true">
     <div class="modal-box" role="dialog" aria-modal="true">
       <button class="close-x" id="closeOrderModal" title="Close">✕</button>
-      <h2>Confirm Your Order</h2>
+      <h2 id="orderModalTitle">Confirm Your Order</h2>
       <p class="small" id="selectedProduct"></p>
       <form id="orderForm" method="POST" target="hiddenFrame" action="https://docs.google.com/forms/d/e/1FAIpQLSfREKvTld9R59UADJQK6jxQIbM64tt1iP0M-XiPq4ykOOwe5w/formResponse">
-        <div class="field"><input id="custName" name="entry.1128392407" placeholder="Your Name" required></div>
-        <div class="field"><textarea id="custAddress" name="entry.654904844" placeholder="Address" required></textarea></div>
-        <div class="field"><input id="custPhone" name="entry.1644126654" placeholder="Mobile Number" required></div>
-        <div class="field"><input id="productField" name="entry.1866699911" readonly></div>
-        <div class="modal-footer">
+        <div class="field"><label class="sr-only" for="custName">Your name</label><input id="custName" name="entry.1128392407" placeholder="Your Name" required></div>
+        <div class="field"><label class="sr-only" for="custAddress">Address</label><textarea id="custAddress" name="entry.654904844" placeholder="Address" required></textarea></div>
+        <div class="field"><label class="sr-only" for="custPhone">Mobile number</label><input id="custPhone" name="entry.1644126654" placeholder="Mobile Number" required></div>
+        <div class="field"><input id="productField" name="entry.1866699911" readonly aria-readonly="true"></div>
+        <div class="modal-footer" style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
           <button class="btn" id="placeOrder">Place Order</button>
-          <button type="button" class="btn-ghost" id="cancelOrder" data-close="modal">Cancel</button>
+          <button type="button" class="btn-ghost" id="cancelOrder">Cancel</button>
         </div>
       </form>
       <div id="orderStatus" class="small" style="margin-top:10px;color:var(--success);display:none">Order placed. Thank you!</div>
@@ -207,10 +209,21 @@
       <button class="close-x" id="closeMyOrdersX" title="Close">✕</button>
       <h2>My Orders</h2>
       <div class="orders-list" id="ordersList"></div>
-      <div style="display:flex;gap:10px;margin-top:12px"><button id="closeOrders" class="btn-ghost" data-close="modal">Close</button></div>
+      <div style="display:flex;gap:10px;margin-top:12px"><button id="closeOrders" class="btn-ghost">Close</button></div>
     </div>
   </div>
 
+  <!-- Order detail modal (replaces alert) -->
+  <div class="modal" id="orderDetailModal" aria-hidden="true">
+    <div class="modal-box" role="dialog" aria-modal="true">
+      <button class="close-x" id="closeOrderDetail" title="Close">✕</button>
+      <h2>Order Details</h2>
+      <div id="orderDetailContent" class="small" style="white-space:pre-line;margin-top:8px"></div>
+      <div style="display:flex;gap:10px;margin-top:12px;justify-content:flex-end"><button id="closeDetailBtn" class="btn-ghost">Close</button></div>
+    </div>
+  </div>
+
+  <!-- Admin modal -->
   <div class="modal" id="adminModal" aria-hidden="true">
     <div class="modal-box" role="dialog" aria-modal="true">
       <button class="close-x" id="closeAdmin" title="Close">✕</button>
@@ -222,7 +235,7 @@
       <div class="field"><label class="small">Image URL</label><input id="admin_pImg" placeholder="https://..."></div>
       <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
         <button id="adminSave" class="btn">Add Product</button>
-        <button id="adminCancel" class="btn-ghost" data-close="modal">Cancel</button>
+        <button id="adminCancel" class="btn-ghost">Cancel</button>
       </div>
     </div>
   </div>
@@ -235,7 +248,7 @@
   if(document.readyState === 'loading') await new Promise(r=>document.addEventListener('DOMContentLoaded', r));
 
   // ---- CONFIG ----
-  const ADMIN_UID = 'EenXHJIvZpavhkGTCI8EZyFAfH93';
+  const ADMIN_UID = 'EenXHJIvZpavhkGTCI8EZyFAfH93'; // your admin UID (already provided)
   const firebaseConfig = {
     apiKey: "AIzaSyBozW19Rjc9nj0YabOIE3DlW0qVHtU5XLA",
     authDomain: "hamsasarees-24738.firebaseapp.com",
@@ -246,6 +259,7 @@
     measurementId: "G-1G1HQGJ5XS"
   };
 
+  // ---- Firebase imports ----
   try{
     const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
     const authMod = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
@@ -259,17 +273,35 @@
     const db = getFirestore(app);
     const googleProvider = new GoogleAuthProvider();
 
+    // ---- DOM refs ----
     const $ = id => document.getElementById(id);
     const loginModal = $('loginModal'), orderModal = $('orderModal'), paymentModal = $('paymentModal'), myOrdersModal = $('myOrdersModal'), adminModal = $('adminModal');
     const loginErr = $('loginErr'), userBadge = $('userBadge'), signOutBtn = $('signOutBtn'), loginShowBtn = $('loginShowBtn'), googleBtnLarge = $('googleBtnLarge');
     const myOrdersBtn = $('myOrdersBtn'), ordersList = $('ordersList'), toastEl = $('toast');
     const adminBtn = $('adminBtn');
+    const orderDetailModal = $('orderDetailModal'), orderDetailContent = $('orderDetailContent');
 
     function toast(msg){ if(!toastEl) return; toastEl.innerText = msg; toastEl.style.display = 'block'; setTimeout(()=>toastEl.style.display = 'none', 1800); }
     function showLoginError(msg){ if(!loginErr) return; loginErr.innerText = msg; loginErr.style.display = msg ? 'block' : 'none'; }
 
+    // small utility: open/close modal with focus trap basic handling (non-perfect but good)
+    function openModal(modal){ if(!modal) return; modal.classList.add('show'); modal.removeAttribute('aria-hidden'); document.body.style.overflow = 'hidden'; }
+    function closeModal(modal){ if(!modal) return; modal.classList.remove('show'); modal.setAttribute('aria-hidden','true'); document.body.style.overflow = ''; }
+
+    // close on backdrop click and Esc
+    document.addEventListener('click', (ev)=>{
+      // if click on modal backdrop (element with class 'modal' but not inside modal-box)
+      const m = ev.target.closest('.modal');
+      if(m && !ev.target.closest('.modal-box')){
+        closeModal(m);
+      }
+    });
+    document.addEventListener('keydown', (ev)=>{ if(ev.key === 'Escape'){ document.querySelectorAll('.modal.show').forEach(m=>closeModal(m)); } });
+
+    // handle redirect sign-in fallback
     try{ const rr = await getRedirectResult(auth); if(rr && rr.user) console.log('redirect sign-in OK', rr.user.uid); }catch(e){ console.warn('redirect result', e && e.code); }
 
+    // sign-in
     async function signInPopup(){
       showLoginError('');
       try{
@@ -286,15 +318,16 @@
         } else showLoginError(e && e.message ? e.message : 'Sign-in failed');
       }
     }
-    googleBtnLarge && googleBtnLarge.addEventListener('click', signInPopup);
-    loginShowBtn && loginShowBtn.addEventListener('click', ()=>{ if(loginModal) loginModal.style.display='flex'; });
+    googleBtnLarge && googleBtnLarge.addEventListener('click', ()=>signInPopup());
+    loginShowBtn && loginShowBtn.addEventListener('click', ()=>{ openModal(loginModal); });
 
     signOutBtn && signOutBtn.addEventListener('click', async () => { try{ await signOut(auth); toast('Signed out'); }catch(e){ console.error('signout failed', e); } });
 
-    // PRODUCTS: live load
+    // ---- PRODUCTS: load from Firestore (live) ----
     const productGrid = $('productGrid');
     const productsColRef = collection(db, 'products');
 
+    // render helper
     function renderProductCard(id, data){
       const title = data.title || 'Untitled';
       const pid = id || (title.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9\-]/g,''));
@@ -323,13 +356,16 @@
       return card;
     }
 
+    // live listener: show products from Firestore; if empty, keep fallback static ones
     let productsUnsub = null;
     try{
       productsUnsub = onSnapshot(productsColRef, snap=>{
         if(snap.empty){
+          // keep static fallback — but still attach rating listeners later
           attachRatingListenersToGrid();
           return;
         }
+        // clear grid and render from DB
         productGrid.innerHTML = '';
         snap.forEach(d => {
           const id = d.id; const data = d.data();
@@ -342,26 +378,22 @@
         attachRatingListenersToGrid();
       });
     }catch(e){
-      console.warn('products onSnapshot not available', e);
+      console.warn('products onSnapshot not available (maybe offline)', e);
       attachRatingListenersToGrid();
     }
 
-    // order delegation
+    // attach order button delegation (works for dynamic cards)
     productGrid.addEventListener('click', ev=>{
       const btn = ev.target.closest('.orderBtn');
       if(!btn) return;
       const prod = btn.getAttribute('data-product') || '';
-      if(!auth.currentUser){
-        if(loginModal) loginModal.style.display='flex';
-        showLoginError('Please sign in with Google to place orders');
-        return;
-      }
+      if(!auth.currentUser){ openModal(loginModal); showLoginError('Please sign in with Google to place orders'); return; }
       const sel = $('selectedProduct'); if(sel) sel.innerText = prod;
       const pf = $('productField'); if(pf) pf.value = prod;
-      if(orderModal) orderModal.style.display='flex';
+      openModal(orderModal);
     });
 
-    // Rating listeners
+    // ---- Rating listeners and live averages per product ----
     function attachRatingListenersToGrid(){
       document.querySelectorAll('#productGrid .card').forEach(card=>{
         const pid = card.dataset.pid || (card.querySelector('h3') && card.querySelector('h3').innerText.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9\-]/g,'')) ;
@@ -394,7 +426,7 @@
     }
     attachRatingListenersToGrid();
 
-    // ORDERS
+    // ---- Orders: place & persist in users/{uid}/orders ----
     $('placeOrder').addEventListener('click', ev=>{
       ev.preventDefault();
       const name = $('custName').value.trim(), address = $('custAddress').value.trim(), phone = $('custPhone').value.trim();
@@ -402,9 +434,9 @@
       if(!name || !address || !phone){ alert('Fill all fields'); return; }
       if(!/^[6-9]\d{9}$/.test(phone)){ alert('Enter a valid 10-digit Indian mobile number'); return; }
       window.pendingOrder = { product, name, address, phone };
-      if(orderModal){ orderModal.style.display='none'; orderModal.setAttribute('aria-hidden','true'); }
+      closeModal(orderModal);
       const ps = $('paymentSummary'); if(ps) ps.innerText = `${product}\nName: ${name}\nPhone: ${phone}`;
-      if(paymentModal){ paymentModal.style.display='flex'; paymentModal.removeAttribute('aria-hidden'); }
+      openModal(paymentModal);
     });
 
     $('payNow').addEventListener('click', async ()=>{
@@ -428,11 +460,10 @@
         const os = $('orderStatus'); if(os){ os.innerText = 'Order placed and payment received. Thank you!'; os.style.display='block'; }
         toast('Order successful');
         setTimeout(()=>{
-          if(paymentModal){ paymentModal.style.display='none'; paymentModal.setAttribute('aria-hidden','true'); }
+          closeModal(paymentModal);
           if(os) os.style.display='none';
           if(document.getElementById('orderForm')) document.getElementById('orderForm').reset();
           window.pendingOrder = null;
-          if(myOrdersModal) myOrdersModal.style.display='none';
           if(payNowBtn) payNowBtn.disabled = false;
         }, 1200);
       }catch(err){
@@ -443,6 +474,7 @@
       }
     });
 
+    // Load user orders (persistent) and allow delete + view
     async function loadUserOrders(){
       if(!auth.currentUser){ ordersList.innerHTML = '<div class="small">Please sign in</div>'; return; }
       ordersList.innerHTML = '<div class="small">Loading...</div>';
@@ -468,8 +500,14 @@
                 <button class="btn deleteOrderBtn" data-id="${id}" type="button">Delete</button>
               </div>
             </div>`;
+          // store order data for quick view without extra read
+          el.querySelector('.viewOrderBtn').dataset.product = o.product || '';
+          el.querySelector('.viewOrderBtn').dataset.name = o.name || '';
+          el.querySelector('.viewOrderBtn').dataset.phone = o.phone || '';
+          el.querySelector('.viewOrderBtn').dataset.address = o.address || '';
           ordersList.appendChild(el);
         });
+        // attach delete handlers and view handlers
         ordersList.querySelectorAll('.deleteOrderBtn').forEach(b=>{
           b.addEventListener('click', async ev=>{
             const id = ev.currentTarget.getAttribute('data-id'); if(!id) return;
@@ -483,21 +521,36 @@
             }catch(err){ console.error('delete failed', err); alert('Failed to delete order. See console.'); }
           });
         });
+
+        ordersList.querySelectorAll('.viewOrderBtn').forEach(b=>{
+          b.addEventListener('click', ev=>{
+            const btn = ev.currentTarget;
+            const p = btn.dataset.product || '';
+            const n = btn.dataset.name || '';
+            const ph = btn.dataset.phone || '';
+            const a = btn.dataset.address || '';
+            orderDetailContent.innerText = `Product: ${p}\nName: ${n}\nPhone: ${ph}\nAddress: ${a}`;
+            openModal(orderDetailModal);
+          });
+        });
+
       }catch(e){ console.error('fetch orders failed', e); ordersList.innerHTML = '<div class="small">Failed to load orders</div>'; }
     }
 
     myOrdersBtn && myOrdersBtn.addEventListener('click', async ()=>{
-      if(!auth.currentUser){ if(loginModal) loginModal.style.display='flex'; showLoginError('Please sign in to view your orders'); return; }
+      if(!auth.currentUser){ openModal(loginModal); showLoginError('Please sign in to view your orders'); return; }
       await loadUserOrders();
-      if(myOrdersModal){ myOrdersModal.style.display='flex'; myOrdersModal.removeAttribute('aria-hidden'); }
+      openModal(myOrdersModal);
     });
 
-    // Admin UI
+    // ---- Admin UI: open modal only if user is admin, and persist product to Firestore ----
     adminBtn && adminBtn.addEventListener('click', ()=>{
       if(!auth.currentUser){ alert('Sign in as admin'); return; }
       if(auth.currentUser.uid !== ADMIN_UID){ alert('You are not admin'); return; }
-      if(adminModal){ adminModal.style.display='flex'; adminModal.removeAttribute('aria-hidden'); }
+      openModal(adminModal);
     });
+    $('adminCancel').addEventListener('click', ()=>{ closeModal(adminModal); });
+
     $('adminSave').addEventListener('click', async ()=>{
       const title = $('admin_pTitle').value.trim(); const price = Number($('admin_pPrice').value.trim()); const tag = $('admin_pTag').value.trim(); const img = $('admin_pImg').value.trim();
       if(!title || !price){ alert('Title and price required'); return; }
@@ -506,22 +559,30 @@
         const payload = { title, price, tag, img, createdAt: serverTimestamp() };
         await addDoc(collection(db, 'products'), payload);
         toast('Product added (Firestore)');
-        if(adminModal){ adminModal.style.display='none'; adminModal.setAttribute('aria-hidden','true'); }
+        closeModal(adminModal);
         $('admin_pTitle').value=''; $('admin_pPrice').value=''; $('admin_pTag').value=''; $('admin_pImg').value='';
       }catch(err){ console.error('add product failed', err); alert('Failed to add product'); }
     });
 
-    // Auth UI toggles
+    // ---- Generic modal close (fix for all X buttons) ----
+    document.querySelectorAll('.close-x').forEach(btn=>{ btn.addEventListener('click', ()=>{ const modal = btn.closest('.modal'); closeModal(modal); }); });
+    $('cancelOrder')?.addEventListener('click', ()=>{ closeModal(orderModal); });
+    $('closeOrders')?.addEventListener('click', ()=>{ closeModal(myOrdersModal); });
+    $('closePayment')?.addEventListener('click', ()=>{ closeModal(paymentModal); });
+    $('closeOrderDetail')?.addEventListener('click', ()=>{ closeModal(orderDetailModal); });
+    $('closeDetailBtn')?.addEventListener('click', ()=>{ closeModal(orderDetailModal); });
+
+    // ---- Auth state changes: UI toggle ----
     onAuthStateChanged(auth, user=>{
       if(user){
-        if(loginModal) loginModal.style.display='none';
+        closeModal(loginModal);
         if(userBadge){ userBadge.style.display='inline-block'; userBadge.innerText = user.displayName || user.email; }
         if(signOutBtn) signOutBtn.style.display='inline-block';
         if(myOrdersBtn) myOrdersBtn.style.display='inline-block';
         if(loginShowBtn) loginShowBtn.style.display='none';
         if(adminBtn) adminBtn.style.display = (user.uid === ADMIN_UID) ? 'inline-block' : 'none';
       }else{
-        if(loginModal) loginModal.style.display='none';
+        closeModal(loginModal);
         if(userBadge) userBadge.style.display='none';
         if(signOutBtn) signOutBtn.style.display='none';
         if(myOrdersBtn) myOrdersBtn.style.display='none';
@@ -530,62 +591,20 @@
       }
     });
 
-    // Search & shopNow
+    // ---- Search and shopNow ----
     const searchBox = $('searchBox');
     if(searchBox) searchBox.addEventListener('input', e=>{
       const v = e.target.value.toLowerCase();
       document.querySelectorAll('#productGrid .card').forEach(card=>{
         const t = (card.querySelector('h3')||{innerText:''}).innerText.toLowerCase();
-        card.style.display = t.includes(v) ? 'block' : 'none';
+        const tag = (card.querySelector('.tag')||{innerText:''}).innerText.toLowerCase();
+        card.style.display = (t.includes(v) || tag.includes(v)) ? 'block' : 'none';
       });
     });
     const shopNow = $('shopNow'); if(shopNow) shopNow.addEventListener('click', ()=>{ const grid=document.getElementById('productGrid'); if(grid) grid.scrollIntoView({behavior:'smooth'}); });
 
-    // -----------------------------
-    // GENERIC MODAL CLOSE HANDLERS
-    // - close on clicking .close-x
-    // - close when clicking backdrop (.modal)
-    // - close on elements with data-close="modal"
-    // - close all on Escape key
-    // -----------------------------
-    document.addEventListener('click', (e) => {
-      const t = e.target;
-
-      // click on the red X (any element with class close-x)
-      if(t && t.classList && t.classList.contains('close-x')){
-        const modal = t.closest('.modal');
-        if(modal){ modal.style.display = 'none'; modal.setAttribute('aria-hidden','true'); }
-        return;
-      }
-
-      // click on any element that wants to close modal via attribute data-close="modal"
-      if(t && t.dataset && t.dataset.close === 'modal'){
-        const modal = t.closest('.modal');
-        if(modal){ modal.style.display = 'none'; modal.setAttribute('aria-hidden','true'); }
-        return;
-      }
-
-      // click on backdrop: target is exactly the .modal element (not modal-box)
-      if(t && t.classList && t.classList.contains('modal')){
-        t.style.display = 'none';
-        t.setAttribute('aria-hidden','true');
-        return;
-      }
-    });
-
-    // ESC key closes all open modals
-    document.addEventListener('keydown', (e) => {
-      if(e.key === 'Escape'){
-        document.querySelectorAll('.modal').forEach(modal => {
-          if(modal.style.display === 'flex' || modal.style.display === 'block'){
-            modal.style.display = 'none';
-            modal.setAttribute('aria-hidden','true');
-          }
-        });
-      }
-    });
-
-    console.log('Hamsa Sarees SPA ready (modal close fixes applied)');
+    // initial UI ready
+    console.log('Hamsa Sarees SPA ready — polished canvas');
   }catch(err){
     console.error('Init error', err);
     alert('Initialization failed — check console.');
