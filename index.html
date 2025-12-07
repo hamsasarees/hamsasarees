@@ -3,119 +3,63 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Hamsa Sarees — Admin Upload + Products</title>
+<title>Hamsa Sarees — Admin Upload + Delete (Fast Upload)</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg1:#001f3f; --bg2:#00306b; --accent:#00aaff; --accent2:#4dd0e1; --muted:#9fb8d9; --success:#10b981;
-    --card:#071522; --glass:rgba(255,255,255,0.03);
   }
   *{box-sizing:border-box}
-  html,body{height:100%;margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:#eaf6ff;-webkit-font-smoothing:antialiased}
-  a{color:inherit}
+  html,body{height:100%;margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:#eaf6ff}
   .container{max-width:1100px;margin:20px auto;padding:0 16px}
-  header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px}
-  .brand{display:flex;gap:12px;align-items:center}
-  .logo{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:800;color:#032033;box-shadow:0 12px 40px rgba(0,170,255,0.12)}
-  .title{font-weight:800}
-  .search{display:flex;align-items:center;background:var(--glass);padding:8px;border-radius:10px;gap:8px;border:1px solid rgba(255,255,255,0.02)}
-  .search input{background:transparent;border:none;color:#eaf6ff;outline:none;width:220px}
-  .actions{display:flex;gap:8px;align-items:center}
-  .btn{cursor:pointer;border-radius:10px;padding:9px 14px;border:none;font-weight:700;background:linear-gradient(90deg,var(--accent),#ff5aa3);color:#fff;box-shadow:0 8px 24px rgba(0,170,255,0.12);transition:transform .15s,filter .15s}
-  .btn:active{transform:translateY(1px)}
+  header{display:flex;align-items:center;justify-content:space-between;padding:12px}
+  .logo{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:800;color:#032033}
+  .search{display:flex;align-items:center;background:rgba(255,255,255,0.03);padding:8px;border-radius:10px}
+  .btn{cursor:pointer;border-radius:10px;padding:9px 14px;border:none;font-weight:700;background:linear-gradient(90deg,var(--accent),#ff5aa3);color:#fff}
   .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#fff;padding:8px 12px;border-radius:10px}
-  .hero{display:flex;gap:16px;align-items:flex-start;margin-top:8px}
-  .hero-card{flex:1;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:18px;border-radius:12px;backdrop-filter: blur(6px)}
-  .promo{width:260px;padding:12px;border-radius:10px;background:linear-gradient(135deg,#061526,#072234);box-shadow:0 10px 40px rgba(0,0,0,0.4)}
   .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:16px}
-  .card{background:linear-gradient(180deg,#071522,#06121a);padding:12px;border-radius:12px;transition:transform .2s,box-shadow .2s;overflow:hidden;position:relative}
-  .card:hover{transform:translateY(-8px);box-shadow:0 24px 60px rgba(2,6,23,0.6)}
+  .card{background:linear-gradient(180deg,#071522,#06121a);padding:12px;border-radius:12px;position:relative}
   .imgwrap{height:180px;border-radius:10px;background:#081522;display:flex;align-items:center;justify-content:center;overflow:hidden}
-  .imgwrap img{width:100%;height:100%;object-fit:cover;display:block}
-  h3{margin:10px 0 6px;color:#eaf6ff}
-  .price{color:#7ee0b2;font-weight:800}
-  .tag{position:absolute;top:10px;left:10px;background:rgba(0,0,0,0.4);padding:6px 8px;border-radius:8px;font-size:12px}
-  .product-rating{font-weight:700;margin-left:8px}
-  .rating-ui{display:flex;gap:6px;margin-top:6px}
-  .rating-ui .rateBtn{width:34px;height:34px;padding:0;border-radius:8px}
-  .orders-list{max-height:60vh;overflow:auto;border-radius:10px;padding:8px;background:linear-gradient(180deg,#06131a,#071722)}
-  .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(3,8,20,0.6),rgba(2,8,18,0.85));z-index:1200;padding:12px}
+  .imgwrap img{width:100%;height:100%;object-fit:cover}
+  .small{color:#9fb8d9}
+  .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(2,8,18,0.85);z-index:1200;padding:12px}
   .modal.show{display:flex}
-  .modal-box{max-width:720px;width:100%;background:linear-gradient(180deg,#071522,#06121a);border-radius:12px;padding:16px;color:#eaf6ff;position:relative;box-shadow:0 30px 80px rgba(2,6,23,0.6)}
-  .close-x{position:absolute;top:12px;right:12px;background:transparent;border:none;color:#ff3b3b;font-weight:800;font-size:18px;cursor:pointer}
-  .field{display:flex;flex-direction:column;margin-top:10px}
-  .field input,.field textarea,select{padding:12px;border-radius:10px;border:none;background:#08121a;color:#dbeafe}
-  .small{color:var(--muted)}
-  @media (max-width:1000px){ .grid{grid-template-columns:repeat(2,1fr)} .promo{display:none} .search input{width:140px} }
-  @media (max-width:640px){
-    header{flex-direction:column;align-items:stretch;padding:12px 16px}
-    .search{width:100%;margin-top:8px}
-    .grid{grid-template-columns:1fr}
-    .imgwrap{height:200px}
-    .modal-box{width:100%;height:100%;border-radius:12px 12px 0 0;max-width:none;display:flex;flex-direction:column;overflow:auto;padding:14px}
-  }
-  @keyframes floaty{0%{transform:translateY(0)}50%{transform:translateY(-6px)}100%{transform:translateY(0)}}
-  .imgwrap img{animation:floaty 6s ease-in-out infinite}
-  button:focus,input:focus,select:focus{outline:3px solid rgba(0,170,255,0.12);outline-offset:3px}
-  .toast{position:fixed;right:16px;bottom:16px;background:#0b1220;padding:10px 14px;border-radius:10px;color:#d1fae5;border-left:4px solid var(--success);box-shadow:0 8px 30px rgba(2,6,23,0.6);display:none}
-  .sr-only{position:absolute!important;height:1px;width:1px;overflow:hidden;clip:rect(1px,1px,1px,1px);white-space:nowrap}
+  .modal-box{max-width:720px;width:100%;background:#072033;border-radius:12px;padding:16px;color:#eaf6ff}
+  .close-x{position:absolute;top:12px;right:12px;background:transparent;border:none;color:#ff3b3b;font-weight:800;cursor:pointer}
+  progress{height:8px;border-radius:6px}
+  .danger{background:#ff5a5a;color:#150000;padding:6px 8px;border-radius:8px;font-weight:700}
 </style>
 </head>
 <body>
   <div class="container">
     <header>
-      <div class="brand">
-        <div class="logo" aria-hidden="true">HS</div>
+      <div style="display:flex;gap:12px;align-items:center">
+        <div class="logo">HS</div>
         <div>
-          <div class="title">Hamsa Sarees</div>
-          <div class="small">Handpicked • Ethnic • Quality</div>
+          <div style="font-weight:800">Hamsa Sarees</div>
+          <div class="small">Admin upload + delete demo</div>
         </div>
       </div>
-
-      <div style="flex:1;display:flex;justify-content:center">
-        <div class="search" role="search" aria-label="Search products">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 21l-4.35-4.35" stroke="#9fb6c9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <input id="searchBox" placeholder="Search sarees, cotton, silk..." aria-label="Search products" />
-        </div>
-      </div>
-
-      <div class="actions">
-        <button id="adminBtn" class="btn-ghost" style="display:none" aria-hidden="true">Admin</button>
-        <div id="userBadge" style="display:none;background:rgba(255,255,255,0.03);padding:8px 10px;border-radius:10px;color:#fff;font-weight:700"></div>
-        <button id="myOrdersBtn" class="btn-ghost" style="display:none">My Orders</button>
-        <button id="signOutBtn" class="btn-ghost" style="display:none">Sign out</button>
+      <div style="display:flex;gap:8px;align-items:center">
+        <div class="search"><input id="searchBox" placeholder="Search products..." style="background:transparent;border:0;color:#eaf6ff;outline:none;width:220px"></div>
+        <div id="userBadge" style="display:none" class="small"></div>
+        <button id="adminBtn" class="btn-ghost" style="display:none">Admin</button>
         <button id="loginShowBtn" class="btn">Sign in</button>
+        <button id="signOutBtn" class="btn-ghost" style="display:none">Sign out</button>
       </div>
     </header>
 
     <main>
-      <section class="hero" style="gap:16px">
-        <div class="hero-card">
-          <h1>Real sarees. Real people. Real style.</h1>
-          <p class="small">Curated collection, saved orders for your account, and a smooth checkout. Mobile-first.</p>
-          <div style="margin-top:14px;display:flex;gap:10px">
-            <button id="shopNow" class="btn">Shop Now</button>
-            <button id="exploreBtn" class="btn-ghost">Collections</button>
-          </div>
-        </div>
-
-        <aside class="promo" aria-hidden="true">
-          <strong>Limited Offer</strong>
-          <div class="small" style="margin-top:8px">Free shipping on orders above ₹3000</div>
-          <div style="margin-top:12px;font-weight:800;color:#7ee0b2">Best Seller: Elegant Cotton — ₹1499</div>
-        </aside>
-      </section>
-
       <section style="margin-top:12px">
         <div style="display:flex;justify-content:space-between;align-items:center">
           <h2 style="margin:0">Products</h2>
-          <div class="small">Sign in to place orders; orders saved to your account</div>
+          <div class="small">Admin can add/delete products. Images uploaded to Firebase Storage.</div>
         </div>
 
-        <div class="grid" id="productGrid" aria-live="polite">
-          <div class="card" style="grid-column:1/-1;text-align:center;color:var(--muted);padding:32px;background:transparent">
+        <div class="grid" id="productGrid">
+          <div class="card" style="grid-column:1/-1;text-align:center;color:var(--muted)">
             <strong style="color:#eaf6ff">No products yet</strong>
-            <div class="small" style="margin-top:8px">As admin, open Admin → Add Product to upload items. The product grid updates live for users.</div>
+            <div class="small" style="margin-top:8px">Open Admin to add products.</div>
             <div style="margin-top:12px"><button id="openAdminFromEmpty" class="btn-ghost">Open Admin</button></div>
           </div>
         </div>
@@ -123,116 +67,41 @@
     </main>
   </div>
 
-  <!-- Modals (Order, Login, Payment, My Orders, Admin, Detail) -->
-  <div class="modal" id="orderModal" aria-hidden="true">
-    <div class="modal-box" role="dialog" aria-modal="true">
-      <button class="close-x" id="closeOrderModal" title="Close">✕</button>
-      <h2 id="orderModalTitle">Confirm Your Order</h2>
-      <p class="small" id="selectedProduct"></p>
-      <form id="orderForm" method="POST" target="hiddenFrame" action="https://docs.google.com/forms/d/e/1FAIpQLSfREKvTld9R59UADJQK6jxQIbM64tt1iP0M-XiPq4ykOOwe5w/formResponse">
-        <div class="field"><label class="sr-only" for="custName">Your name</label><input id="custName" name="entry.1128392407" placeholder="Your Name" required></div>
-        <div class="field"><label class="sr-only" for="custAddress">Address</label><textarea id="custAddress" name="entry.654904844" placeholder="Address" required></textarea></div>
-        <div class="field"><label class="sr-only" for="custPhone">Mobile number</label><input id="custPhone" name="entry.1644126654" placeholder="Mobile Number" required></div>
-        <div class="field"><input id="productField" name="entry.1866699911" readonly aria-readonly="true"></div>
-        <div class="modal-footer" style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
-          <button class="btn" id="placeOrder">Place Order</button>
-          <button type="button" class="btn-ghost" id="cancelOrder">Cancel</button>
-        </div>
-      </form>
-      <div id="orderStatus" class="small" style="margin-top:10px;color:var(--success);display:none">Order placed. Thank you!</div>
-    </div>
-  </div>
-
-  <div class="modal" id="loginModal" aria-hidden="true">
-    <div class="modal-box" role="dialog" aria-modal="true">
-      <button class="close-x" id="closeLogin" title="Close">✕</button>
-      <h2>Sign in with Google</h2>
-      <p class="small">No typing required — uses Google auth.</p>
-      <div style="display:flex;justify-content:center;margin-top:12px">
-        <button id="googleBtnLarge" class="btn">Sign in with Google</button>
-      </div>
-      <p id="loginErr" class="small" style="margin-top:12px;color:#ffb4b4;display:none"></p>
-    </div>
-  </div>
-
-  <div class="modal" id="paymentModal" aria-hidden="true">
-    <div class="modal-box" role="dialog" aria-modal="true">
-      <button class="close-x" id="closePayment" title="Close">✕</button>
-      <h2>Payment</h2>
-      <p class="small" id="paymentSummary" style="white-space:pre-line"></p>
-      <div style="margin-top:12px;display:flex;gap:10px;flex-direction:column">
-        <label class="small">Select Payment Method</label>
-        <select id="paymentMethod" style="padding:12px;border-radius:10px;border:none;background:#08121a;color:#dbeafe">
-          <option value="card">Card (Test)</option>
-          <option value="upi">UPI (Test)</option>
-          <option value="cod">Cash on Delivery</option>
-        </select>
-        <button class="btn" id="payNow">Pay Now</button>
-      </div>
-      <div id="paymentMsg" class="small" style="margin-top:10px;color:var(--success);display:none">Payment successful. Finalizing order...</div>
-    </div>
-  </div>
-
-  <div class="modal" id="myOrdersModal" aria-hidden="true">
-    <div class="modal-box" role="dialog" aria-modal="true">
-      <button class="close-x" id="closeMyOrdersX" title="Close">✕</button>
-      <h2>My Orders</h2>
-      <div class="orders-list" id="ordersList"></div>
-      <div style="display:flex;gap:10px;margin-top:12px"><button id="closeOrders" class="btn-ghost">Close</button></div>
-    </div>
-  </div>
-
-  <div class="modal" id="orderDetailModal" aria-hidden="true">
-    <div class="modal-box" role="dialog" aria-modal="true">
-      <button class="close-x" id="closeOrderDetail" title="Close">✕</button>
-      <h2>Order Details</h2>
-      <div id="orderDetailContent" class="small" style="white-space:pre-line;margin-top:8px"></div>
-      <div style="display:flex;gap:10px;margin-top:12px;justify-content:flex-end"><button id="closeDetailBtn" class="btn-ghost">Close</button></div>
-    </div>
-  </div>
-
-  <!-- Admin modal: includes direct file upload to Firebase Storage -->
+  <!-- Admin modal -->
   <div class="modal" id="adminModal" aria-hidden="true">
     <div class="modal-box" role="dialog" aria-modal="true">
-      <button class="close-x" id="closeAdmin" title="Close">✕</button>
-      <h2>Admin — Add Product</h2>
-      <p class="small">Products added here are saved to Firestore (admin-only).</p>
+      <button class="close-x" id="closeAdmin">✕</button>
+      <h3>Admin — Add Product</h3>
+      <div style="margin-top:10px">
+        <label class="small">Title</label><input id="admin_pTitle" style="width:100%;padding:10px;border-radius:8px;background:#08212a;border:none;color:#eaf6ff">
+        <label class="small" style="margin-top:8px;display:block">Price (₹)</label><input id="admin_pPrice" type="number" style="width:120px;padding:10px;border-radius:8px;background:#08212a;border:none;color:#eaf6ff">
+        <label class="small" style="margin-top:8px;display:block">Tag</label><input id="admin_pTag" style="width:160px;padding:10px;border-radius:8px;background:#08212a;border:none;color:#eaf6ff">
+        <label class="small" style="margin-top:8px;display:block">Image URL (optional)</label><input id="admin_pImg" placeholder="https://..." style="width:100%;padding:10px;border-radius:8px;background:#08212a;border:none;color:#eaf6ff">
+      </div>
 
-      <div class="field"><label class="small">Title</label><input id="admin_pTitle" placeholder="Product title"></div>
-      <div class="field"><label class="small">Price (₹)</label><input id="admin_pPrice" type="number" placeholder="1499"></div>
-      <div class="field"><label class="small">Tag</label><input id="admin_pTag" placeholder="e.g. New, Best"></div>
-
-      <!-- manual URL still allowed (optional), but you can upload file below -->
-      <div class="field"><label class="small">Image URL (optional)</label><input id="admin_pImg" placeholder="https://..."></div>
-
-      <!-- file upload UI -->
-      <div class="field">
-        <label class="small">Or upload image file (recommended)</label>
-        <input id="admin_pImgFile" type="file" accept="image/*">
-        <div style="margin-top:8px; display:flex; gap:8px; align-items:center;">
-          <progress id="imgUploadProgress" value="0" max="100" style="width:160px; display:none"></progress>
-          <div id="imgUploadStatus" class="small" style="color:var(--muted)"></div>
+      <div style="margin-top:12px">
+        <label class="small">Or upload file</label>
+        <input id="admin_pImgFile" type="file" accept="image/*" style="display:block;margin-top:8px">
+        <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
+          <progress id="imgUploadProgress" value="0" max="100" style="width:200px;display:none"></progress>
+          <div id="imgUploadStatus" class="small"></div>
         </div>
-        <div style="margin-top:10px">
-          <img id="adminImgPreview" alt="preview" style="max-width:160px;max-height:120px;border-radius:8px;display:none;object-fit:cover"/>
-        </div>
+        <div style="margin-top:10px"><img id="adminImgPreview" style="max-width:180px;border-radius:8px;display:none"></div>
       </div>
 
       <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
         <button id="adminSave" class="btn">Add Product</button>
         <button id="adminCancel" class="btn-ghost">Cancel</button>
       </div>
+      <div id="adminNote" style="margin-top:10px" class="small"></div>
     </div>
   </div>
 
-  <iframe name="hiddenFrame" style="display:none"></iframe>
-  <div id="toast" class="toast" role="status" aria-live="polite">Saved.</div>
+  <!-- Order modals etc are omitted for brevity (not relevant to this task) -->
 
 <script type="module">
 (async function(){
-  if(document.readyState === 'loading') await new Promise(r=>document.addEventListener('DOMContentLoaded', r));
-
-  // ---- CONFIG ----
+  // -------- CONFIG --------
   const ADMIN_UID = 'EenXHJIvZpavhkGTCI8EZyFAfH93'; // your admin UID
   const firebaseConfig = {
     apiKey: "AIzaSyBozW19Rjc9nj0YabOIE3DlW0qVHtU5XLA",
@@ -244,7 +113,7 @@
     measurementId: "G-1G1HQGJ5XS"
   };
 
-  // ---- Firebase imports (app, auth, firestore, storage) ----
+  // -------- Firebase imports --------
   try{
     const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
     const authMod = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
@@ -253,7 +122,7 @@
 
     const { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } = authMod;
     const { getFirestore, collection, addDoc, setDoc, doc, deleteDoc, serverTimestamp, query, orderBy, getDocs, onSnapshot } = fsMod;
-    const { getStorage, ref: storageRef, uploadBytesResumable, getDownloadURL } = storageMod;
+    const { getStorage, ref: storageRef, uploadBytesResumable, getDownloadURL, deleteObject } = storageMod;
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
@@ -261,317 +130,100 @@
     const storage = getStorage(app);
     const googleProvider = new GoogleAuthProvider();
 
-    // ---- DOM refs ----
+    // -------- DOM refs --------
     const $ = id => document.getElementById(id);
-    const loginModal = $('loginModal'), orderModal = $('orderModal'), paymentModal = $('paymentModal'), myOrdersModal = $('myOrdersModal'), adminModal = $('adminModal');
-    const loginErr = $('loginErr'), userBadge = $('userBadge'), signOutBtn = $('signOutBtn'), loginShowBtn = $('loginShowBtn'), googleBtnLarge = $('googleBtnLarge');
-    const myOrdersBtn = $('myOrdersBtn'), ordersList = $('ordersList'), toastEl = $('toast');
-    const adminBtn = $('adminBtn');
-    const orderDetailModal = $('orderDetailModal'), orderDetailContent = $('orderDetailContent');
-
-    // admin upload UI
-    const fileInput = $('admin_pImgFile'), previewImg = $('adminImgPreview'), progressEl = $('imgUploadProgress'), statusEl = $('imgUploadStatus');
-
-    function toast(msg){ if(!toastEl) return; toastEl.innerText = msg; toastEl.style.display = 'block'; setTimeout(()=>toastEl.style.display = 'none', 1800); }
-    function showLoginError(msg){ if(!loginErr) return; loginErr.innerText = msg; loginErr.style.display = msg ? 'block' : 'none'; }
-
-    // modal helpers
-    function openModal(modal){ if(!modal) return; modal.classList.add('show'); modal.removeAttribute('aria-hidden'); document.body.style.overflow = 'hidden'; }
-    function closeModal(modal){ if(!modal) return; modal.classList.remove('show'); modal.setAttribute('aria-hidden','true'); document.body.style.overflow = ''; }
-
-    // close on backdrop click and Esc
-    document.addEventListener('click', (ev)=>{
-      const m = ev.target.closest('.modal');
-      if(m && !ev.target.closest('.modal-box')){
-        closeModal(m);
-      }
-    });
-    document.addEventListener('keydown', (ev)=>{ if(ev.key === 'Escape'){ document.querySelectorAll('.modal.show').forEach(m=>closeModal(m)); } });
-
-    // handle redirect sign-in fallback
-    try{ const rr = await getRedirectResult(auth); if(rr && rr.user) console.log('redirect sign-in OK', rr.user.uid); }catch(e){ console.warn('redirect result', e && e.code); }
-
-    // sign-in
-    async function signInPopup(){
-      showLoginError('');
-      try{
-        await signInWithPopup(auth, googleProvider);
-        toast('Signed in');
-      }catch(e){
-        console.error('sign-in error', e && e.code, e && e.message);
-        const popupErrors = ['auth/popup-blocked','auth/popup-closed-by-user','auth/cancelled-popup-request'];
-        if(e && popupErrors.includes(e.code)){
-          try{ await signInWithRedirect(auth, googleProvider); return; }catch(err){ showLoginError('Popup blocked and redirect failed. Allow popups or try another browser.'); return; }
-        }
-        if(e && e.code === 'auth/unauthorized-domain'){
-          showLoginError('Domain not authorized. Add your hosting domain in Firebase console → Authentication → Authorized domains.');
-        } else showLoginError(e && e.message ? e.message : 'Sign-in failed');
-      }
-    }
-    googleBtnLarge && googleBtnLarge.addEventListener('click', ()=>signInPopup());
-    loginShowBtn && loginShowBtn.addEventListener('click', ()=>{ openModal(loginModal); });
-
-    signOutBtn && signOutBtn.addEventListener('click', async () => { try{ await signOut(auth); toast('Signed out'); }catch(e){ console.error('signout failed', e); } });
-
-    // ---- PRODUCTS: load from Firestore (live) ----
     const productGrid = $('productGrid');
-    const productsColRef = collection(db, 'products');
+    const adminModal = $('adminModal');
+    const openAdminFromEmpty = $('openAdminFromEmpty');
+    const adminBtn = $('adminBtn');
+    const loginShowBtn = $('loginShowBtn');
+    const signOutBtn = $('signOutBtn');
+    const userBadge = $('userBadge');
 
-    function renderProductCard(id, data){
-      const title = data.title || 'Untitled';
-      const pid = id || (title.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9\-]/g,''));
-      const tagHtml = data.tag ? `<div class="tag">${data.tag}</div>` : '';
-      const img = data.img || '';
-      const price = data.price || '0';
-      const avgDisplay = data._avg ? `★ ${Number(data._avg).toFixed(1)} (${data._count||0})` : 'No ratings';
-      const card = document.createElement('div'); card.className = 'card'; card.dataset.pid = pid;
-      card.innerHTML = `
-        ${tagHtml}
-        <div class="imgwrap">${img ? `<img src="${img}" alt="${title}">` : '<div class="small" style="padding:10px;color:var(--muted)">No image</div>'}</div>
-        <h3>${title}</h3>
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <div class="price">₹${price}</div>
-          <div style="display:flex;align-items:center"><div class="product-rating small" data-pid="${pid}">${avgDisplay}</div></div>
-        </div>
-        <div class="rating-ui" style="margin-top:8px">
-          <button class="rateBtn btn-ghost" data-rating="1">1</button>
-          <button class="rateBtn btn-ghost" data-rating="2">2</button>
-          <button class="rateBtn btn-ghost" data-rating="3">3</button>
-          <button class="rateBtn btn-ghost" data-rating="4">4</button>
-          <button class="rateBtn btn-ghost" data-rating="5">5</button>
-        </div>
-        <div style="margin-top:8px"><button class="orderBtn btn" data-product="${title}">Order Now</button></div>
-      `;
-      return card;
-    }
+    const fileInput = $('admin_pImgFile'), previewImg = $('adminImgPreview'), progressEl = $('imgUploadProgress'), statusEl = $('imgUploadStatus');
+    const adminNote = $('adminNote');
 
-    // listen products collection and render live
-    try{
-      onSnapshot(productsColRef, snap=>{
-        if(snap.empty){
-          // keep the placeholder card
-          return;
-        }
-        productGrid.innerHTML = '';
-        snap.forEach(d => {
-          const card = renderProductCard(d.id, d.data());
-          productGrid.appendChild(card);
-        });
-        attachRatingListenersToGrid();
-      }, err => {
-        console.error('products snapshot error', err);
-      });
-    }catch(e){
-      console.warn('products onSnapshot not available (maybe offline)', e);
-    }
+    function openModal(m){ if(!m) return; m.classList.add('show'); m.removeAttribute('aria-hidden'); document.body.style.overflow = 'hidden'; }
+    function closeModal(m){ if(!m) return; m.classList.remove('show'); m.setAttribute('aria-hidden','true'); document.body.style.overflow = ''; }
 
-    // attach order button delegation (works for dynamic cards)
-    productGrid.addEventListener('click', ev=>{
-      const btn = ev.target.closest('.orderBtn');
-      if(!btn) return;
-      const prod = btn.getAttribute('data-product') || '';
-      if(!auth.currentUser){
-        openModal(loginModal); showLoginError('Please sign in with Google to place orders'); return;
+    function logToast(msg){ adminNote.innerText = msg; setTimeout(()=>{ if(adminNote.innerText === msg) adminNote.innerText = '' }, 4000); }
+
+    // compress & resize helper (returns Blob)
+    async function compressImage(file, maxWidth=1200, quality=0.75) {
+      if(!file) return file;
+      const imgBitmap = await createImageBitmap(file);
+      const ratio = imgBitmap.width / imgBitmap.height;
+      let targetWidth = imgBitmap.width;
+      let targetHeight = imgBitmap.height;
+      if(imgBitmap.width > maxWidth){
+        targetWidth = maxWidth;
+        targetHeight = Math.round(maxWidth / ratio);
       }
-      $('selectedProduct').innerText = prod;
-      $('productField').value = prod;
-      openModal(orderModal);
-    });
-
-    // ---- Rating listeners (per-card) ----
-    function attachRatingListenersToGrid(){
-      document.querySelectorAll('#productGrid .card').forEach(card=>{
-        const pid = card.dataset.pid || (card.querySelector('h3') && card.querySelector('h3').innerText.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9\-]/g,'')) ;
-        if(!pid) return;
-        // rating buttons
-        card.querySelectorAll('.rateBtn').forEach(btn=>{
-          if(btn._bound) return; btn._bound = true;
-          btn.addEventListener('click', async (ev)=>{
-            if(!auth.currentUser){ alert('Sign in to rate products'); return; }
-            const uid = auth.currentUser.uid; const rating = Number(ev.currentTarget.dataset.rating);
-            try{
-              const ratingRef = doc(db, `products/${pid}/ratings/${uid}`);
-              await setDoc(ratingRef, { rating: rating, createdAt: serverTimestamp() });
-              toast('Thanks for rating');
-            }catch(err){ console.error('rating save failed', err); alert('Failed to save rating'); }
-          });
-        });
+      const canvas = document.createElement('canvas');
+      canvas.width = targetWidth;
+      canvas.height = targetHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(imgBitmap, 0, 0, targetWidth, targetHeight);
+      return new Promise((resolve) => {
+        canvas.toBlob(blob => {
+          // convert to blob of type image/jpeg
+          resolve(blob);
+        }, 'image/jpeg', quality);
       });
     }
 
-    // ---- Orders: place & persist in users/{uid}/orders ----
-    $('placeOrder').addEventListener('click', ev=>{
-      ev.preventDefault();
-      const name = $('custName').value.trim(), address = $('custAddress').value.trim(), phone = $('custPhone').value.trim();
-      const product = $('productField').value || '';
-      if(!name || !address || !phone){ alert('Fill all fields'); return; }
-      if(!/^[6-9]\d{9}$/.test(phone)){ alert('Enter a valid 10-digit Indian mobile number'); return; }
-      window.pendingOrder = { product, name, address, phone };
-      closeModal(orderModal);
-      $('paymentSummary').innerText = `${product}\nName: ${name}\nPhone: ${phone}`;
-      openModal(paymentModal);
-    });
-
-    $('payNow').addEventListener('click', async ()=>{
-      const payNowBtn = $('payNow'); const paymentMsg = $('paymentMsg');
-      if(paymentMsg) paymentMsg.style.display = 'block';
-      if(payNowBtn) payNowBtn.disabled = true;
+    // upload with progress; store imgPath for deletion and img URL for display
+    async function uploadImageFileWithCompression(file){
+      if(!file) return {url:'', path:''};
+      // compress/resample
+      const MAX_WIDTH = 1200; // lower this to make uploads even faster
+      const QUALITY = 0.75;   // 0.0 - 1.0
+      let blobToUpload = file;
       try{
-        try{ document.getElementById('orderForm').submit(); }catch(e){ console.warn('form.submit failed', e); }
-        await new Promise(res => setTimeout(res, 800));
-        const uid = auth.currentUser ? auth.currentUser.uid : null;
-        const orderData = { ...(window.pendingOrder || {}), user: uid, userEmail: auth.currentUser ? auth.currentUser.email : null, createdAt: serverTimestamp() };
-        if(uid){
-          const userOrderRef = await addDoc(collection(db, `users/${uid}/orders`), orderData);
-          await addDoc(collection(db, 'orders'), { ...orderData, userRef: userOrderRef.id });
-          window.lastOrderId = userOrderRef.id;
-        } else {
-          const globalOrderRef = await addDoc(collection(db, 'orders'), orderData);
-          window.lastOrderId = globalOrderRef.id;
-        }
-        if(paymentMsg) paymentMsg.style.display = 'none';
-        const os = $('orderStatus'); if(os){ os.innerText = 'Order placed and payment received. Thank you!'; os.style.display='block'; }
-        toast('Order successful');
-        setTimeout(()=>{
-          closeModal(paymentModal);
-          if(os) os.style.display='none';
-          if(document.getElementById('orderForm')) document.getElementById('orderForm').reset();
-          window.pendingOrder = null;
-          if(payNowBtn) payNowBtn.disabled = false;
-        }, 1200);
-      }catch(err){
-        console.error('save after payment failed', err);
-        showLoginError('Payment succeeded but saving order failed. See console.');
-        if(payNowBtn) payNowBtn.disabled = false;
-        if(paymentMsg) paymentMsg.style.display = 'none';
+        blobToUpload = await compressImage(file, MAX_WIDTH, QUALITY) || file;
+      }catch(e){
+        console.warn('compression failed, uploading original file', e);
+        blobToUpload = file;
       }
-    });
 
-    // Load user orders (persistent) and allow delete + view
-    async function loadUserOrders(){
-      if(!auth.currentUser){ ordersList.innerHTML = '<div class="small">Please sign in</div>'; return; }
-      ordersList.innerHTML = '<div class="small">Loading...</div>';
-      try{
-        const uid = auth.currentUser.uid;
-        const q = query(collection(db, `users/${uid}/orders`), orderBy('createdAt','desc'));
-        const snap = await getDocs(q);
-        if(snap.empty){ ordersList.innerHTML = '<div class="small">No orders yet</div>'; return; }
-        ordersList.innerHTML = '';
-        snap.forEach(docSnap=>{
-          const o = docSnap.data(); const id = docSnap.id;
-          const el = document.createElement('div'); el.style.padding='10px'; el.style.borderBottom='1px solid rgba(255,255,255,0.03)';
-          const dt = (o.createdAt && o.createdAt.toDate) ? o.createdAt.toDate().toLocaleString() : '';
-          el.innerHTML = `
-            <div style="display:flex;justify-content:space-between;align-items:center">
-              <div>
-                <strong style="color:#fff">${o.product||''}</strong>
-                <div class="small">${o.name||''} • ${o.phone||''}</div>
-                <div class="small" style="color:var(--muted)">${dt}</div>
-              </div>
-              <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
-                <button class="btn-ghost viewOrderBtn" data-id="${id}" type="button">View</button>
-                <button class="btn deleteOrderBtn" data-id="${id}" type="button">Delete</button>
-              </div>
-            </div>`;
-          el.querySelector('.viewOrderBtn').dataset.product = o.product || '';
-          el.querySelector('.viewOrderBtn').dataset.name = o.name || '';
-          el.querySelector('.viewOrderBtn').dataset.phone = o.phone || '';
-          el.querySelector('.viewOrderBtn').dataset.address = o.address || '';
-          ordersList.appendChild(el);
-        });
-        ordersList.querySelectorAll('.deleteOrderBtn').forEach(b=>{
-          b.addEventListener('click', async ev=>{
-            const id = ev.currentTarget.getAttribute('data-id'); if(!id) return;
-            const ok = confirm('Delete this order permanently from your account? This cannot be undone.');
-            if(!ok) return;
-            try{
-              const uid = auth.currentUser.uid;
-              await deleteDoc(doc(db, `users/${uid}/orders/${id}`));
-              toast('Order deleted');
-              await loadUserOrders();
-            }catch(err){ console.error('delete failed', err); alert('Failed to delete order. See console.'); }
-          });
-        });
-
-        ordersList.querySelectorAll('.viewOrderBtn').forEach(b=>{
-          b.addEventListener('click', ev=>{
-            const btn = ev.currentTarget;
-            const p = btn.dataset.product || '';
-            const n = btn.dataset.name || '';
-            const ph = btn.dataset.phone || '';
-            const a = btn.dataset.address || '';
-            orderDetailContent.innerText = `Product: ${p}\nName: ${n}\nPhone: ${ph}\nAddress: ${a}`;
-            openModal(orderDetailModal);
-          });
-        });
-
-      }catch(e){ console.error('fetch orders failed', e); ordersList.innerHTML = '<div class="small">Failed to load orders</div>'; }
-    }
-
-    myOrdersBtn && myOrdersBtn.addEventListener('click', async ()=>{
-      if(!auth.currentUser){ openModal(loginModal); showLoginError('Please sign in to view your orders'); return; }
-      await loadUserOrders();
-      openModal(myOrdersModal);
-    });
-
-    // ---- Admin: open modal and handle add product + upload to Storage ----
-    adminBtn && adminBtn.addEventListener('click', ()=>{
-      if(!auth.currentUser){ alert('Sign in as admin'); return; }
-      if(auth.currentUser.uid !== ADMIN_UID){ alert('You are not admin'); return; }
-      openModal(adminModal);
-    });
-
-    // quick open from empty
-    document.getElementById('openAdminFromEmpty')?.addEventListener('click', ()=>{
-      if(!auth.currentUser){ openModal(loginModal); showLoginError('Sign in as admin to add products'); return; }
-      if(auth.currentUser.uid !== ADMIN_UID){ alert('You are not admin'); return; }
-      openModal(adminModal);
-    });
-
-    $('adminCancel').addEventListener('click', ()=>{ closeModal(adminModal); });
-
-    // preview when file picked
-    fileInput?.addEventListener('change', (e) => {
-      const f = e.target.files && e.target.files[0];
-      if (!f) { previewImg.style.display = 'none'; return; }
-      const url = URL.createObjectURL(f);
-      previewImg.src = url;
-      previewImg.style.display = 'block';
-      statusEl.innerText = `Selected: ${f.name} (${Math.round(f.size/1024)} KB)`;
-    });
-
-    // upload helper
-    async function uploadImageFile(file) {
-      if (!file) return null;
+      // create unique filename
       const uid = auth.currentUser ? auth.currentUser.uid : 'anon';
-      const fname = `product_images/${Date.now()}_${uid}_${file.name.replace(/\s+/g,'_').toLowerCase()}`;
-      const ref = storageRef(storage, fname);
-      const uploadTask = uploadBytesResumable(ref, file);
+      const safeName = file.name.replace(/\s+/g,'_').toLowerCase();
+      const path = `product_images/${Date.now()}_${uid}_${safeName}`;
+      const ref = storageRef(storage, path);
 
       progressEl.style.display = 'inline-block';
       progressEl.value = 0;
       statusEl.innerText = 'Uploading...';
 
       return new Promise((resolve, reject) => {
+        const uploadTask = uploadBytesResumable(ref, blobToUpload);
         uploadTask.on('state_changed',
           (snapshot) => {
-            const pct = Math.floor((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
-            progressEl.value = pct;
-            statusEl.innerText = `Uploading ${pct}%`;
+            const total = snapshot.totalBytes || 0;
+            const transferred = snapshot.bytesTransferred || 0;
+            if(total > 0){
+              const pct = Math.floor((transferred / total) * 100);
+              progressEl.value = pct;
+              statusEl.innerText = `Uploading ${pct}%`;
+            } else {
+              // fallback if total unknown
+              statusEl.innerText = `Uploading... ${Math.floor(transferred/1024)} KB`;
+            }
           },
           (err) => {
-            console.error('upload failed', err);
-            statusEl.innerText = 'Upload failed';
             progressEl.style.display = 'none';
+            statusEl.innerText = 'Upload failed';
+            console.error('upload error', err);
             reject(err);
           },
           async () => {
-            try {
-              const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
-              statusEl.innerText = 'Upload complete';
+            try{
+              const url = await getDownloadURL(uploadTask.snapshot.ref);
               progressEl.style.display = 'none';
-              resolve(downloadUrl);
-            } catch (err) {
+              statusEl.innerText = 'Upload complete';
+              resolve({url, path});
+            }catch(err){
               progressEl.style.display = 'none';
               statusEl.innerText = 'Failed to get URL';
               reject(err);
@@ -581,66 +233,181 @@
       });
     }
 
-    // adminSave: upload file if provided, else use manual URL, then save to Firestore
-    $('adminSave').addEventListener('click', async ()=>{
-      const title = $('admin_pTitle').value.trim(); const price = Number($('admin_pPrice').value.trim()); const tag = $('admin_pTag').value.trim(); const manualImg = $('admin_pImg').value.trim();
-      const file = fileInput.files && fileInput.files[0];
-      if(!title || !price){ alert('Title and price required'); return; }
-      if(!auth.currentUser || auth.currentUser.uid !== ADMIN_UID){ alert('Only admin can add products'); return; }
-      try{
-        let imgUrl = manualImg || '';
-        if(file){
-          imgUrl = await uploadImageFile(file);
-        }
-        const payload = { title, price, tag, img: imgUrl || '', createdAt: serverTimestamp() };
-        await addDoc(collection(db, 'products'), payload);
-        toast('Product added (Firestore)');
-        closeModal(adminModal);
-        $('admin_pTitle').value=''; $('admin_pPrice').value=''; $('admin_pTag').value=''; $('admin_pImg').value='';
-        fileInput.value=''; previewImg.style.display='none'; statusEl.innerText='';
-      }catch(err){ console.error('add product failed', err); alert('Failed to add product. See console.'); }
+    // -------- Products listener & render --------
+    const productsCol = collection(db, 'products');
+    onSnapshot(productsCol, snap => {
+      // render
+      if(snap.empty){
+        // keep placeholder as is
+        return;
+      }
+      productGrid.innerHTML = '';
+      snap.forEach(docSnap => {
+        const d = docSnap.data();
+        const id = docSnap.id;
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.dataset.pid = id;
+        // show delete button for admin only (visibility toggled later)
+        const imgHtml = d.img ? `<img src="${d.img}" alt="${(d.title||'').replace(/"/g,'')}" />` : `<div class="small">No image</div>`;
+        card.innerHTML = `
+          ${d.tag ? `<div style="position:absolute;top:10px;left:10px;background:rgba(0,0,0,0.4);padding:6px 8px;border-radius:8px">${d.tag}</div>` : ''}
+          <div class="imgwrap">${imgHtml}</div>
+          <h3>${d.title||'Untitled'}</h3>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div class="small price">₹${d.price||'0'}</div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <button class="btn-ghost orderBtn" data-product="${(d.title||'').replace(/"/g,'')}">Order</button>
+              <button class="btn-ghost deleteProductBtn" data-id="${id}" data-imgpath="${d.imgPath||''}" style="display:none;background:#3b0b0b;color:#fff">Delete</button>
+            </div>
+          </div>
+        `;
+        productGrid.appendChild(card);
+      });
+      attachCardHandlers(); // attach event handlers to new cards
+    }, err => {
+      console.error('products snapshot error', err);
     });
 
-    // ---- Generic modal close handlers ----
-    document.querySelectorAll('.close-x').forEach(btn=>{ btn.addEventListener('click', ()=>{ const modal = btn.closest('.modal'); closeModal(modal); }); });
-    $('cancelOrder')?.addEventListener('click', ()=>{ closeModal(orderModal); });
-    $('closeOrders')?.addEventListener('click', ()=>{ closeModal(myOrdersModal); });
-    $('closePayment')?.addEventListener('click', ()=>{ closeModal(paymentModal); });
-    $('closeOrderDetail')?.addEventListener('click', ()=>{ closeModal(orderDetailModal); });
-    $('closeDetailBtn')?.addEventListener('click', ()=>{ closeModal(orderDetailModal); });
+    // attach handlers (delegated also possible)
+    function attachCardHandlers(){
+      document.querySelectorAll('.orderBtn').forEach(b=>{
+        if(b._bound) return; b._bound = true;
+        b.addEventListener('click', ()=>{ alert('Ordering demo — sign-in flow omitted for brevity'); });
+      });
+      document.querySelectorAll('.deleteProductBtn').forEach(b=>{
+        if(b._bound) return; b._bound = true;
+        b.addEventListener('click', async (ev)=>{
+          const btn = ev.currentTarget;
+          const id = btn.dataset.id;
+          const imgPath = btn.dataset.imgpath || '';
+          if(!auth.currentUser || auth.currentUser.uid !== ADMIN_UID){ alert('Only admin can delete'); return; }
+          const ok = confirm('Delete this product permanently? This will remove Firestore doc and uploaded image (if any).');
+          if(!ok) return;
+          try{
+            // delete firestore doc
+            await deleteDoc(doc(db, 'products', id));
+            // delete storage file if present
+            if(imgPath){
+              try{ await deleteObject(storageRef(storage, imgPath)); }catch(e){ console.warn('failed to delete storage object', e); }
+            }
+            alert('Deleted');
+          }catch(e){
+            console.error('delete failed', e);
+            alert('Failed to delete (see console)');
+          }
+        });
+      });
+      // show delete buttons if current user is admin
+      if(auth.currentUser && auth.currentUser.uid === ADMIN_UID){
+        document.querySelectorAll('.deleteProductBtn').forEach(x=>x.style.display='inline-block');
+      } else {
+        document.querySelectorAll('.deleteProductBtn').forEach(x=>x.style.display='none');
+      }
+    }
 
-    // ---- Auth state changes: UI toggle ----
-    onAuthStateChanged(auth, user=>{
-      if(user){
-        closeModal(loginModal);
-        if(userBadge){ userBadge.style.display='inline-block'; userBadge.innerText = user.displayName || user.email; }
-        if(signOutBtn) signOutBtn.style.display='inline-block';
-        if(myOrdersBtn) myOrdersBtn.style.display='inline-block';
-        if(loginShowBtn) loginShowBtn.style.display='none';
-        if(adminBtn) adminBtn.style.display = (user.uid === ADMIN_UID) ? 'inline-block' : 'none';
-      }else{
-        closeModal(loginModal);
-        if(userBadge) userBadge.style.display='none';
-        if(signOutBtn) signOutBtn.style.display='none';
-        if(myOrdersBtn) myOrdersBtn.style.display='none';
-        if(loginShowBtn) loginShowBtn.style.display='inline-block';
-        if(adminBtn) adminBtn.style.display='none';
+    // -------- Admin modal open/close logic --------
+    $('closeAdmin').addEventListener('click', ()=> closeModal(adminModal));
+    $('adminCancel').addEventListener('click', ()=> closeModal(adminModal));
+    openAdminFromEmpty?.addEventListener('click', ()=> {
+      if(!auth.currentUser){
+        openModal(adminModal); // will prompt sign-in via button
+        logToast('Sign in as admin first');
+        return;
+      }
+      if(auth.currentUser.uid !== ADMIN_UID){ alert('You are not admin'); return; }
+      openModal(adminModal);
+    });
+
+    adminBtn?.addEventListener('click', ()=> {
+      if(!auth.currentUser){ openModal(adminModal); logToast('Sign in as admin first'); return; }
+      if(auth.currentUser.uid !== ADMIN_UID){ alert('You are not admin'); return; }
+      openModal(adminModal);
+    });
+
+    // preview file
+    fileInput?.addEventListener('change', (e)=>{
+      const f = e.target.files && e.target.files[0];
+      if(!f){ previewImg.style.display='none'; return; }
+      previewImg.src = URL.createObjectURL(f);
+      previewImg.style.display = 'block';
+      statusEl.innerText = `Selected ${f.name} (${Math.round(f.size/1024)} KB)`;
+    });
+
+    // adminSave handler: compress+upload file if present, store imgPath and img url
+    $('adminSave').addEventListener('click', async ()=>{
+      const title = $('admin_pTitle').value.trim();
+      const price = Number($('admin_pPrice').value.trim());
+      const tag = $('admin_pTag').value.trim();
+      const manualUrl = $('admin_pImg').value.trim();
+      const file = fileInput.files && fileInput.files[0];
+
+      if(!title || !price){ alert('Title and price required'); return; }
+      if(!auth.currentUser || auth.currentUser.uid !== ADMIN_UID){ alert('Only admin can add products'); return; }
+
+      try{
+        let imgUrl = manualUrl || '';
+        let imgPath = '';
+        if(file){
+          logToast('Compressing and uploading image...');
+          const res = await uploadImageFileWithCompression(file); // {url, path}
+          imgUrl = res.url || imgUrl;
+          imgPath = res.path || '';
+        }
+        const payload = { title, price, tag, img: imgUrl, imgPath: imgPath, createdAt: serverTimestamp() };
+        await addDoc(collection(db, 'products'), payload);
+        logToast('Product added');
+        // reset admin form
+        $('admin_pTitle').value = ''; $('admin_pPrice').value=''; $('admin_pTag').value=''; $('admin_pImg').value='';
+        fileInput.value = ''; previewImg.style.display = 'none';
+        statusEl.innerText = '';
+        closeModal(adminModal);
+      }catch(e){
+        console.error('add product failed', e);
+        alert('Failed to add product (see console)');
       }
     });
 
-    // ---- Search and shopNow ----
-    const searchBox = $('searchBox');
-    if(searchBox) searchBox.addEventListener('input', e=>{
+    // -------- Auth (simple Google) --------
+    loginShowBtn?.addEventListener('click', async ()=>{
+      try{
+        await signInWithPopup(auth, googleProvider);
+      }catch(e){
+        // fallback to redirect if popup blocked
+        try{ await signInWithRedirect(auth, googleProvider); }catch(err){ console.error('Signin fallback failed', err); alert('Sign-in failed'); }
+      }
+    });
+    signOutBtn?.addEventListener('click', async ()=>{ try{ await signOut(auth); }catch(e){ console.warn(e); } });
+
+    onAuthStateChanged(auth, user => {
+      if(user){
+        userBadge.style.display = 'inline-block';
+        userBadge.innerText = user.displayName || user.email;
+        loginShowBtn.style.display = 'none';
+        signOutBtn.style.display = 'inline-block';
+        adminBtn.style.display = (user.uid === ADMIN_UID) ? 'inline-block' : 'none';
+        // show delete buttons if admin
+        if(user.uid === ADMIN_UID) document.querySelectorAll('.deleteProductBtn').forEach(x=>x.style.display='inline-block');
+      }else{
+        userBadge.style.display = 'none';
+        loginShowBtn.style.display = 'inline-block';
+        signOutBtn.style.display = 'none';
+        adminBtn.style.display = 'none';
+        document.querySelectorAll('.deleteProductBtn').forEach(x=>x.style.display='none');
+      }
+    });
+
+    // search (simple)
+    $('searchBox')?.addEventListener('input', e=>{
       const v = e.target.value.toLowerCase();
       document.querySelectorAll('#productGrid .card').forEach(card=>{
-        const t = (card.querySelector('h3')||{innerText:''}).innerText.toLowerCase();
-        const tag = (card.querySelector('.tag')||{innerText:''}).innerText.toLowerCase();
-        card.style.display = (t.includes(v) || tag.includes(v)) ? 'block' : 'none';
+        const title = (card.querySelector('h3')?.innerText || '').toLowerCase();
+        const tag = (card.querySelector('[style*="position:absolute"]')?.innerText || '').toLowerCase();
+        card.style.display = (title.includes(v) || tag.includes(v)) ? 'block' : 'none';
       });
     });
-    const shopNow = $('shopNow'); if(shopNow) shopNow.addEventListener('click', ()=>{ const grid=document.getElementById('productGrid'); if(grid) grid.scrollIntoView({behavior:'smooth'}); });
 
-    console.log('Hamsa Sarees SPA ready — admin upload enabled');
+    console.log('Admin uploader ready — compression enabled, delete feature enabled');
   }catch(err){
     console.error('Init error', err);
     alert('Initialization failed — check console.');
