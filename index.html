@@ -142,7 +142,26 @@
   </div>
 </div>
 
-<iframe name="hiddenFrame" style="display:none;"></iframe>
+<!-- Payment Modal -->
+<div class="modal" id="paymentModal">
+  <div class="modal-box" style="position:relative">
+    <h2>Payment</h2>
+    <button id="closePayment" class="btn btn-ghost" style="position:absolute;top:12px;right:12px">✕</button>
+    <p class="small" id="paymentSummary" style="margin-top:8px"></p>
+    <div style="margin-top:12px;display:flex;gap:10px;flex-direction:column">
+      <label class="small">Select Payment Method</label>
+      <select id="paymentMethod" style="padding:10px;border-radius:8px;border:1px solid #e6e9ef">
+        <option value="card">Card (Test)</option>
+        <option value="upi">UPI (Test)</option>
+        <option value="cod">Cash on Delivery</option>
+      </select>
+      <button class="btn btn-primary" id="payNow">Pay Now</button>
+    </div>
+    <div id="paymentMsg" class="small" style="margin-top:10px;color:green;display:none">Payment successful. Finalizing order...</div>
+  </div>
+</div>
+
+<iframe name="hiddenFrame" style="display:none;"></iframe> 
 <footer>© Hamsa Sarees • Built with care</footer>
 
 <script type="module">
@@ -219,28 +238,55 @@ document.addEventListener('DOMContentLoaded', async () => {
     // place order: submit form and save under user's account
     document.getElementById('placeOrder').addEventListener('click', async (ev)=>{
       ev.preventDefault();
+      // collect form values and store pending order
       const name = document.getElementById('custName').value.trim();
       const address = document.getElementById('custAddress').value.trim();
       const phone = document.getElementById('custPhone').value.trim();
       const product = document.getElementById('productField').value;
       if(!name || !address || !phone){ alert('Fill all fields'); return; }
 
-      // submit original Google Form
-      const form = document.getElementById('orderForm'); form.submit();
+      // store pending order globally for payment step
+      window.pendingOrder = { product, name, address, phone };
 
-      // Save under users/{uid}/orders and also root orders for admin
-      try{
-        const uid = auth.currentUser ? auth.currentUser.uid : null;
-        const orderData = { product, name, address, phone, user: uid, userEmail: auth.currentUser ? auth.currentUser.email : null, createdAt: serverTimestamp() };
-        if(uid){
-          await addDoc(collection(db, `users/${uid}/orders`), orderData);
-        }
-        await addDoc(collection(db, 'orders'), orderData);
-        document.getElementById('orderStatus').style.display='block';
-        // redirect to payment page after brief confirmation
-        setTimeout(()=>{ window.location.href = 'payment.html'; }, 1200);
-      }catch(e){ console.error('save order failed', e); showLoginError('Order recorded to form but server save failed. See console.'); }
+      // submit the original Google Form (iframe)
+      try{ document.getElementById('orderForm').submit(); }catch(e){ console.warn('form.submit failed', e); }
+
+      // hide order modal and open payment modal with summary
+      if(orderModal) orderModal.style.display = 'none';
+      const paymentModal = document.getElementById('paymentModal');
+      const summary = document.getElementById('paymentSummary');
+      if(summary) summary.innerText = `${product} — ₹ (check price)
+Name: ${name}
+Phone: ${phone}`;
+      if(paymentModal) paymentModal.style.display = 'flex';
+
     });
+
+    // Pay Now handler: simulate payment, then save order to Firestore and show confirmation
+    document.getElementById('payNow').addEventListener('click', async ()=>{
+      const payMsg = document.getElementById('paymentMsg'); if(payMsg) payMsg.style.display = 'block';
+      const payNowBtn = document.getElementById('payNow'); if(payNowBtn) payNowBtn.disabled = true;
+      // simulate small delay for payment processing
+      setTimeout(async ()=>{
+        // after payment success, save order to Firestore (users/{uid}/orders and root orders)
+        try{
+          const uid = auth.currentUser ? auth.currentUser.uid : null;
+          const orderData = { ...(window.pendingOrder||{}), user: uid, userEmail: auth.currentUser ? auth.currentUser.email : null, createdAt: serverTimestamp() };
+          if(uid){ await addDoc(collection(db, `users/${uid}/orders`), orderData); }
+          await addDoc(collection(db, 'orders'), orderData);
+          // show final confirmation
+          if(paymentMsg) paymentMsg.style.display = 'none';
+          document.getElementById('orderStatus').innerText = 'Order placed and payment received. Thank you!';
+          document.getElementById('orderStatus').style.display = 'block';
+          // close payment modal after brief pause
+          setTimeout(()=>{ const pm = document.getElementById('paymentModal'); if(pm) pm.style.display='none'; document.getElementById('orderStatus').style.display='none'; document.getElementById('orderForm').reset(); window.pendingOrder = null; if(myOrdersModal) myOrdersModal.style.display='none'; }, 1600);
+        }catch(e){ console.error('save order after payment failed', e); showLoginError('Payment succeeded but saving order failed. Check console.'); }
+      }, 900);
+    });
+
+    // close payment modal button
+    const closePayment = document.getElementById('closePayment');
+    if(closePayment) closePayment.addEventListener('click', ()=>{ const pm = document.getElementById('paymentModal'); if(pm) pm.style.display='none'; });
 
     // My Orders
     myOrdersBtn && myOrdersBtn.addEventListener('click', async ()=>{
