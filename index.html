@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Hamsa Sarees — Single Page (Admin + Ratings + Persistent Orders)</title>
+<title>Hamsa Sarees — Admin Upload + Products</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -111,8 +111,8 @@
           <h2 style="margin:0">Products</h2>
           <div class="small">Sign in to place orders; orders saved to your account</div>
         </div>
+
         <div class="grid" id="productGrid" aria-live="polite">
-          <!-- No products included in the canvas. Admin will add products via Admin modal. -->
           <div class="card" style="grid-column:1/-1;text-align:center;color:var(--muted);padding:32px;background:transparent">
             <strong style="color:#eaf6ff">No products yet</strong>
             <div class="small" style="margin-top:8px">As admin, open Admin → Add Product to upload items. The product grid updates live for users.</div>
@@ -182,7 +182,6 @@
     </div>
   </div>
 
-  <!-- Order detail modal (replaces alert) -->
   <div class="modal" id="orderDetailModal" aria-hidden="true">
     <div class="modal-box" role="dialog" aria-modal="true">
       <button class="close-x" id="closeOrderDetail" title="Close">✕</button>
@@ -192,16 +191,33 @@
     </div>
   </div>
 
-  <!-- Admin modal -->
+  <!-- Admin modal: includes direct file upload to Firebase Storage -->
   <div class="modal" id="adminModal" aria-hidden="true">
     <div class="modal-box" role="dialog" aria-modal="true">
       <button class="close-x" id="closeAdmin" title="Close">✕</button>
       <h2>Admin — Add Product</h2>
       <p class="small">Products added here are saved to Firestore (admin-only).</p>
+
       <div class="field"><label class="small">Title</label><input id="admin_pTitle" placeholder="Product title"></div>
       <div class="field"><label class="small">Price (₹)</label><input id="admin_pPrice" type="number" placeholder="1499"></div>
       <div class="field"><label class="small">Tag</label><input id="admin_pTag" placeholder="e.g. New, Best"></div>
-      <div class="field"><label class="small">Image URL</label><input id="admin_pImg" placeholder="https://..."></div>
+
+      <!-- manual URL still allowed (optional), but you can upload file below -->
+      <div class="field"><label class="small">Image URL (optional)</label><input id="admin_pImg" placeholder="https://..."></div>
+
+      <!-- file upload UI -->
+      <div class="field">
+        <label class="small">Or upload image file (recommended)</label>
+        <input id="admin_pImgFile" type="file" accept="image/*">
+        <div style="margin-top:8px; display:flex; gap:8px; align-items:center;">
+          <progress id="imgUploadProgress" value="0" max="100" style="width:160px; display:none"></progress>
+          <div id="imgUploadStatus" class="small" style="color:var(--muted)"></div>
+        </div>
+        <div style="margin-top:10px">
+          <img id="adminImgPreview" alt="preview" style="max-width:160px;max-height:120px;border-radius:8px;display:none;object-fit:cover"/>
+        </div>
+      </div>
+
       <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
         <button id="adminSave" class="btn">Add Product</button>
         <button id="adminCancel" class="btn-ghost">Cancel</button>
@@ -217,7 +233,7 @@
   if(document.readyState === 'loading') await new Promise(r=>document.addEventListener('DOMContentLoaded', r));
 
   // ---- CONFIG ----
-  const ADMIN_UID = 'EenXHJIvZpavhkGTCI8EZyFAfH93'; // your admin UID (already provided)
+  const ADMIN_UID = 'EenXHJIvZpavhkGTCI8EZyFAfH93'; // your admin UID
   const firebaseConfig = {
     apiKey: "AIzaSyBozW19Rjc9nj0YabOIE3DlW0qVHtU5XLA",
     authDomain: "hamsasarees-24738.firebaseapp.com",
@@ -228,18 +244,21 @@
     measurementId: "G-1G1HQGJ5XS"
   };
 
-  // ---- Firebase imports ----
+  // ---- Firebase imports (app, auth, firestore, storage) ----
   try{
     const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
     const authMod = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
     const fsMod = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+    const storageMod = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js');
 
     const { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } = authMod;
     const { getFirestore, collection, addDoc, setDoc, doc, deleteDoc, serverTimestamp, query, orderBy, getDocs, onSnapshot } = fsMod;
+    const { getStorage, ref: storageRef, uploadBytesResumable, getDownloadURL } = storageMod;
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
+    const storage = getStorage(app);
     const googleProvider = new GoogleAuthProvider();
 
     // ---- DOM refs ----
@@ -250,16 +269,18 @@
     const adminBtn = $('adminBtn');
     const orderDetailModal = $('orderDetailModal'), orderDetailContent = $('orderDetailContent');
 
+    // admin upload UI
+    const fileInput = $('admin_pImgFile'), previewImg = $('adminImgPreview'), progressEl = $('imgUploadProgress'), statusEl = $('imgUploadStatus');
+
     function toast(msg){ if(!toastEl) return; toastEl.innerText = msg; toastEl.style.display = 'block'; setTimeout(()=>toastEl.style.display = 'none', 1800); }
     function showLoginError(msg){ if(!loginErr) return; loginErr.innerText = msg; loginErr.style.display = msg ? 'block' : 'none'; }
 
-    // small utility: open/close modal with focus trap basic handling (non-perfect but good)
+    // modal helpers
     function openModal(modal){ if(!modal) return; modal.classList.add('show'); modal.removeAttribute('aria-hidden'); document.body.style.overflow = 'hidden'; }
     function closeModal(modal){ if(!modal) return; modal.classList.remove('show'); modal.setAttribute('aria-hidden','true'); document.body.style.overflow = ''; }
 
     // close on backdrop click and Esc
     document.addEventListener('click', (ev)=>{
-      // if click on modal backdrop (element with class 'modal' but not inside modal-box)
       const m = ev.target.closest('.modal');
       if(m && !ev.target.closest('.modal-box')){
         closeModal(m);
@@ -296,18 +317,17 @@
     const productGrid = $('productGrid');
     const productsColRef = collection(db, 'products');
 
-    // render helper
     function renderProductCard(id, data){
       const title = data.title || 'Untitled';
       const pid = id || (title.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9\-]/g,''));
       const tagHtml = data.tag ? `<div class="tag">${data.tag}</div>` : '';
-      const img = data.img || 'https://images.unsplash.com/photo-1520975918016-4d0b5b0b2f3d?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder';
+      const img = data.img || '';
       const price = data.price || '0';
       const avgDisplay = data._avg ? `★ ${Number(data._avg).toFixed(1)} (${data._count||0})` : 'No ratings';
       const card = document.createElement('div'); card.className = 'card'; card.dataset.pid = pid;
       card.innerHTML = `
         ${tagHtml}
-        <div class="imgwrap"><img src="${img}" alt="${title}"></div>
+        <div class="imgwrap">${img ? `<img src="${img}" alt="${title}">` : '<div class="small" style="padding:10px;color:var(--muted)">No image</div>'}</div>
         <h3>${title}</h3>
         <div style="display:flex;justify-content:space-between;align-items:center">
           <div class="price">₹${price}</div>
@@ -325,30 +345,24 @@
       return card;
     }
 
-    // live listener: show products from Firestore; if empty, keep fallback static ones
-    let productsUnsub = null;
+    // listen products collection and render live
     try{
-      productsUnsub = onSnapshot(productsColRef, snap=>{
+      onSnapshot(productsColRef, snap=>{
         if(snap.empty){
-          // keep static fallback — but still attach rating listeners later
-          attachRatingListenersToGrid();
+          // keep the placeholder card
           return;
         }
-        // clear grid and render from DB
         productGrid.innerHTML = '';
         snap.forEach(d => {
-          const id = d.id; const data = d.data();
-          const card = renderProductCard(id, data);
+          const card = renderProductCard(d.id, d.data());
           productGrid.appendChild(card);
         });
         attachRatingListenersToGrid();
       }, err => {
         console.error('products snapshot error', err);
-        attachRatingListenersToGrid();
       });
     }catch(e){
       console.warn('products onSnapshot not available (maybe offline)', e);
-      attachRatingListenersToGrid();
     }
 
     // attach order button delegation (works for dynamic cards)
@@ -356,17 +370,20 @@
       const btn = ev.target.closest('.orderBtn');
       if(!btn) return;
       const prod = btn.getAttribute('data-product') || '';
-      if(!auth.currentUser){ openModal(loginModal); showLoginError('Please sign in with Google to place orders'); return; }
-      const sel = $('selectedProduct'); if(sel) sel.innerText = prod;
-      const pf = $('productField'); if(pf) pf.value = prod;
+      if(!auth.currentUser){
+        openModal(loginModal); showLoginError('Please sign in with Google to place orders'); return;
+      }
+      $('selectedProduct').innerText = prod;
+      $('productField').value = prod;
       openModal(orderModal);
     });
 
-    // ---- Rating listeners and live averages per product ----
+    // ---- Rating listeners (per-card) ----
     function attachRatingListenersToGrid(){
       document.querySelectorAll('#productGrid .card').forEach(card=>{
         const pid = card.dataset.pid || (card.querySelector('h3') && card.querySelector('h3').innerText.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9\-]/g,'')) ;
         if(!pid) return;
+        // rating buttons
         card.querySelectorAll('.rateBtn').forEach(btn=>{
           if(btn._bound) return; btn._bound = true;
           btn.addEventListener('click', async (ev)=>{
@@ -379,21 +396,8 @@
             }catch(err){ console.error('rating save failed', err); alert('Failed to save rating'); }
           });
         });
-
-        if(card._ratingsUnsub) return;
-        try{
-          const ratingsColRef = collection(db, `products/${pid}/ratings`);
-          card._ratingsUnsub = onSnapshot(ratingsColRef, snap=>{
-            let sum = 0, cnt = 0;
-            snap.forEach(s => { const d = s.data(); if(d && typeof d.rating === 'number'){ sum += d.rating; cnt++; }});
-            const avg = cnt ? (sum / cnt) : null;
-            const rEl = card.querySelector(`.product-rating[data-pid="${pid}"]`);
-            if(rEl) rEl.innerText = avg ? `★ ${avg.toFixed(1)} (${cnt})` : 'No ratings';
-          }, err => { console.error('ratings snapshot failed', err); });
-        }catch(e){ console.warn('ratings onSnapshot error', e); }
       });
     }
-    attachRatingListenersToGrid();
 
     // ---- Orders: place & persist in users/{uid}/orders ----
     $('placeOrder').addEventListener('click', ev=>{
@@ -404,7 +408,7 @@
       if(!/^[6-9]\d{9}$/.test(phone)){ alert('Enter a valid 10-digit Indian mobile number'); return; }
       window.pendingOrder = { product, name, address, phone };
       closeModal(orderModal);
-      const ps = $('paymentSummary'); if(ps) ps.innerText = `${product}\nName: ${name}\nPhone: ${phone}`;
+      $('paymentSummary').innerText = `${product}\nName: ${name}\nPhone: ${phone}`;
       openModal(paymentModal);
     });
 
@@ -469,14 +473,12 @@
                 <button class="btn deleteOrderBtn" data-id="${id}" type="button">Delete</button>
               </div>
             </div>`;
-          // store order data for quick view without extra read
           el.querySelector('.viewOrderBtn').dataset.product = o.product || '';
           el.querySelector('.viewOrderBtn').dataset.name = o.name || '';
           el.querySelector('.viewOrderBtn').dataset.phone = o.phone || '';
           el.querySelector('.viewOrderBtn').dataset.address = o.address || '';
           ordersList.appendChild(el);
         });
-        // attach delete handlers and view handlers
         ordersList.querySelectorAll('.deleteOrderBtn').forEach(b=>{
           b.addEventListener('click', async ev=>{
             const id = ev.currentTarget.getAttribute('data-id'); if(!id) return;
@@ -512,28 +514,94 @@
       openModal(myOrdersModal);
     });
 
-    // ---- Admin UI: open modal only if user is admin, and persist product to Firestore ----
+    // ---- Admin: open modal and handle add product + upload to Storage ----
     adminBtn && adminBtn.addEventListener('click', ()=>{
       if(!auth.currentUser){ alert('Sign in as admin'); return; }
       if(auth.currentUser.uid !== ADMIN_UID){ alert('You are not admin'); return; }
       openModal(adminModal);
     });
+
+    // quick open from empty
+    document.getElementById('openAdminFromEmpty')?.addEventListener('click', ()=>{
+      if(!auth.currentUser){ openModal(loginModal); showLoginError('Sign in as admin to add products'); return; }
+      if(auth.currentUser.uid !== ADMIN_UID){ alert('You are not admin'); return; }
+      openModal(adminModal);
+    });
+
     $('adminCancel').addEventListener('click', ()=>{ closeModal(adminModal); });
 
+    // preview when file picked
+    fileInput?.addEventListener('change', (e) => {
+      const f = e.target.files && e.target.files[0];
+      if (!f) { previewImg.style.display = 'none'; return; }
+      const url = URL.createObjectURL(f);
+      previewImg.src = url;
+      previewImg.style.display = 'block';
+      statusEl.innerText = `Selected: ${f.name} (${Math.round(f.size/1024)} KB)`;
+    });
+
+    // upload helper
+    async function uploadImageFile(file) {
+      if (!file) return null;
+      const uid = auth.currentUser ? auth.currentUser.uid : 'anon';
+      const fname = `product_images/${Date.now()}_${uid}_${file.name.replace(/\s+/g,'_').toLowerCase()}`;
+      const ref = storageRef(storage, fname);
+      const uploadTask = uploadBytesResumable(ref, file);
+
+      progressEl.style.display = 'inline-block';
+      progressEl.value = 0;
+      statusEl.innerText = 'Uploading...';
+
+      return new Promise((resolve, reject) => {
+        uploadTask.on('state_changed',
+          (snapshot) => {
+            const pct = Math.floor((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+            progressEl.value = pct;
+            statusEl.innerText = `Uploading ${pct}%`;
+          },
+          (err) => {
+            console.error('upload failed', err);
+            statusEl.innerText = 'Upload failed';
+            progressEl.style.display = 'none';
+            reject(err);
+          },
+          async () => {
+            try {
+              const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
+              statusEl.innerText = 'Upload complete';
+              progressEl.style.display = 'none';
+              resolve(downloadUrl);
+            } catch (err) {
+              progressEl.style.display = 'none';
+              statusEl.innerText = 'Failed to get URL';
+              reject(err);
+            }
+          }
+        );
+      });
+    }
+
+    // adminSave: upload file if provided, else use manual URL, then save to Firestore
     $('adminSave').addEventListener('click', async ()=>{
-      const title = $('admin_pTitle').value.trim(); const price = Number($('admin_pPrice').value.trim()); const tag = $('admin_pTag').value.trim(); const img = $('admin_pImg').value.trim();
+      const title = $('admin_pTitle').value.trim(); const price = Number($('admin_pPrice').value.trim()); const tag = $('admin_pTag').value.trim(); const manualImg = $('admin_pImg').value.trim();
+      const file = fileInput.files && fileInput.files[0];
       if(!title || !price){ alert('Title and price required'); return; }
       if(!auth.currentUser || auth.currentUser.uid !== ADMIN_UID){ alert('Only admin can add products'); return; }
       try{
-        const payload = { title, price, tag, img, createdAt: serverTimestamp() };
+        let imgUrl = manualImg || '';
+        if(file){
+          imgUrl = await uploadImageFile(file);
+        }
+        const payload = { title, price, tag, img: imgUrl || '', createdAt: serverTimestamp() };
         await addDoc(collection(db, 'products'), payload);
         toast('Product added (Firestore)');
         closeModal(adminModal);
         $('admin_pTitle').value=''; $('admin_pPrice').value=''; $('admin_pTag').value=''; $('admin_pImg').value='';
-      }catch(err){ console.error('add product failed', err); alert('Failed to add product'); }
+        fileInput.value=''; previewImg.style.display='none'; statusEl.innerText='';
+      }catch(err){ console.error('add product failed', err); alert('Failed to add product. See console.'); }
     });
 
-    // ---- Generic modal close (fix for all X buttons) ----
+    // ---- Generic modal close handlers ----
     document.querySelectorAll('.close-x').forEach(btn=>{ btn.addEventListener('click', ()=>{ const modal = btn.closest('.modal'); closeModal(modal); }); });
     $('cancelOrder')?.addEventListener('click', ()=>{ closeModal(orderModal); });
     $('closeOrders')?.addEventListener('click', ()=>{ closeModal(myOrdersModal); });
@@ -572,14 +640,7 @@
     });
     const shopNow = $('shopNow'); if(shopNow) shopNow.addEventListener('click', ()=>{ const grid=document.getElementById('productGrid'); if(grid) grid.scrollIntoView({behavior:'smooth'}); });
 
-    // initial UI ready
-    // quick-open admin from empty state
-    document.getElementById('openAdminFromEmpty')?.addEventListener('click', ()=>{
-      if(!auth.currentUser){ openModal(loginModal); showLoginError('Sign in as admin to add products'); return; }
-      if(auth.currentUser.uid !== ADMIN_UID){ alert('You are not admin'); return; }
-      openModal(adminModal);
-    });
-    console.log('Hamsa Sarees SPA ready — polished canvas');
+    console.log('Hamsa Sarees SPA ready — admin upload enabled');
   }catch(err){
     console.error('Init error', err);
     alert('Initialization failed — check console.');
