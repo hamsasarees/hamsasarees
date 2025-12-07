@@ -111,44 +111,13 @@
           <h2 style="margin:0">Products</h2>
           <div class="small">Sign in to place orders; orders saved to your account</div>
         </div>
-
         <div class="grid" id="productGrid" aria-live="polite">
-          <!-- fallback static products (rendered only if Firestore empty) -->
-          <div class="card" data-pid="beautiful-saree">
-            <div class="tag">New</div>
-            <div class="imgwrap"><img src="https://images.unsplash.com/photo-1520975918016-4d0b5b0b2f3d?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder" alt="Beautiful Saree"/></div>
-            <h3>Beautiful Saree</h3>
-            <div style="display:flex;justify-content:space-between;align-items:center">
-              <div class="price">₹1499</div>
-              <div style="display:flex;align-items:center"><div class="product-rating small">No ratings</div></div>
-            </div>
-            <div class="rating-ui" style="margin-top:8px">
-              <button class="rateBtn btn-ghost" data-rating="1">1</button>
-              <button class="rateBtn btn-ghost" data-rating="2">2</button>
-              <button class="rateBtn btn-ghost" data-rating="3">3</button>
-              <button class="rateBtn btn-ghost" data-rating="4">4</button>
-              <button class="rateBtn btn-ghost" data-rating="5">5</button>
-            </div>
-            <div style="margin-top:8px"><button class="orderBtn btn" data-product="Beautiful Saree">Order Now</button></div>
+          <!-- No products included in the canvas. Admin will add products via Admin modal. -->
+          <div class="card" style="grid-column:1/-1;text-align:center;color:var(--muted);padding:32px;background:transparent">
+            <strong style="color:#eaf6ff">No products yet</strong>
+            <div class="small" style="margin-top:8px">As admin, open Admin → Add Product to upload items. The product grid updates live for users.</div>
+            <div style="margin-top:12px"><button id="openAdminFromEmpty" class="btn-ghost">Open Admin</button></div>
           </div>
-
-          <div class="card" data-pid="designer-saree">
-            <div class="imgwrap"><img src="https://images.unsplash.com/photo-1541099649105-f69ad21f3246?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder" alt="Designer Saree"/></div>
-            <h3>Designer Saree</h3>
-            <div style="display:flex;justify-content:space-between;align-items:center">
-              <div class="price">₹1799</div>
-              <div style="display:flex;align-items:center"><div class="product-rating small">No ratings</div></div>
-            </div>
-            <div class="rating-ui" style="margin-top:8px">
-              <button class="rateBtn btn-ghost" data-rating="1">1</button>
-              <button class="rateBtn btn-ghost" data-rating="2">2</button>
-              <button class="rateBtn btn-ghost" data-rating="3">3</button>
-              <button class="rateBtn btn-ghost" data-rating="4">4</button>
-              <button class="rateBtn btn-ghost" data-rating="5">5</button>
-            </div>
-            <div style="margin-top:8px"><button class="orderBtn btn" data-product="Designer Saree">Order Now</button></div>
-          </div>
-
         </div>
       </section>
     </main>
@@ -604,6 +573,12 @@
     const shopNow = $('shopNow'); if(shopNow) shopNow.addEventListener('click', ()=>{ const grid=document.getElementById('productGrid'); if(grid) grid.scrollIntoView({behavior:'smooth'}); });
 
     // initial UI ready
+    // quick-open admin from empty state
+    document.getElementById('openAdminFromEmpty')?.addEventListener('click', ()=>{
+      if(!auth.currentUser){ openModal(loginModal); showLoginError('Sign in as admin to add products'); return; }
+      if(auth.currentUser.uid !== ADMIN_UID){ alert('You are not admin'); return; }
+      openModal(adminModal);
+    });
     console.log('Hamsa Sarees SPA ready — polished canvas');
   }catch(err){
     console.error('Init error', err);
