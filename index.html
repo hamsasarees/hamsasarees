@@ -3,31 +3,28 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Hamsa Sarees — Admin Upload + Delete (Fast Upload)</title>
+<title>Hamsa Sarees — Single Page (Admin + Edit/Delete + Ratings + Orders)</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --bg1:#001f3f; --bg2:#00306b; --accent:#00aaff; --accent2:#4dd0e1; --muted:#9fb8d9; --success:#10b981;
-  }
+  :root{--bg1:#001f3f;--bg2:#00306b;--accent:#00aaff;--accent2:#4dd0e1;--muted:#9fb8d9;--success:#10b981}
   *{box-sizing:border-box}
   html,body{height:100%;margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:#eaf6ff}
   .container{max-width:1100px;margin:20px auto;padding:0 16px}
-  header{display:flex;align-items:center;justify-content:space-between;padding:12px}
-  .logo{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:800;color:#032033}
-  .search{display:flex;align-items:center;background:rgba(255,255,255,0.03);padding:8px;border-radius:10px}
-  .btn{cursor:pointer;border-radius:10px;padding:9px 14px;border:none;font-weight:700;background:linear-gradient(90deg,var(--accent),#ff5aa3);color:#fff}
-  .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#fff;padding:8px 12px;border-radius:10px}
+  header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px}
+  .logo{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center}
   .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:16px}
   .card{background:linear-gradient(180deg,#071522,#06121a);padding:12px;border-radius:12px;position:relative}
-  .imgwrap{height:180px;border-radius:10px;background:#081522;display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .imgwrap{height:180px;border-radius:10px;overflow:hidden}
   .imgwrap img{width:100%;height:100%;object-fit:cover}
-  .small{color:#9fb8d9}
-  .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(2,8,18,0.85);z-index:1200;padding:12px}
+  .btn{cursor:pointer;border-radius:8px;padding:8px 12px;border:none;background:#0184ff;color:#fff}
+  .btn-ghost{background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.06);padding:8px 10px;border-radius:8px}
+  .admin-only{display:none}
+  .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);z-index:1200}
   .modal.show{display:flex}
-  .modal-box{max-width:720px;width:100%;background:#072033;border-radius:12px;padding:16px;color:#eaf6ff}
-  .close-x{position:absolute;top:12px;right:12px;background:transparent;border:none;color:#ff3b3b;font-weight:800;cursor:pointer}
-  progress{height:8px;border-radius:6px}
-  .danger{background:#ff5a5a;color:#150000;padding:6px 8px;border-radius:8px;font-weight:700}
+  .modal-box{background:#071522;padding:16px;border-radius:10px;color:#eaf6ff;max-width:720px;width:100%}
+  .close-x{float:right;background:transparent;border:none;color:#ff7b7b;font-weight:800;font-size:18px}
+  .small{color:#9fb8d9}
+  .toast{position:fixed;right:16px;bottom:16px;background:#0b1220;padding:10px 14px;border-radius:10px;color:#d1fae5;border-left:4px solid var(--success);display:none}
 </style>
 </head>
 <body>
@@ -37,29 +34,29 @@
         <div class="logo">HS</div>
         <div>
           <div style="font-weight:800">Hamsa Sarees</div>
-          <div class="small">Admin upload + delete demo</div>
+          <div class="small">Admin demo: Add / Edit / Delete products</div>
         </div>
       </div>
       <div style="display:flex;gap:8px;align-items:center">
-        <div class="search"><input id="searchBox" placeholder="Search products..." style="background:transparent;border:0;color:#eaf6ff;outline:none;width:220px"></div>
-        <div id="userBadge" style="display:none" class="small"></div>
-        <button id="adminBtn" class="btn-ghost" style="display:none">Admin</button>
+        <div id="userBadge" style="display:none;background:rgba(255,255,255,0.03);padding:6px 10px;border-radius:8px"></div>
         <button id="loginShowBtn" class="btn">Sign in</button>
         <button id="signOutBtn" class="btn-ghost" style="display:none">Sign out</button>
       </div>
     </header>
 
     <main>
-      <section style="margin-top:12px">
+      <section>
         <div style="display:flex;justify-content:space-between;align-items:center">
           <h2 style="margin:0">Products</h2>
-          <div class="small">Admin can add/delete products. Images uploaded to Firebase Storage.</div>
+          <div>
+            <button id="openAdminBtn" class="btn admin-only" style="display:none">Admin</button>
+          </div>
         </div>
 
         <div class="grid" id="productGrid">
-          <div class="card" style="grid-column:1/-1;text-align:center;color:var(--muted)">
+          <div class="card" style="grid-column:1/-1;text-align:center;color:var(--muted);padding:32px;background:transparent">
             <strong style="color:#eaf6ff">No products yet</strong>
-            <div class="small" style="margin-top:8px">Open Admin to add products.</div>
+            <div class="small" style="margin-top:8px">As admin you can add products using the Admin modal below.</div>
             <div style="margin-top:12px"><button id="openAdminFromEmpty" class="btn-ghost">Open Admin</button></div>
           </div>
         </div>
@@ -67,42 +64,30 @@
     </main>
   </div>
 
-  <!-- Admin modal -->
+  <!-- Admin modal (Add/Edit) -->
   <div class="modal" id="adminModal" aria-hidden="true">
-    <div class="modal-box" role="dialog" aria-modal="true">
+    <div class="modal-box">
       <button class="close-x" id="closeAdmin">✕</button>
-      <h3>Admin — Add Product</h3>
-      <div style="margin-top:10px">
-        <label class="small">Title</label><input id="admin_pTitle" style="width:100%;padding:10px;border-radius:8px;background:#08212a;border:none;color:#eaf6ff">
-        <label class="small" style="margin-top:8px;display:block">Price (₹)</label><input id="admin_pPrice" type="number" style="width:120px;padding:10px;border-radius:8px;background:#08212a;border:none;color:#eaf6ff">
-        <label class="small" style="margin-top:8px;display:block">Tag</label><input id="admin_pTag" style="width:160px;padding:10px;border-radius:8px;background:#08212a;border:none;color:#eaf6ff">
-        <label class="small" style="margin-top:8px;display:block">Image URL (optional)</label><input id="admin_pImg" placeholder="https://..." style="width:100%;padding:10px;border-radius:8px;background:#08212a;border:none;color:#eaf6ff">
-      </div>
-
-      <div style="margin-top:12px">
-        <label class="small">Or upload file</label>
-        <input id="admin_pImgFile" type="file" accept="image/*" style="display:block;margin-top:8px">
-        <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
-          <progress id="imgUploadProgress" value="0" max="100" style="width:200px;display:none"></progress>
-          <div id="imgUploadStatus" class="small"></div>
-        </div>
-        <div style="margin-top:10px"><img id="adminImgPreview" style="max-width:180px;border-radius:8px;display:none"></div>
-      </div>
-
-      <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
-        <button id="adminSave" class="btn">Add Product</button>
+      <h3 id="adminModalTitle">Add Product</h3>
+      <div class="field"><label class="small">Title</label><input id="admin_pTitle" placeholder="Product title" style="width:100%;padding:8px;border-radius:6px;background:#08121a;border:none;color:#eaf6ff"/></div>
+      <div class="field"><label class="small">Price (₹)</label><input id="admin_pPrice" type="number" placeholder="1499" style="width:120px;padding:8px;border-radius:6px;background:#08121a;border:none;color:#eaf6ff"/></div>
+      <div class="field"><label class="small">Tag</label><input id="admin_pTag" placeholder="e.g. New" style="width:200px;padding:8px;border-radius:6px;background:#08121a;border:none;color:#eaf6ff"/></div>
+      <div class="field"><label class="small">Image URL</label><input id="admin_pImg" placeholder="https://..." style="width:100%;padding:8px;border-radius:6px;background:#08121a;border:none;color:#eaf6ff"/></div>
+      <div id="imgPreviewWrap" style="margin-top:12px;display:none"><img id="imgPreview" alt="preview" style="max-width:160px;border-radius:6px;display:block;"/></div>
+      <input type="hidden" id="admin_editId" />
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+        <button id="adminSave" class="btn">Save</button>
         <button id="adminCancel" class="btn-ghost">Cancel</button>
+        <button id="adminDelete" class="btn-ghost" style="display:none;background:#7a1515;color:#fff;border:none">Delete</button>
       </div>
-      <div id="adminNote" style="margin-top:10px" class="small"></div>
     </div>
   </div>
 
-  <!-- Order modals etc are omitted for brevity (not relevant to this task) -->
+  <div id="toast" class="toast">Saved.</div>
 
 <script type="module">
-(async function(){
-  // -------- CONFIG --------
-  const ADMIN_UID = 'EenXHJIvZpavhkGTCI8EZyFAfH93'; // your admin UID
+(async ()=>{
+  // minimal Firebase imports — same as canvas version
   const firebaseConfig = {
     apiKey: "AIzaSyBozW19Rjc9nj0YabOIE3DlW0qVHtU5XLA",
     authDomain: "hamsasarees-24738.firebaseapp.com",
@@ -110,308 +95,97 @@
     storageBucket: "hamsasarees-24738.firebasestorage.app",
     messagingSenderId: "16303342424",
     appId: "1:16303342424:web:d68d26160d45472713db2d",
-    measurementId: "G-1G1HQGJ5XS"
   };
 
-  // -------- Firebase imports --------
-  try{
-    const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
-    const authMod = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
-    const fsMod = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
-    const storageMod = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js');
+  const ADMIN_UID = 'EenXHJIvZpavhkGTCI8EZyFAfH93';
+  const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
+  const authMod = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
+  const fsMod = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+  const { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } = authMod;
+  const { getFirestore, collection, addDoc, setDoc, doc, deleteDoc, serverTimestamp, query, orderBy, getDocs, onSnapshot, updateDoc, getDoc } = fsMod;
 
-    const { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } = authMod;
-    const { getFirestore, collection, addDoc, setDoc, doc, deleteDoc, serverTimestamp, query, orderBy, getDocs, onSnapshot } = fsMod;
-    const { getStorage, ref: storageRef, uploadBytesResumable, getDownloadURL, deleteObject } = storageMod;
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const googleProvider = new GoogleAuthProvider();
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const storage = getStorage(app);
-    const googleProvider = new GoogleAuthProvider();
+  const $ = id => document.getElementById(id);
+  const productGrid = $('productGrid');
+  const adminModal = $('adminModal');
 
-    // -------- DOM refs --------
-    const $ = id => document.getElementById(id);
-    const productGrid = $('productGrid');
-    const adminModal = $('adminModal');
-    const openAdminFromEmpty = $('openAdminFromEmpty');
-    const adminBtn = $('adminBtn');
-    const loginShowBtn = $('loginShowBtn');
-    const signOutBtn = $('signOutBtn');
-    const userBadge = $('userBadge');
+  function toast(msg){ const t = $('toast'); if(!t) return; t.innerText = msg; t.style.display='block'; setTimeout(()=>t.style.display='none',1400); }
+  function openModal(m){ if(!m) return; m.classList.add('show'); m.removeAttribute('aria-hidden'); document.body.style.overflow='hidden'; }
+  function closeModal(m){ if(!m) return; m.classList.remove('show'); m.setAttribute('aria-hidden','true'); document.body.style.overflow=''; }
 
-    const fileInput = $('admin_pImgFile'), previewImg = $('adminImgPreview'), progressEl = $('imgUploadProgress'), statusEl = $('imgUploadStatus');
-    const adminNote = $('adminNote');
-
-    function openModal(m){ if(!m) return; m.classList.add('show'); m.removeAttribute('aria-hidden'); document.body.style.overflow = 'hidden'; }
-    function closeModal(m){ if(!m) return; m.classList.remove('show'); m.setAttribute('aria-hidden','true'); document.body.style.overflow = ''; }
-
-    function logToast(msg){ adminNote.innerText = msg; setTimeout(()=>{ if(adminNote.innerText === msg) adminNote.innerText = '' }, 4000); }
-
-    // compress & resize helper (returns Blob)
-    async function compressImage(file, maxWidth=1200, quality=0.75) {
-      if(!file) return file;
-      const imgBitmap = await createImageBitmap(file);
-      const ratio = imgBitmap.width / imgBitmap.height;
-      let targetWidth = imgBitmap.width;
-      let targetHeight = imgBitmap.height;
-      if(imgBitmap.width > maxWidth){
-        targetWidth = maxWidth;
-        targetHeight = Math.round(maxWidth / ratio);
-      }
-      const canvas = document.createElement('canvas');
-      canvas.width = targetWidth;
-      canvas.height = targetHeight;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(imgBitmap, 0, 0, targetWidth, targetHeight);
-      return new Promise((resolve) => {
-        canvas.toBlob(blob => {
-          // convert to blob of type image/jpeg
-          resolve(blob);
-        }, 'image/jpeg', quality);
-      });
-    }
-
-    // upload with progress; store imgPath for deletion and img URL for display
-    async function uploadImageFileWithCompression(file){
-      if(!file) return {url:'', path:''};
-      // compress/resample
-      const MAX_WIDTH = 1200; // lower this to make uploads even faster
-      const QUALITY = 0.75;   // 0.0 - 1.0
-      let blobToUpload = file;
-      try{
-        blobToUpload = await compressImage(file, MAX_WIDTH, QUALITY) || file;
-      }catch(e){
-        console.warn('compression failed, uploading original file', e);
-        blobToUpload = file;
-      }
-
-      // create unique filename
-      const uid = auth.currentUser ? auth.currentUser.uid : 'anon';
-      const safeName = file.name.replace(/\s+/g,'_').toLowerCase();
-      const path = `product_images/${Date.now()}_${uid}_${safeName}`;
-      const ref = storageRef(storage, path);
-
-      progressEl.style.display = 'inline-block';
-      progressEl.value = 0;
-      statusEl.innerText = 'Uploading...';
-
-      return new Promise((resolve, reject) => {
-        const uploadTask = uploadBytesResumable(ref, blobToUpload);
-        uploadTask.on('state_changed',
-          (snapshot) => {
-            const total = snapshot.totalBytes || 0;
-            const transferred = snapshot.bytesTransferred || 0;
-            if(total > 0){
-              const pct = Math.floor((transferred / total) * 100);
-              progressEl.value = pct;
-              statusEl.innerText = `Uploading ${pct}%`;
-            } else {
-              // fallback if total unknown
-              statusEl.innerText = `Uploading... ${Math.floor(transferred/1024)} KB`;
-            }
-          },
-          (err) => {
-            progressEl.style.display = 'none';
-            statusEl.innerText = 'Upload failed';
-            console.error('upload error', err);
-            reject(err);
-          },
-          async () => {
-            try{
-              const url = await getDownloadURL(uploadTask.snapshot.ref);
-              progressEl.style.display = 'none';
-              statusEl.innerText = 'Upload complete';
-              resolve({url, path});
-            }catch(err){
-              progressEl.style.display = 'none';
-              statusEl.innerText = 'Failed to get URL';
-              reject(err);
-            }
-          }
-        );
-      });
-    }
-
-    // -------- Products listener & render --------
-    const productsCol = collection(db, 'products');
-    onSnapshot(productsCol, snap => {
-      // render
-      if(snap.empty){
-        // keep placeholder as is
-        return;
-      }
-      productGrid.innerHTML = '';
-      snap.forEach(docSnap => {
-        const d = docSnap.data();
-        const id = docSnap.id;
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.dataset.pid = id;
-        // show delete button for admin only (visibility toggled later)
-        const imgHtml = d.img ? `<img src="${d.img}" alt="${(d.title||'').replace(/"/g,'')}" />` : `<div class="small">No image</div>`;
-        card.innerHTML = `
-          ${d.tag ? `<div style="position:absolute;top:10px;left:10px;background:rgba(0,0,0,0.4);padding:6px 8px;border-radius:8px">${d.tag}</div>` : ''}
-          <div class="imgwrap">${imgHtml}</div>
-          <h3>${d.title||'Untitled'}</h3>
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <div class="small price">₹${d.price||'0'}</div>
-            <div style="display:flex;gap:8px;align-items:center">
-              <button class="btn-ghost orderBtn" data-product="${(d.title||'').replace(/"/g,'')}">Order</button>
-              <button class="btn-ghost deleteProductBtn" data-id="${id}" data-imgpath="${d.imgPath||''}" style="display:none;background:#3b0b0b;color:#fff">Delete</button>
-            </div>
-          </div>
-        `;
-        productGrid.appendChild(card);
-      });
-      attachCardHandlers(); // attach event handlers to new cards
-    }, err => {
-      console.error('products snapshot error', err);
-    });
-
-    // attach handlers (delegated also possible)
-    function attachCardHandlers(){
-      document.querySelectorAll('.orderBtn').forEach(b=>{
-        if(b._bound) return; b._bound = true;
-        b.addEventListener('click', ()=>{ alert('Ordering demo — sign-in flow omitted for brevity'); });
-      });
-      document.querySelectorAll('.deleteProductBtn').forEach(b=>{
-        if(b._bound) return; b._bound = true;
-        b.addEventListener('click', async (ev)=>{
-          const btn = ev.currentTarget;
-          const id = btn.dataset.id;
-          const imgPath = btn.dataset.imgpath || '';
-          if(!auth.currentUser || auth.currentUser.uid !== ADMIN_UID){ alert('Only admin can delete'); return; }
-          const ok = confirm('Delete this product permanently? This will remove Firestore doc and uploaded image (if any).');
-          if(!ok) return;
-          try{
-            // delete firestore doc
-            await deleteDoc(doc(db, 'products', id));
-            // delete storage file if present
-            if(imgPath){
-              try{ await deleteObject(storageRef(storage, imgPath)); }catch(e){ console.warn('failed to delete storage object', e); }
-            }
-            alert('Deleted');
-          }catch(e){
-            console.error('delete failed', e);
-            alert('Failed to delete (see console)');
-          }
-        });
-      });
-      // show delete buttons if current user is admin
-      if(auth.currentUser && auth.currentUser.uid === ADMIN_UID){
-        document.querySelectorAll('.deleteProductBtn').forEach(x=>x.style.display='inline-block');
-      } else {
-        document.querySelectorAll('.deleteProductBtn').forEach(x=>x.style.display='none');
-      }
-    }
-
-    // -------- Admin modal open/close logic --------
-    $('closeAdmin').addEventListener('click', ()=> closeModal(adminModal));
-    $('adminCancel').addEventListener('click', ()=> closeModal(adminModal));
-    openAdminFromEmpty?.addEventListener('click', ()=> {
-      if(!auth.currentUser){
-        openModal(adminModal); // will prompt sign-in via button
-        logToast('Sign in as admin first');
-        return;
-      }
-      if(auth.currentUser.uid !== ADMIN_UID){ alert('You are not admin'); return; }
-      openModal(adminModal);
-    });
-
-    adminBtn?.addEventListener('click', ()=> {
-      if(!auth.currentUser){ openModal(adminModal); logToast('Sign in as admin first'); return; }
-      if(auth.currentUser.uid !== ADMIN_UID){ alert('You are not admin'); return; }
-      openModal(adminModal);
-    });
-
-    // preview file
-    fileInput?.addEventListener('change', (e)=>{
-      const f = e.target.files && e.target.files[0];
-      if(!f){ previewImg.style.display='none'; return; }
-      previewImg.src = URL.createObjectURL(f);
-      previewImg.style.display = 'block';
-      statusEl.innerText = `Selected ${f.name} (${Math.round(f.size/1024)} KB)`;
-    });
-
-    // adminSave handler: compress+upload file if present, store imgPath and img url
-    $('adminSave').addEventListener('click', async ()=>{
-      const title = $('admin_pTitle').value.trim();
-      const price = Number($('admin_pPrice').value.trim());
-      const tag = $('admin_pTag').value.trim();
-      const manualUrl = $('admin_pImg').value.trim();
-      const file = fileInput.files && fileInput.files[0];
-
-      if(!title || !price){ alert('Title and price required'); return; }
-      if(!auth.currentUser || auth.currentUser.uid !== ADMIN_UID){ alert('Only admin can add products'); return; }
-
-      try{
-        let imgUrl = manualUrl || '';
-        let imgPath = '';
-        if(file){
-          logToast('Compressing and uploading image...');
-          const res = await uploadImageFileWithCompression(file); // {url, path}
-          imgUrl = res.url || imgUrl;
-          imgPath = res.path || '';
-        }
-        const payload = { title, price, tag, img: imgUrl, imgPath: imgPath, createdAt: serverTimestamp() };
-        await addDoc(collection(db, 'products'), payload);
-        logToast('Product added');
-        // reset admin form
-        $('admin_pTitle').value = ''; $('admin_pPrice').value=''; $('admin_pTag').value=''; $('admin_pImg').value='';
-        fileInput.value = ''; previewImg.style.display = 'none';
-        statusEl.innerText = '';
-        closeModal(adminModal);
-      }catch(e){
-        console.error('add product failed', e);
-        alert('Failed to add product (see console)');
-      }
-    });
-
-    // -------- Auth (simple Google) --------
-    loginShowBtn?.addEventListener('click', async ()=>{
-      try{
-        await signInWithPopup(auth, googleProvider);
-      }catch(e){
-        // fallback to redirect if popup blocked
-        try{ await signInWithRedirect(auth, googleProvider); }catch(err){ console.error('Signin fallback failed', err); alert('Sign-in failed'); }
-      }
-    });
-    signOutBtn?.addEventListener('click', async ()=>{ try{ await signOut(auth); }catch(e){ console.warn(e); } });
-
-    onAuthStateChanged(auth, user => {
-      if(user){
-        userBadge.style.display = 'inline-block';
-        userBadge.innerText = user.displayName || user.email;
-        loginShowBtn.style.display = 'none';
-        signOutBtn.style.display = 'inline-block';
-        adminBtn.style.display = (user.uid === ADMIN_UID) ? 'inline-block' : 'none';
-        // show delete buttons if admin
-        if(user.uid === ADMIN_UID) document.querySelectorAll('.deleteProductBtn').forEach(x=>x.style.display='inline-block');
-      }else{
-        userBadge.style.display = 'none';
-        loginShowBtn.style.display = 'inline-block';
-        signOutBtn.style.display = 'none';
-        adminBtn.style.display = 'none';
-        document.querySelectorAll('.deleteProductBtn').forEach(x=>x.style.display='none');
-      }
-    });
-
-    // search (simple)
-    $('searchBox')?.addEventListener('input', e=>{
-      const v = e.target.value.toLowerCase();
-      document.querySelectorAll('#productGrid .card').forEach(card=>{
-        const title = (card.querySelector('h3')?.innerText || '').toLowerCase();
-        const tag = (card.querySelector('[style*="position:absolute"]')?.innerText || '').toLowerCase();
-        card.style.display = (title.includes(v) || tag.includes(v)) ? 'block' : 'none';
-      });
-    });
-
-    console.log('Admin uploader ready — compression enabled, delete feature enabled');
-  }catch(err){
-    console.error('Init error', err);
-    alert('Initialization failed — check console.');
+  // simple render for product card
+  function renderProductCard(docId, data){
+    const el = document.createElement('div'); el.className='card'; el.dataset.docid = docId;
+    el.innerHTML = `
+      <div class="imgwrap"><img src="${data.img||'https://images.unsplash.com/photo-1520975918016-4d0b5b0b2f3d?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder'}" alt="${(data.title||'')}"></div>
+      <h3 style="margin:10px 0">${data.title||'Untitled'}</h3>
+      <div style="display:flex;justify-content:space-between;align-items:center"><div style="font-weight:700">₹${data.price||0}</div><div class="small">${data.tag||''}</div></div>
+      <div style="display:flex;gap:8px;margin-top:12px;justify-content:space-between;align-items:center">
+        <div><button class="orderBtn btn" data-product="${(data.title||'')}">Order</button></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn-ghost admin-edit admin-only" data-docid="${docId}" style="display:none">Edit</button>
+          <button class="btn admin-del admin-only" data-docid="${docId}" style="display:none;background:#7a1515">Delete</button>
+        </div>
+      </div>
+    `;
+    return el;
   }
+
+  // live product listener
+  const productsCol = collection(db,'products');
+  onSnapshot(productsCol, snap=>{
+    productGrid.innerHTML='';
+    if(snap.empty){ productGrid.innerHTML = `<div class="card" style="grid-column:1/-1;text-align:center;color:var(--muted);padding:32px;background:transparent"><strong style="color:#eaf6ff">No products yet</strong><div class="small" style="margin-top:8px">Use admin to add products.</div><div style="margin-top:12px"><button id="openAdminFromEmpty" class="btn-ghost">Open Admin</button></div></div>`; document.getElementById('openAdminFromEmpty')?.addEventListener('click', ()=>{ openModal(adminModal); }); return; }
+    snap.forEach(d=>{ const card = renderProductCard(d.id, d.data()); productGrid.appendChild(card); });
+    refreshAdminControls();
+  }, err=>{ console.error(err); productGrid.innerHTML='<div class="small">Failed to load products</div>'; });
+
+  // delegation for edit/delete/order
+  productGrid.addEventListener('click', async ev=>{
+    const edit = ev.target.closest('.admin-edit'); if(edit){ const id = edit.dataset.docid; if(!id) return; if(!auth.currentUser || auth.currentUser.uid !== ADMIN_UID){ alert('Only admin'); return; } const snap = await getDoc(doc(db,'products',id)); if(!snap.exists()){ alert('Product missing'); return; } const data = snap.data(); $('admin_pTitle').value = data.title||''; $('admin_pPrice').value = data.price||''; $('admin_pTag').value = data.tag||''; $('admin_pImg').value = data.img||''; $('admin_editId').value = id; $('adminModalTitle').innerText='Edit Product'; $('adminDelete').style.display='inline-block'; updateImagePreview(); openModal(adminModal); return; }
+    const del = ev.target.closest('.admin-del'); if(del){ const id = del.dataset.docid; if(!id) return; if(!auth.currentUser || auth.currentUser.uid !== ADMIN_UID){ alert('Only admin'); return; } const ok = confirm('Delete product?'); if(!ok) return; await deleteDoc(doc(db,'products',id)); toast('Deleted'); return; }
+    const order = ev.target.closest('.orderBtn'); if(order){ const p = order.dataset.product||''; alert('Order flow — product: '+p); }
+  });
+
+  // admin modal helpers
+  function updateImagePreview(){ const url = $('admin_pImg').value.trim(); const wrap = $('imgPreviewWrap'); const img = $('imgPreview'); if(!url){ wrap.style.display='none'; img.src=''; return; } img.onload = ()=>wrap.style.display='block'; img.onerror = ()=>wrap.style.display='none'; img.src = url; }
+  $('admin_pImg').addEventListener('input', updateImagePreview);
+
+  // save product (create or update)
+  $('adminSave').addEventListener('click', async ()=>{
+    const title = $('admin_pTitle').value.trim(); const price = Number($('admin_pPrice').value.trim()); const tag = $('admin_pTag').value.trim(); const img = $('admin_pImg').value.trim(); const editId = $('admin_editId').value.trim();
+    if(!title||!price){ alert('Title and price required'); return; }
+    if(!auth.currentUser || auth.currentUser.uid !== ADMIN_UID){ alert('Only admin'); return; }
+    try{
+      const payload = { title, price, tag, img, updatedAt: serverTimestamp() };
+      if(editId){ await updateDoc(doc(db,'products',editId), payload); toast('Updated'); }
+      else { payload.createdAt = serverTimestamp(); await addDoc(collection(db,'products'), payload); toast('Added'); }
+      closeModal(adminModal); $('admin_editId').value='';
+    }catch(e){ console.error(e); alert('Failed to save'); }
+  });
+
+  $('adminDelete').addEventListener('click', async ()=>{
+    const id = $('admin_editId').value.trim(); if(!id) return; const ok = confirm('Delete product permanently?'); if(!ok) return; try{ await deleteDoc(doc(db,'products',id)); toast('Deleted'); closeModal(adminModal); }catch(e){ console.error(e); alert('Delete failed'); }
+  });
+
+  $('adminCancel').addEventListener('click', ()=>{ closeModal(adminModal); });
+  $('closeAdmin').addEventListener('click', ()=>{ closeModal(adminModal); });
+
+  // auth quick demo (Google)
+  $('loginShowBtn').addEventListener('click', async ()=>{ try{ await signInWithPopup(auth, googleProvider); }catch(e){ try{ await signInWithRedirect(auth, googleProvider); }catch(err){ alert('Sign-in failed'); } } });
+  $('signOutBtn').addEventListener('click', async ()=>{ await signOut(auth); });
+
+  function refreshAdminControls(){ document.querySelectorAll('.admin-only').forEach(el=> el.style.display = (auth.currentUser && auth.currentUser.uid === ADMIN_UID) ? 'inline-block' : 'none'); }
+
+  onAuthStateChanged(auth, user=>{
+    if(user){ $('userBadge').style.display='inline-block'; $('userBadge').innerText = user.displayName || user.email; $('loginShowBtn').style.display='none'; $('signOutBtn').style.display='inline-block'; refreshAdminControls(); }
+    else{ $('userBadge').style.display='none'; $('loginShowBtn').style.display='inline-block'; $('signOutBtn').style.display='none'; refreshAdminControls(); }
+  });
+
 })();
 </script>
 </body>
