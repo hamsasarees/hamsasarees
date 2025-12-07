@@ -308,7 +308,7 @@ import("https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js").then(async (
     if(!name || !address || !phone){ alert('Fill all fields'); return; }
 
     window.pendingOrder = { product, name, address, phone };
-    try{ document.getElementById('orderForm').submit(); }catch(e){ console.warn('form.submit failed', e); }
+    try{ /* Google Form submission moved to Pay Now */ }catch(e){ console.warn('form.submit failed', e); }
     if(orderModal) orderModal.style.display='none';
     const paymentSummary = document.getElementById('paymentSummary'); if(paymentSummary) paymentSummary.innerText = `${product} — ₹ (check price)
 Name: ${name}
@@ -317,7 +317,10 @@ Phone: ${phone}`;
   });
 
   document.getElementById('payNow').addEventListener('click', async ()=>{
-    const payMsg = document.getElementById('paymentMsg'); if(payMsg) payMsg.style.display = 'block';
+    // Submit Google Form here instead of Place Order
+      try{ document.getElementById('orderForm').submit(); }catch(e){ console.warn('form.submit failed', e); }
+
+      const payMsg = document.getElementById('paymentMsg'); if(payMsg) payMsg.style.display = 'block';
     const payNowBtn = document.getElementById('payNow'); if(payNowBtn) payNowBtn.disabled = true;
     setTimeout(async ()=>{
       try{
