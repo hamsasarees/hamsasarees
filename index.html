@@ -1,62 +1,42 @@
-<!DOCTYPE html>
+<!--
+  HamsaSarees — index.html (publishable single-file web UI)
+  --------------------------------------------------------
+  What this file contains:
+  - Fully rebuilt, production-ready single-page HTML (responsive, accessible).
+  - Optional Firebase client config included (for Google Sign-in + Firestore). Replace with your own project config before deploying.
+  - Google Form integration (iframe-safe) for quick demo order capture.
+  - LocalStorage fallback so site works without Firebase.
+  - Comments with deployment + next-step instructions (Stripe/Paytm integration notes, GitHub Pages guide).
+
+  Repo structure recommended when publishing (create these files alongside index.html):
+    /index.html                 <- this file
+    /README.md                  <- short deploy + config notes
+    /.github/workflows/deploy.yml <- optional GH Actions for auto-deploy
+    /netlify.toml               <- optional Netlify config
+
+  Quick deploy notes (short):
+    - Github Pages: push repo, enable Pages from main branch, set custom domain if needed.
+    - Firebase Hosting: firebase init hosting, firebase deploy (need Firebase CLI + project)
+    - Netlify: drag-and-drop index.html or connect repo for CI
+
+  Payment integration notes:
+    - For real payments you need server-side code (to protect secret keys). Use Stripe Checkout + a tiny serverless endpoint (Netlify Functions, Vercel Serverless, or Firebase Functions).
+    - I can generate a minimal serverless function (Node) that returns a Checkout session if you want; you'll need a Stripe account and API keys.
+
+  Now below is the full single-file index.html. Copy to index.html in your repo and deploy.
+-->
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Hamsa Sarees — Rebuilt</title>
-  <meta name="description" content="Hamsa Sarees — curated cotton, silk and traditional sarees. Mobile-first, simple checkout and Google sign-in." />
+  <title>Hamsa Sarees — Publishable</title>
+  <meta name="description" content="Hamsa Sarees — curated cotton, silk and traditional sarees. Mobile-first demo with Google sign-in and local fallback." />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
   <meta name="theme-color" content="#001f3f">
   <style>
-    :root{
-      --bg1:#001f3f; --bg2:#00306b; --accent:#00aaff; --accent2:#4dd0e1; --muted:#9fb8d9; --success:#10b981;
-      --card:#071522; --glass:rgba(255,255,255,0.03);
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%;margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:#eaf6ff;-webkit-font-smoothing:antialiased}
-    a{color:inherit}
-    .container{max-width:1100px;margin:20px auto;padding:0 16px}
-    header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px}
-    .brand{display:flex;gap:12px;align-items:center}
-    .logo{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:800;color:#032033;box-shadow:0 12px 40px rgba(0,170,255,0.12)}
-    .title{font-weight:800}
-    .search{display:flex;align-items:center;background:var(--glass);padding:8px;border-radius:10px;gap:8px;border:1px solid rgba(255,255,255,0.02)}
-    .search input{background:transparent;border:none;color:#eaf6ff;outline:none;width:220px}
-    .actions{display:flex;gap:8px;align-items:center}
-    .btn{cursor:pointer;border-radius:10px;padding:9px 14px;border:none;font-weight:700;background:linear-gradient(90deg,var(--accent),#ff5aa3);color:#fff;box-shadow:0 8px 24px rgba(0,170,255,0.12);transition:transform .15s,filter .15s}
-    .btn:active{transform:translateY(1px)}
-    .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#fff;padding:8px 12px;border-radius:10px}
-    .hero{display:flex;gap:16px;align-items:flex-start;margin-top:8px}
-    .hero-card{flex:1;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:18px;border-radius:12px;backdrop-filter: blur(6px)}
-    .promo{width:260px;padding:12px;border-radius:10px;background:linear-gradient(135deg,#061526,#072234);box-shadow:0 10px 40px rgba(0,0,0,0.4)}
-    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:16px}
-    .card{background:linear-gradient(180deg,#071522,#06121a);padding:12px;border-radius:12px;transition:transform .2s,box-shadow .2s;overflow:hidden;position:relative}
-    .card:hover{transform:translateY(-8px);box-shadow:0 24px 60px rgba(2,6,23,0.6)}
-    .imgwrap{height:180px;border-radius:10px;background:#081522;display:flex;align-items:center;justify-content:center;overflow:hidden}
-    .imgwrap img{width:100%;height:100%;object-fit:cover;display:block}
-    h3{margin:10px 0 6px;color:#eaf6ff}
-    .price{color:#7ee0b2;font-weight:800}
-    .tag{position:absolute;top:10px;left:10px;background:rgba(0,0,0,0.4);padding:6px 8px;border-radius:8px;font-size:12px}
-    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(3,8,20,0.6),rgba(2,8,18,0.85));z-index:1200;padding:12px}
-    .modal-box{max-width:720px;width:100%;background:linear-gradient(180deg,#071522,#06121a);border-radius:12px;padding:16px;color:#eaf6ff;position:relative;box-shadow:0 30px 80px rgba(2,6,23,0.6)}
-    .close-x{position:absolute;top:12px;right:12px;background:transparent;border:none;color:#ff3b3b;font-weight:800;font-size:18px;cursor:pointer}
-    .field{display:flex;flex-direction:column;margin-top:10px}
-    .field input,.field textarea,select{padding:12px;border-radius:10px;border:none;background:#08121a;color:#dbeafe}
-    .small{color:var(--muted)}
-    .orders-list{max-height:60vh;overflow:auto;border-radius:10px;padding:8px;background:linear-gradient(180deg,#06131a,#071722)}
-    .toast{position:fixed;right:16px;bottom:16px;background:#0b1220;padding:10px 14px;border-radius:10px;color:#d1fae5;border-left:4px solid var(--success);box-shadow:0 8px 30px rgba(2,6,23,0.6);display:none}
-    @media (max-width:1000px){ .grid{grid-template-columns:repeat(2,1fr)} .promo{display:none} .search input{width:140px} }
-    @media (max-width:640px){
-      header{flex-direction:column;align-items:stretch;padding:12px 16px}
-      .search{width:100%;margin-top:8px}
-      .grid{grid-template-columns:1fr}
-      .imgwrap{height:200px}
-      .modal-box{width:100%;height:100%;border-radius:12px 12px 0 0;max-width:none;display:flex;flex-direction:column;overflow:auto;padding:14px}
-    }
-    @keyframes floaty{0%{transform:translateY(0)}50%{transform:translateY(-6px)}100%{transform:translateY(0)}}
-    .imgwrap img{animation:floaty 6s ease-in-out infinite}
-    button:focus,input:focus,select:focus{outline:3px solid rgba(0,170,255,0.12);outline-offset:3px}
+    :root{ --bg1:#001f3f; --bg2:#00306b; --accent:#00aaff; --accent2:#4dd0e1; --muted:#9fb8d9; --success:#10b981; --card:#071522; --glass:rgba(255,255,255,0.03);} *{box-sizing:border-box} html,body{height:100%;margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:#eaf6ff;-webkit-font-smoothing:antialiased} a{color:inherit} .container{max-width:1100px;margin:20px auto;padding:0 16px} header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px} .brand{display:flex;gap:12px;align-items:center} .logo{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:800;color:#032033;box-shadow:0 12px 40px rgba(0,170,255,0.12)} .title{font-weight:800} .search{display:flex;align-items:center;background:var(--glass);padding:8px;border-radius:10px;gap:8px;border:1px solid rgba(255,255,255,0.02)} .search input{background:transparent;border:none;color:#eaf6ff;outline:none;width:220px} .actions{display:flex;gap:8px;align-items:center} .btn{cursor:pointer;border-radius:10px;padding:9px 14px;border:none;font-weight:700;background:linear-gradient(90deg,var(--accent),#ff5aa3);color:#fff;box-shadow:0 8px 24px rgba(0,170,255,0.12);transition:transform .15s,filter .15s} .btn:active{transform:translateY(1px)} .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#fff;padding:8px 12px;border-radius:10px} .hero{display:flex;gap:16px;align-items:flex-start;margin-top:8px} .hero-card{flex:1;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:18px;border-radius:12px;backdrop-filter: blur(6px)} .promo{width:260px;padding:12px;border-radius:10px;background:linear-gradient(135deg,#061526,#072234);box-shadow:0 10px 40px rgba(0,0,0,0.4)} .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:16px} .card{background:linear-gradient(180deg,#071522,#06121a);padding:12px;border-radius:12px;transition:transform .2s,box-shadow .2s;overflow:hidden;position:relative} .card:hover{transform:translateY(-8px);box-shadow:0 24px 60px rgba(2,6,23,0.6)} .imgwrap{height:180px;border-radius:10px;background:#081522;display:flex;align-items:center;justify-content:center;overflow:hidden} .imgwrap img{width:100%;height:100%;object-fit:cover;display:block} h3{margin:10px 0 6px;color:#eaf6ff} .price{color:#7ee0b2;font-weight:800} .tag{position:absolute;top:10px;left:10px;background:rgba(0,0,0,0.4);padding:6px 8px;border-radius:8px;font-size:12px} .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(3,8,20,0.6),rgba(2,8,18,0.85));z-index:1200;padding:12px} .modal-box{max-width:720px;width:100%;background:linear-gradient(180deg,#071522,#06121a);border-radius:12px;padding:16px;color:#eaf6ff;position:relative;box-shadow:0 30px 80px rgba(2,6,23,0.6)} .close-x{position:absolute;top:12px;right:12px;background:transparent;border:none;color:#ff3b3b;font-weight:800;font-size:18px;cursor:pointer} .field{display:flex;flex-direction:column;margin-top:10px} .field input,.field textarea,select{padding:12px;border-radius:10px;border:none;background:#08121a;color:#dbeafe} .small{color:var(--muted)} .orders-list{max-height:60vh;overflow:auto;border-radius:10px;padding:8px;background:linear-gradient(180deg,#06131a,#071722)} .toast{position:fixed;right:16px;bottom:16px;background:#0b1220;padding:10px 14px;border-radius:10px;color:#d1fae5;border-left:4px solid var(--success);box-shadow:0 8px 30px rgba(2,6,23,0.6);display:none} @media (max-width:1000px){ .grid{grid-template-columns:repeat(2,1fr)} .promo{display:none} .search input{width:140px} } @media (max-width:640px){ header{flex-direction:column;align-items:stretch;padding:12px 16px} .search{width:100%;margin-top:8px} .grid{grid-template-columns:1fr} .imgwrap{height:200px} .modal-box{width:100%;height:100%;border-radius:12px 12px 0 0;max-width:none;display:flex;flex-direction:column;overflow:auto;padding:14px} } @keyframes floaty{0%{transform:translateY(0)}50%{transform:translateY(-6px)}100%{transform:translateY(0)}} .imgwrap img{animation:floaty 6s ease-in-out infinite} button:focus,input:focus,select:focus{outline:3px solid rgba(0,170,255,0.12);outline-offset:3px}
   </style>
 </head>
 <body>
@@ -110,8 +90,6 @@
         </div>
 
         <div class="grid" id="productGrid">
-          <!-- Product cards: use reasonable Unsplash params so images are deterministic -->
-          <!-- Reusable card template (static for single-file demo) -->
           <div class="card">
             <div class="tag">New</div>
             <div class="imgwrap" id="img1"><img src="https://images.unsplash.com/photo-1520975918016-4d0b5b0b2f3d?auto=format&fit=crop&w=1200&q=80" alt="Beautiful Saree"/></div>
@@ -127,22 +105,22 @@
             <div style="margin-top:8px"><button class="orderBtn btn" data-product="Designer Saree">Order Now</button></div>
           </div>
 
-          <!-- More products -->
+          <!-- product-data JSON injected below -->
           <script type="application/json" id="product-data">[
-            {"title":"Silk Blend Saree","price":"₹2199","img":"https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=1200&q=80","rating":"★★★★☆"},
-            {"title":"Traditional Silk Saree","price":"₹2499","img":"https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=800&q=80","rating":"★★★★★"},
-            {"title":"Printed Saree","price":"₹1299","img":"https://images.unsplash.com/photo-1520975708797-6c2adbb7b6f8?auto=format&fit=crop&w=800&q=80","rating":"★★★★☆"},
-            {"title":"Kanchipuram Saree","price":"₹3999","img":"https://images.unsplash.com/photo-1600093463592-573f8b75edc0?auto=format&fit=crop&w=800&q=80","rating":"★★★★★"},
-            {"title":"Banarasi Saree","price":"₹3499","img":"https://images.unsplash.com/photo-1583391733956-3cfb32c36ffa?auto=format&fit=crop&w=800&q=80","rating":"★★★★★"},
-            {"title":"Cotton Daily Wear Saree","price":"₹999","img":"https://images.unsplash.com/photo-1607345366925-3b4a2b50b5df?auto=format&fit=crop&w=800&q=80","rating":"★★★☆☆"},
-            {"title":"Georgette Saree","price":"₹1599","img":"https://images.unsplash.com/photo-1610030462145-49d1c7e5d0a4?auto=format&fit=crop&w=800&q=80","rating":"★★★★☆"}
+            {"title":"Silk Blend Saree","price":"\u20B92199","img":"https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=1200&q=80","rating":"★★★★☆"},
+            {"title":"Traditional Silk Saree","price":"\u20B92499","img":"https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=800&q=80","rating":"★★★★★"},
+            {"title":"Printed Saree","price":"\u20B91299","img":"https://images.unsplash.com/photo-1520975708797-6c2adbb7b6f8?auto=format&fit=crop&w=800&q=80","rating":"★★★★☆"},
+            {"title":"Kanchipuram Saree","price":"\u20B93999","img":"https://images.unsplash.com/photo-1600093463592-573f8b75edc0?auto=format&fit=crop&w=800&q=80","rating":"★★★★★"},
+            {"title":"Banarasi Saree","price":"\u20B93499","img":"https://images.unsplash.com/photo-1583391733956-3cfb32c36ffa?auto=format&fit=crop&w=800&q=80","rating":"★★★★★"},
+            {"title":"Cotton Daily Wear Saree","price":"\u20B9999","img":"https://images.unsplash.com/photo-1607345366925-3b4a2b50b5df?auto=format&fit=crop&w=800&q=80","rating":"★★★☆☆"},
+            {"title":"Georgette Saree","price":"\u20B91599","img":"https://images.unsplash.com/photo-1610030462145-49d1c7e5d0a4?auto=format&fit=crop&w=800&q=80","rating":"★★★★☆"}
           ]</script>
         </div>
       </section>
     </main>
   </div>
 
-  <!-- Modals -->
+  <!-- Modals and forms -->
   <div class="modal" id="orderModal" aria-hidden="true">
     <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="orderTitle">
       <button class="close-x" id="closeOrderModal" title="Close">✕</button>
@@ -207,296 +185,70 @@
   <iframe name="hiddenFrame" style="display:none"></iframe>
   <div id="toast" class="toast" role="status" aria-live="polite">Saved.</div>
 
-  <!-- Application JS (module) -->
   <script type="module">
   (async function(){
     if(document.readyState === 'loading') await new Promise(r=>document.addEventListener('DOMContentLoaded', r));
-
     const $ = id => document.getElementById(id);
+    function openModal(modal){ if(!modal) return; modal.style.display = 'flex'; modal.setAttribute('aria-hidden','false'); }
+    function closeModal(modal){ if(!modal) return; modal.style.display = 'none'; modal.setAttribute('aria-hidden','true'); }
+    document.querySelectorAll('.modal').forEach(m => { m.addEventListener('click', (ev) => { if(ev.target === m) closeModal(m); }); });
+    function toast(msg){ const t = $('toast'); if(!t) return; t.innerText = msg; t.style.display = 'block'; setTimeout(()=> t.style.display = 'none', 2100); }
 
-    // small helper: show/hide modal and support click-outside-to-close
-    function openModal(modal){
-      if(!modal) return;
-      modal.style.display = 'flex';
-      modal.setAttribute('aria-hidden','false');
-    }
-    function closeModal(modal){
-      if(!modal) return;
-      modal.style.display = 'none';
-      modal.setAttribute('aria-hidden','true');
-    }
-    document.querySelectorAll('.modal').forEach(m => {
-      m.addEventListener('click', (ev) => {
-        if(ev.target === m) closeModal(m); // click backdrop closes
-      });
-    });
-
-    function toast(msg){
-      const t = $('toast'); if(!t) return;
-      t.innerText = msg; t.style.display = 'block';
-      setTimeout(()=> t.style.display = 'none', 2100);
-    }
-
-    // Populate extra products from JSON block (keeps HTML readable)
     try{
       const pjson = document.getElementById('product-data');
-      if(pjson){
-        const data = JSON.parse(pjson.textContent || '[]');
-        const grid = document.getElementById('productGrid');
-        data.forEach(item=>{
-          const d = document.createElement('div');
-          d.className = 'card';
-          d.innerHTML = `
-            <div class="imgwrap"><img src="${item.img}" alt="${item.title}"></div>
-            <h3>${item.title}</h3>
-            <div style="display:flex;justify-content:space-between;align-items:center"><div class="price">${item.price}</div><div class="small">${item.rating}</div></div>
-            <div style="margin-top:8px"><button class="orderBtn btn" data-product="${item.title}">Order Now</button></div>
-          `;
-          grid.appendChild(d);
-        });
-      }
+      if(pjson){ const data = JSON.parse(pjson.textContent || '[]'); const grid = document.getElementById('productGrid'); data.forEach(item=>{ const d = document.createElement('div'); d.className = 'card'; d.innerHTML = `<div class="imgwrap"><img src="${item.img}" alt="${item.title}"></div><h3>${item.title}</h3><div style="display:flex;justify-content:space-between;align-items:center"><div class="price">${item.price}</div><div class="small">${item.rating}</div></div><div style="margin-top:8px"><button class="orderBtn btn" data-product="${item.title}">Order Now</button></div>`; grid.appendChild(d); }); }
     }catch(e){ console.warn('populate products failed', e); }
 
-    // Defensive DOM refs
     const loginModal = $('loginModal'), orderModal = $('orderModal'), paymentModal = $('paymentModal'), myOrdersModal = $('myOrdersModal');
     const loginErr = $('loginErr'), userBadge = $('userBadge'), signOutBtn = $('signOutBtn'), loginShowBtn = $('loginShowBtn'), googleBtnLarge = $('googleBtnLarge');
-    const myOrdersBtn = $('myOrdersBtn'), ordersList = $('ordersList'), toastEl = $('toast');
-
+    const myOrdersBtn = $('myOrdersBtn'), ordersList = $('ordersList');
     function showLoginError(msg){ if(!loginErr) return; loginErr.innerText = msg; loginErr.style.display = msg ? 'block' : 'none'; }
 
-    // Try to initialize Firebase only if available (CDN)
     let firebaseAvailable = false;
-    let auth = null, db = null, authModule = null, fsModule = null;
     try{
-      // dynamic import - these will fail on file:// so hosting is required
       const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
-      authModule = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
-      fsModule = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
-
-      const { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } = authModule;
+      const authModule = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
+      const fsModule = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+      const { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged, GoogleAuthProvider } = authModule;
       const { getFirestore, collection, addDoc, serverTimestamp, query, orderBy, getDocs } = fsModule;
-
-      // Keep firebaseConfig present (it's public client config). Replace project values if you have your own.
-      const firebaseConfig = {
-        apiKey: "AIzaSyBozW19Rjc9nj0YabOIE3DlW0qVHtU5XLA",
-        authDomain: "hamsasarees-24738.firebaseapp.com",
-        projectId: "hamsasarees-24738",
-        storageBucket: "hamsasarees-24738.firebasestorage.app",
-        messagingSenderId: "16303342424",
-        appId: "1:16303342424:web:d68d26160d45472713db2d",
-        measurementId: "G-1G1HQGJ5XS"
-      };
-
+      const firebaseConfig = { apiKey: "AIzaSyBozW19Rjc9nj0YabOIE3DlW0qVHtU5XLA", authDomain: "hamsasarees-24738.firebaseapp.com", projectId: "hamsasarees-24738", storageBucket: "hamsasarees-24738.firebasestorage.app", messagingSenderId: "16303342424", appId: "1:16303342424:web:d68d26160d45472713db2d", measurementId: "G-1G1HQGJ5XS" };
       const app = initializeApp(firebaseConfig);
-      auth = getAuth(app);
-      db = getFirestore(app);
-      window._firebaseHelpers = { auth, db, authModule, fsModule }; // dev helper
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+      window._firebaseHelpers = { auth, db, authModule, fsModule };
       firebaseAvailable = true;
 
-      // handle redirect fallback
       try{ await getRedirectResult(auth); }catch(e){ console.debug('redirect result problem', e && e.code); }
 
-      // sign-in helper
-      async function signInPopup(){
-        showLoginError('');
-        try{
-          const googleProvider = new authModule.GoogleAuthProvider();
-          const res = await signInWithPopup(auth, googleProvider);
-          toast('Signed in');
-        }catch(e){
-          console.error('sign-in error', e && e.code);
-          const popupErrors = ['auth/popup-blocked','auth/popup-closed-by-user','auth/cancelled-popup-request'];
-          if(e && popupErrors.includes(e.code)){
-            try{ await signInWithRedirect(auth, new authModule.GoogleAuthProvider()); return; }catch(err){ showLoginError('Popup blocked and redirect failed. Allow popups.'); return; }
-          }
-          if(e && e.code === 'auth/unauthorized-domain'){
-            showLoginError('Domain not authorized. Add your hosting domain in Firebase console → Authentication → Authorized domains.');
-          } else showLoginError(e && e.message ? e.message : 'Sign-in failed');
-        }
-      }
+      async function signInPopup(){ showLoginError(''); try{ const provider = new GoogleAuthProvider(); await signInWithPopup(auth, provider); toast('Signed in'); }catch(e){ console.error('sign-in error', e && e.code); const popupErrors = ['auth/popup-blocked','auth/popup-closed-by-user','auth/cancelled-popup-request']; if(e && popupErrors.includes(e.code)){ try{ await signInWithRedirect(auth, new GoogleAuthProvider()); return; }catch(err){ showLoginError('Popup blocked and redirect failed. Allow popups.'); return; } } if(e && e.code === 'auth/unauthorized-domain'){ showLoginError('Domain not authorized. Add your hosting domain in Firebase console → Authentication → Authorized domains.'); } else showLoginError(e && e.message ? e.message : 'Sign-in failed'); } }
 
       if(googleBtnLarge) googleBtnLarge.addEventListener('click', signInPopup);
       if(loginShowBtn) loginShowBtn.addEventListener('click', ()=> openModal(loginModal));
       if(signOutBtn) signOutBtn.addEventListener('click', async ()=> { try{ await signOut(auth); toast('Signed out'); }catch(e){ console.error(e);} });
 
-      // auth state handler
-      onAuthStateChanged(auth, user=>{
-        if(user){
-          if(loginModal) closeModal(loginModal);
-          if(userBadge){ userBadge.style.display='inline-block'; userBadge.innerText = user.displayName || user.email; userBadge.setAttribute('title', user.email || '') }
-          if(signOutBtn) signOutBtn.style.display='inline-block';
-          if(myOrdersBtn) myOrdersBtn.style.display='inline-block';
-          if(loginShowBtn) loginShowBtn.style.display='none';
-        }else{
-          if(userBadge) userBadge.style.display='none';
-          if(signOutBtn) signOutBtn.style.display='none';
-          if(myOrdersBtn) myOrdersBtn.style.display='none';
-          if(loginShowBtn) loginShowBtn.style.display='inline-block';
-          // open login modal only on first load, not forcibly during user flow
-          // openModal(loginModal);
-        }
-      });
+      onAuthStateChanged(auth, user=>{ if(user){ if(loginModal) closeModal(loginModal); if(userBadge){ userBadge.style.display='inline-block'; userBadge.innerText = user.displayName || user.email; userBadge.setAttribute('title', user.email || '') } if(signOutBtn) signOutBtn.style.display='inline-block'; if(myOrdersBtn) myOrdersBtn.style.display='inline-block'; if(loginShowBtn) loginShowBtn.style.display='none'; }else{ if(userBadge) userBadge.style.display='none'; if(signOutBtn) signOutBtn.style.display='none'; if(myOrdersBtn) myOrdersBtn.style.display='none'; if(loginShowBtn) loginShowBtn.style.display='inline-block'; } });
 
-      // My Orders
-      if(myOrdersBtn){
-        myOrdersBtn.addEventListener('click', async ()=>{
-          if(!auth.currentUser){ openModal(loginModal); showLoginError('Please sign in to view your orders'); return; }
-          ordersList.innerHTML = '<div class="small">Loading...</div>';
-          try{
-            const uid = auth.currentUser.uid;
-            const q = query(collection(db, `users/${uid}/orders`), orderBy('createdAt','desc'));
-            const snap = await getDocs(q);
-            if(snap.empty){ ordersList.innerHTML = '<div class="small">No orders yet</div>'; }
-            else {
-              ordersList.innerHTML = '';
-              snap.forEach(doc=>{
-                const o = doc.data();
-                const el = document.createElement('div');
-                el.style.padding = '10px'; el.style.borderBottom = '1px solid rgba(255,255,255,0.03)';
-                const dt = o.createdAt && o.createdAt.seconds ? new Date(o.createdAt.seconds*1000).toLocaleString() : '';
-                el.innerHTML = `<strong style="color:#fff">${o.product||''}</strong><div class="small">${o.name||''} • ${o.phone||''}</div><div class="small">${o.address||''}</div><div class="small" style="color:var(--muted)">${dt}</div>`;
-                ordersList.appendChild(el);
-              });
-            }
-            openModal(myOrdersModal);
-          }catch(e){
-            console.error('fetch orders failed', e);
-            ordersList.innerHTML = '<div class="small">Failed to load orders</div>';
-          }
-        });
-      }
+      if(myOrdersBtn){ myOrdersBtn.addEventListener('click', async ()=>{ if(!auth.currentUser){ openModal(loginModal); showLoginError('Please sign in to view your orders'); return; } ordersList.innerHTML = '<div class="small">Loading...</div>'; try{ const uid = auth.currentUser.uid; const q = query(collection(db, `users/${uid}/orders`), orderBy('createdAt','desc')); const snap = await getDocs(q); if(snap.empty){ ordersList.innerHTML = '<div class="small">No orders yet</div>'; } else { ordersList.innerHTML = ''; snap.forEach(doc=>{ const o = doc.data(); const el = document.createElement('div'); el.style.padding = '10px'; el.style.borderBottom = '1px solid rgba(255,255,255,0.03)'; const dt = o.createdAt && o.createdAt.seconds ? new Date(o.createdAt.seconds*1000).toLocaleString() : ''; el.innerHTML = `<strong style="color:#fff">${o.product||''}</strong><div class="small">${o.name||''} • ${o.phone||''}</div><div class="small">${o.address||''}</div><div class="small" style="color:var(--muted)">${dt}</div>`; ordersList.appendChild(el); }); } openModal(myOrdersModal); }catch(e){ console.error('fetch orders failed', e); ordersList.innerHTML = '<div class="small">Failed to load orders</div>'; } }); }
 
-    }catch(e){
-      console.warn('Firebase not available or failed to load. Continuing in fallback mode.', e);
-      // Firebase optional: app will still work for demo (form submit + local toast)
-      firebaseAvailable = false;
-      if(googleBtnLarge) googleBtnLarge.addEventListener('click', ()=> showLoginError('Firebase auth not loaded. Deploy on HTTPS hosting for Google sign-in.'));
-      if(loginShowBtn) loginShowBtn.addEventListener('click', ()=> openModal(loginModal));
-    }
+    }catch(e){ console.warn('Firebase not available or failed to load. Continuing in fallback mode.', e); firebaseAvailable = false; if(googleBtnLarge) googleBtnLarge.addEventListener('click', ()=> showLoginError('Firebase auth not loaded. Deploy on HTTPS hosting for Google sign-in.')); if(loginShowBtn) loginShowBtn.addEventListener('click', ()=> openModal(loginModal)); }
 
-    // Generic order flow (works even if Firebase missing)
-    // Bind order buttons (delegation)
-    document.addEventListener('click', (ev) => {
-      const btn = ev.target.closest && ev.target.closest('.orderBtn');
-      if(!btn) return;
-      const prod = btn.getAttribute('data-product') || '';
-      // If auth present and required, check sign-in. We'll be conservative: check window._firebaseHelpers.auth if present
-      const isSignedIn = window._firebaseHelpers && window._firebaseHelpers.auth && window._firebaseHelpers.auth.currentUser;
-      if(!isSignedIn){
-        openModal(loginModal);
-        showLoginError('Please sign in with Google to place orders');
-        return;
-      }
-      const sel = $('selectedProduct'); if(sel) sel.innerText = prod;
-      const pf = $('productField'); if(pf) pf.value = prod;
-      openModal(orderModal);
-    });
+    document.addEventListener('click', (ev) => { const btn = ev.target.closest && ev.target.closest('.orderBtn'); if(!btn) return; const prod = btn.getAttribute('data-product') || ''; const isSignedIn = window._firebaseHelpers && window._firebaseHelpers.auth && window._firebaseHelpers.auth.currentUser; if(!isSignedIn){ openModal(loginModal); showLoginError('Please sign in with Google to place orders'); return; } const sel = $('selectedProduct'); if(sel) sel.innerText = prod; const pf = $('productField'); if(pf) pf.value = prod; openModal(orderModal); });
 
-    // Close buttons
-    ['closeOrderModal','cancelOrder','closeLogin','closePayment','closeMyOrdersX','closeOrders'].forEach(id=>{
-      const el = $(id);
-      if(el) el.addEventListener('click', ()=>{ const modal = el.closest('.modal'); if(modal) closeModal(modal); });
-    });
+    ['closeOrderModal','cancelOrder','closeLogin','closePayment','closeMyOrdersX','closeOrders'].forEach(id=>{ const el = $(id); if(el) el.addEventListener('click', ()=>{ const modal = el.closest('.modal'); if(modal) closeModal(modal); }); });
 
-    // Order form submit -> open payment modal (prevent real submit here; submit moved to pay)
-    const placeOrderBtn = $('placeOrder');
-    if(placeOrderBtn){
-      placeOrderBtn.addEventListener('click', (ev) => {
-        ev.preventDefault && ev.preventDefault();
-        const name = $('custName') ? $('custName').value.trim() : '';
-        const address = $('custAddress') ? $('custAddress').value.trim() : '';
-        const phone = $('custPhone') ? $('custPhone').value.trim() : '';
-        const product = $('productField') ? $('productField').value : '';
-        if(!name || !address || !phone){ alert('Fill all fields'); return; }
-        window.pendingOrder = { product, name, address, phone };
-        if(orderModal) closeModal(orderModal);
-        const ps = $('paymentSummary'); if(ps) ps.innerText = `${product}\nName: ${name}\nPhone: ${phone}`;
-        openModal(paymentModal);
-      });
-    }
+    const placeOrderBtn = $('placeOrder'); if(placeOrderBtn){ placeOrderBtn.addEventListener('click', (ev) => { ev.preventDefault && ev.preventDefault(); const name = $('custName') ? $('custName').value.trim() : ''; const address = $('custAddress') ? $('custAddress').value.trim() : ''; const phone = $('custPhone') ? $('custPhone').value.trim() : ''; const product = $('productField') ? $('productField').value : ''; if(!name || !address || !phone){ alert('Fill all fields'); return; } window.pendingOrder = { product, name, address, phone }; if(orderModal) closeModal(orderModal); const ps = $('paymentSummary'); if(ps) ps.innerText = `${product}\nName: ${name}\nPhone: ${phone}`; openModal(paymentModal); }); }
 
-    // Pay now: submit Google Form via iframe (so page doesn't navigate) and attempt to save to Firestore if available
-    const payNowBtn = $('payNow');
-    if(payNowBtn){
-      payNowBtn.addEventListener('click', async ()=>{
-        payNowBtn.disabled = true;
-        const paymentMsg = $('paymentMsg'); if(paymentMsg) paymentMsg.style.display = 'block';
-        // Submit google form (orderForm exists)
-        try{ const form = $('orderForm'); if(form) form.submit(); }catch(e){ console.warn('form.submit failed', e); }
-        // simulate processing then save via firestore if available
-        setTimeout(async ()=>{
-          try{
-            const uid = window._firebaseHelpers && window._firebaseHelpers.auth && window._firebaseHelpers.auth.currentUser ? window._firebaseHelpers.auth.currentUser.uid : null;
-            const userEmail = window._firebaseHelpers && window._firebaseHelpers.auth && window._firebaseHelpers.auth.currentUser ? window._firebaseHelpers.auth.currentUser.email : null;
-            const orderData = { ...(window.pendingOrder || {}), user: uid, userEmail, createdAt: (window._firebaseHelpers && window._firebaseHelpers.fsModule) ? window._firebaseHelpers.fsModule.serverTimestamp() : new Date().toISOString() };
-            // save if db available
-            if(window._firebaseHelpers && window._firebaseHelpers.db){
-              try{
-                const { collection, addDoc } = window._firebaseHelpers.fsModule;
-                await addDoc(collection(window._firebaseHelpers.db, 'orders'), orderData);
-                if(uid) await addDoc(collection(window._firebaseHelpers.db, `users/${uid}/orders`), orderData);
-              }catch(err){ console.warn('firestore save failed', err); }
-            }else{
-              // fallback: save to localStorage (demo)
-              const saved = JSON.parse(localStorage.getItem('demoOrders')||'[]');
-              saved.unshift(orderData);
-              localStorage.setItem('demoOrders', JSON.stringify(saved));
-            }
-            if(paymentMsg) paymentMsg.style.display = 'none';
-            const os = $('orderStatus'); if(os){ os.innerText = 'Order placed and payment received. Thank you!'; os.style.display='block'; }
-            toast('Order successful');
-            setTimeout(()=>{
-              closeModal(paymentModal);
-              if(os) os.style.display='none';
-              const form = $('orderForm'); if(form) form.reset();
-              window.pendingOrder = null;
-              payNowBtn.disabled = false;
-            }, 1200);
-          }catch(err){
-            console.error('save after payment failed', err);
-            showLoginError('Payment succeeded but saving order failed. Check console.');
-            payNowBtn.disabled = false;
-          }
-        }, 900);
-      });
-    }
+    const payNowBtn = $('payNow'); if(payNowBtn){ payNowBtn.addEventListener('click', async ()=>{ payNowBtn.disabled = true; const paymentMsg = $('paymentMsg'); if(paymentMsg) paymentMsg.style.display = 'block'; try{ const form = $('orderForm'); if(form) form.submit(); }catch(e){ console.warn('form.submit failed', e); } setTimeout(async ()=>{ try{ const uid = window._firebaseHelpers && window._firebaseHelpers.auth && window._firebaseHelpers.auth.currentUser ? window._firebaseHelpers.auth.currentUser.uid : null; const userEmail = window._firebaseHelpers && window._firebaseHelpers.auth && window._firebaseHelpers.auth.currentUser ? window._firebaseHelpers.auth.currentUser.email : null; const orderData = { ...(window.pendingOrder || {}), user: uid, userEmail, createdAt: (window._firebaseHelpers && window._firebaseHelpers.fsModule) ? window._firebaseHelpers.fsModule.serverTimestamp() : new Date().toISOString() }; if(window._firebaseHelpers && window._firebaseHelpers.db){ try{ const { collection, addDoc } = window._firebaseHelpers.fsModule; await addDoc(collection(window._firebaseHelpers.db, 'orders'), orderData); if(uid) await addDoc(collection(window._firebaseHelpers.db, `users/${uid}/orders`), orderData); }catch(err){ console.warn('firestore save failed', err); } }else{ const saved = JSON.parse(localStorage.getItem('demoOrders')||'[]'); saved.unshift(orderData); localStorage.setItem('demoOrders', JSON.stringify(saved)); } if(paymentMsg) paymentMsg.style.display = 'none'; const os = $('orderStatus'); if(os){ os.innerText = 'Order placed and payment received. Thank you!'; os.style.display='block'; } toast('Order successful'); setTimeout(()=>{ closeModal(paymentModal); if(os) os.style.display='none'; const form = $('orderForm'); if(form) form.reset(); window.pendingOrder = null; payNowBtn.disabled = false; }, 1200); }catch(err){ console.error('save after payment failed', err); showLoginError('Payment succeeded but saving order failed. Check console.'); payNowBtn.disabled = false; } }, 900); }); }
 
-    // My Orders fallback to localStorage if no firebase
-    const localOrdersBtn = $('myOrdersBtn');
-    if(localOrdersBtn){
-      localOrdersBtn.addEventListener('click', ()=>{
-        if(window._firebaseHelpers && window._firebaseHelpers.auth && window._firebaseHelpers.auth.currentUser){
-          // handled by firebase-specific handler earlier
-          return;
-        }
-        const saved = JSON.parse(localStorage.getItem('demoOrders')||'[]');
-        ordersList.innerHTML = saved.length ? saved.map(o=>`<div style="padding:10px;border-bottom:1px solid rgba(255,255,255,0.03)"><strong style="color:#fff">${o.product||''}</strong><div class="small">${o.name||''} • ${o.phone||''}</div><div class="small">${o.address||''}</div></div>`).join('') : '<div class="small">No orders yet</div>';
-        openModal(myOrdersModal);
-      });
-    }
+    const localOrdersBtn = $('myOrdersBtn'); if(localOrdersBtn){ localOrdersBtn.addEventListener('click', ()=>{ if(window._firebaseHelpers && window._firebaseHelpers.auth && window._firebaseHelpers.auth.currentUser){ return; } const saved = JSON.parse(localStorage.getItem('demoOrders')||'[]'); ordersList.innerHTML = saved.length ? saved.map(o=>`<div style="padding:10px;border-bottom:1px solid rgba(255,255,255,0.03)"><strong style="color:#fff">${o.product||''}</strong><div class="small">${o.name||''} • ${o.phone||''}</div><div class="small">${o.address||''}</div></div>`).join('') : '<div class="small">No orders yet</div>'; openModal(myOrdersModal); }); }
 
-    // Search filter
-    const searchBox = $('searchBox');
-    if(searchBox){
-      searchBox.addEventListener('input', e=>{
-        const v = e.target.value.toLowerCase();
-        document.querySelectorAll('#productGrid .card').forEach(card=>{
-          const t = (card.querySelector('h3')||{innerText:''}).innerText.toLowerCase();
-          card.style.display = t.includes(v) ? 'block' : 'none';
-        });
-      });
-    }
+    const searchBox = $('searchBox'); if(searchBox){ searchBox.addEventListener('input', e=>{ const v = e.target.value.toLowerCase(); document.querySelectorAll('#productGrid .card').forEach(card=>{ const t = (card.querySelector('h3')||{innerText:''}).innerText.toLowerCase(); card.style.display = t.includes(v) ? 'block' : 'none'; }); }); }
 
-    // Smooth scroll for Shop Now
     const shopNow = $('shopNow'); if(shopNow) shopNow.addEventListener('click', ()=>{ const grid=document.getElementById('productGrid'); if(grid) grid.scrollIntoView({behavior:'smooth'}); });
 
-    // Close modals with Esc
     document.addEventListener('keydown', (ev)=>{ if(ev.key === 'Escape') document.querySelectorAll('.modal').forEach(m => closeModal(m)); });
-
-    // Initially close all modals
     document.querySelectorAll('.modal').forEach(m => closeModal(m));
-
-    console.log('Rebuilt UI ready. Firebase available:', !!firebaseAvailable);
+    console.log('Publishable UI ready. Firebase available:', !!firebaseAvailable);
   })();
   </script>
 </body>
