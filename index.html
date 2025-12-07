@@ -131,106 +131,112 @@ function submitForm(event){
 </script>
 
 <script type="module">
-  import { initializeApp } 
-    from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getAuth, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect } 
-    from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-  import { getFirestore } 
-    from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-  import { getStorage } 
-    from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+  document.addEventListener('DOMContentLoaded', async () => {
+    try{
+      const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
+      const { getAuth, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
+      const { getFirestore } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+      const { getStorage } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js');
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyBozW19Rjc9nj0YabOIE3DlW0qVHtU5XLA",
-    authDomain: "hamsasarees-24738.firebaseapp.com",
-    projectId: "hamsasarees-24738",
-    storageBucket: "hamsasarees-24738.firebasestorage.app",
-    messagingSenderId: "16303342424",
-    appId: "1:16303342424:web:d68d26160d45472713db2d",
-    measurementId: "G-1G1HQGJ5XS"
-  };
+      const firebaseConfig = {
+        apiKey: "AIzaSyBozW19Rjc9nj0YabOIE3DlW0qVHtU5XLA",
+        authDomain: "hamsasarees-24738.firebaseapp.com",
+        projectId: "hamsasarees-24738",
+        storageBucket: "hamsasarees-24738.firebasestorage.app",
+        messagingSenderId: "16303342424",
+        appId: "1:16303342424:web:d68d26160d45472713db2d",
+        measurementId: "G-1G1HQGJ5XS"
+      };
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-  const storage = getStorage(app);
-  const provider = new GoogleAuthProvider();
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+      const storage = getStorage(app);
+      const provider = new GoogleAuthProvider();
 
-  // Expose current user for simple checks
-  window.currentUser = null;
+      // cache DOM elements safely after DOMContentLoaded
+      const googleBtn = document.getElementById('googleBtn');
+      const loginModal = document.getElementById('loginModal');
+      const loginErr = document.getElementById('loginErr');
+      const signOutBtn = document.getElementById('signOutBtn');
+      const userName = document.getElementById('userName');
 
-  const googleBtn = document.getElementById('googleBtn');
-  const loginModal = document.getElementById('loginModal');
-  const loginErr = document.getElementById('loginErr');
-  const signOutBtn = document.getElementById('signOutBtn');
-  const userName = document.getElementById('userName');
+      window.currentUser = null;
 
-  // Defensive attach: ensure button exists
-  if(googleBtn){
-    googleBtn.addEventListener('click', async (evt) => {
-      loginErr.style.display = 'none';
-      // Try popup first. If blocked or fails with popup errors, fall back to redirect.
+      // Process redirect result (if redirected back)
       try{
-        // popup should be allowed; this must be called inside a user gesture event
-        const result = await signInWithPopup(auth, provider);
-        console.log('Google sign-in success', result.user);
-      }catch(e){
-        console.error('Google sign-in error', e.code, e.message);
-        // handle known popup issues by using redirect fallback
-        if(e.code === 'auth/popup-blocked' || e.code === 'auth/popup-closed-by-user' || e.code === 'auth/cancelled-popup-request'){
-          try{
-            console.log('Falling back to signInWithRedirect due to popup issue');
-            await signInWithRedirect(auth, provider);
-            return;
-          }catch(err){
-            console.error('Redirect fallback failed', err.code, err.message);
-            loginErr.innerText = 'Popup blocked and redirect failed. Allow popups or try another browser.';
-            loginErr.style.display = 'block';
-            return;
-          }
+        const redirectResult = await getRedirectResult(auth);
+        if(redirectResult && redirectResult.user){
+          console.log('Redirect sign-in success', redirectResult.user);
         }
-        if(e.code === 'auth/unauthorized-domain'){
-          loginErr.innerText = 'Domain not authorized. Add your GitHub Pages domain in Firebase console → Authentication → Authorized domains.';
-        } else {
-          loginErr.innerText = e.message || 'Google sign-in failed';
-        }
-        loginErr.style.display = 'block';
+      }catch(rr){
+        console.warn('getRedirectResult no-op or failed', rr && rr.code);
       }
-    });
-  } else {
-    console.warn('googleBtn not found in DOM');
-  }
 
-  // Sign out
-  if(signOutBtn){
-    signOutBtn.addEventListener('click', async () => {
-      await signOut(auth);
-    });
-  }
+      if(googleBtn){
+        googleBtn.addEventListener('click', async (evt) => {
+          loginErr.style.display = 'none';
+          try{
+            // Try popup sign-in first
+            const result = await signInWithPopup(auth, provider);
+            console.log('Google sign-in success', result.user);
+          }catch(e){
+            console.error('Google sign-in error', e && e.code, e && e.message);
+            // If popup related, fall back to redirect
+            const popupErrors = ['auth/popup-blocked','auth/popup-closed-by-user','auth/cancelled-popup-request'];
+            if(popupErrors.includes(e.code)){
+              try{
+                console.log('Falling back to signInWithRedirect');
+                await signInWithRedirect(auth, provider);
+                return;
+              }catch(err){
+                console.error('Redirect fallback failed', err && err.code, err && err.message);
+                loginErr.innerText = 'Popup blocked and redirect failed. Allow popups or try another browser.';
+                loginErr.style.display = 'block';
+                return;
+              }
+            }
+            if(e.code === 'auth/unauthorized-domain'){
+              loginErr.innerText = 'Domain not authorized. Add your GitHub Pages domain in Firebase console → Authentication → Authorized domains.';
+            } else {
+              loginErr.innerText = e.message || 'Google sign-in failed';
+            }
+            loginErr.style.display = 'block';
+          }
+        });
+      } else {
+        console.warn('googleBtn not found');
+      }
 
-  onAuthStateChanged(auth, (user) => {
-    window.currentUser = user;
-    if(user){
-      // hide login modal and show user badge
-      loginModal.style.display = 'none';
-      userName.style.display = 'inline-block';
-      userName.innerText = 'Signed in as ' + (user.displayName || user.email || 'User');
-      signOutBtn.style.display = 'inline-block';
-    } else {
-      // show login modal
-      loginModal.style.display = 'flex';
-      userName.style.display = 'none';
-      signOutBtn.style.display = 'none';
+      if(signOutBtn){
+        signOutBtn.addEventListener('click', async () => {
+          try{ await signOut(auth); }catch(e){ console.error('signOut failed', e); }
+        });
+      }
+
+      onAuthStateChanged(auth, (user) => {
+        window.currentUser = user;
+        if(user){
+          loginModal.style.display = 'none';
+          userName.style.display = 'inline-block';
+          userName.innerText = 'Signed in as ' + (user.displayName || user.email || 'User');
+          signOutBtn.style.display = 'inline-block';
+        } else {
+          loginModal.style.display = 'flex';
+          userName.style.display = 'none';
+          signOutBtn.style.display = 'none';
+        }
+      });
+
+      // ensure modal shows on load if user not signed in
+      if(!auth.currentUser){ loginModal.style.display = 'flex'; }
+
+    }catch(globalErr){
+      console.error('Firebase init or DOM setup failed', globalErr);
+      const loginErr = document.getElementById('loginErr');
+      if(loginErr){ loginErr.innerText = 'Initialization failed. Check console for details.'; loginErr.style.display = 'block'; }
     }
   });
-
-  // Auto-open modal on load (if not signed in)
-  window.addEventListener('load', () => {
-    setTimeout(() => {
-      if(!window.currentUser) document.getElementById('loginModal').style.display = 'flex';
-    }, 200);
-  });
-
 </script>
 
 </body>
