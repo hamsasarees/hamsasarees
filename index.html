@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Hamsa Sarees — Rebuilt</title>
+<title>Hamsa Sarees — Rebuilt (ratings + admin)</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -28,13 +28,14 @@
   .hero-card{flex:1;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:18px;border-radius:12px;backdrop-filter: blur(6px)}
   .promo{width:260px;padding:12px;border-radius:10px;background:linear-gradient(135deg,#061526,#072234);box-shadow:0 10px 40px rgba(0,0,0,0.4)}
   .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:16px}
-  .card{background:linear-gradient(180deg,#071522,#06121a);padding:12px;border-radius:12px;transition:transform .2s,box-shadow .2s;overflow:hidden}
+  .card{background:linear-gradient(180deg,#071522,#06121a);padding:12px;border-radius:12px;transition:transform .2s,box-shadow .2s;overflow:hidden;position:relative}
   .card:hover{transform:translateY(-8px);box-shadow:0 24px 60px rgba(2,6,23,0.6)}
   .imgwrap{height:180px;border-radius:10px;background:#081522;display:flex;align-items:center;justify-content:center;overflow:hidden}
   .imgwrap img{width:100%;height:100%;object-fit:cover;display:block}
   h3{margin:10px 0 6px;color:#eaf6ff}
   .price{color:#7ee0b2;font-weight:800}
   .tag{position:absolute;top:10px;left:10px;background:rgba(0,0,0,0.4);padding:6px 8px;border-radius:8px;font-size:12px}
+  .product-rating{font-weight:700}
   /* modals */
   .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(3,8,20,0.6),rgba(2,8,18,0.85));z-index:1200;padding:12px}
   .modal-box{max-width:720px;width:100%;background:linear-gradient(180deg,#071522,#06121a);border-radius:12px;padding:16px;color:#eaf6ff;position:relative;box-shadow:0 30px 80px rgba(2,6,23,0.6)}
@@ -57,6 +58,8 @@
   @keyframes floaty{0%{transform:translateY(0)}50%{transform:translateY(-6px)}100%{transform:translateY(0)}}
   .imgwrap img{animation:floaty 6s ease-in-out infinite}
   button:focus,input:focus,select:focus{outline:3px solid rgba(0,170,255,0.12);outline-offset:3px}
+  .rating-ui{display:flex;gap:6px;margin-top:6px}
+  .rating-ui .rateBtn{width:34px;height:34px;padding:0;border-radius:8px}
 </style>
 </head>
 <body>
@@ -79,6 +82,7 @@
 
       <div class="actions">
         <div id="userBadge" style="display:none;background:rgba(255,255,255,0.03);padding:8px 10px;border-radius:10px;color:#fff;font-weight:700"></div>
+        <button id="adminBtn" class="btn-ghost" style="display:none">Admin</button>
         <button id="myOrdersBtn" class="btn-ghost" style="display:none">My Orders</button>
         <button id="signOutBtn" class="btn-ghost" style="display:none">Sign out</button>
         <button id="loginShowBtn" class="btn">Sign in</button>
@@ -244,15 +248,7 @@
   <div id="toast" class="toast" role="status" aria-live="polite">Saved.</div>
 
 <script type="module">
-/*
-  Rebuilt UI JS:
-  - Preserves firebaseConfig and Google Form action above.
-  - Sign-in with Google, order flow: Place Order -> Payment modal -> Pay Now submits Google Form + saves in Firestore.
-  - Defensive DOM; no null references.
-*/
-
 (async function(){
-  // Wait DOM
   if(document.readyState === 'loading') await new Promise(r=>document.addEventListener('DOMContentLoaded', r));
 
   // Firebase dynamic imports
@@ -262,7 +258,8 @@
     const fsMod = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
 
     const { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } = authMod;
-    const { getFirestore, collection, addDoc, serverTimestamp, query, orderBy, getDocs } = fsMod;
+    // include setDoc, doc, onSnapshot for ratings
+    const { getFirestore, collection, addDoc, setDoc, doc, serverTimestamp, query, orderBy, getDocs, onSnapshot } = fsMod;
 
     const firebaseConfig = {
       apiKey: "AIzaSyBozW19Rjc9nj0YabOIE3DlW0qVHtU5XLA",
@@ -284,6 +281,7 @@
     const loginModal = $('loginModal'), orderModal = $('orderModal'), paymentModal = $('paymentModal'), myOrdersModal = $('myOrdersModal');
     const loginErr = $('loginErr'), userBadge = $('userBadge'), signOutBtn = $('signOutBtn'), loginShowBtn = $('loginShowBtn'), googleBtnLarge = $('googleBtnLarge');
     const myOrdersBtn = $('myOrdersBtn'), ordersList = $('ordersList'), toastEl = $('toast');
+    const adminBtn = $('adminBtn');
 
     function toast(msg){
       if(!toastEl) return;
@@ -419,18 +417,23 @@
 
     // Auth state updates UI
     onAuthStateChanged(auth, user=>{
+      const adminUID = 'EenXHJIvZpavhkGTCI8EZyFAfH93'; // your admin UID
       if(user){
         if(loginModal) loginModal.style.display='none';
         if(userBadge){ userBadge.style.display='inline-block'; userBadge.innerText = user.displayName || user.email; }
         if(signOutBtn) signOutBtn.style.display='inline-block';
         if(myOrdersBtn) myOrdersBtn.style.display='inline-block';
         if(loginShowBtn) loginShowBtn.style.display='none';
+        if(adminBtn){
+          if(user.uid === adminUID) adminBtn.style.display='inline-block'; else adminBtn.style.display='none';
+        }
       }else{
         if(loginModal) loginModal.style.display='flex';
         if(userBadge) userBadge.style.display='none';
         if(signOutBtn) signOutBtn.style.display='none';
         if(myOrdersBtn) myOrdersBtn.style.display='none';
         if(loginShowBtn) loginShowBtn.style.display='inline-block';
+        if(adminBtn) adminBtn.style.display='none';
       }
     });
 
@@ -449,6 +452,56 @@
 
     // initial UI: ensure login modal visible if not signed in
     if(!auth.currentUser && loginModal) loginModal.style.display='flex';
+
+    // ---- Customer rating setup ----
+    // This will add rating UI to each static product card, save rating to
+    // products/{productId}/ratings/{uid}, and show realtime averages.
+    async function setupRatings(){
+      const cards = document.querySelectorAll('#productGrid .card');
+      cards.forEach(card=>{
+        const titleEl = card.querySelector('h3');
+        if(!titleEl) return;
+        const pid = titleEl.innerText.trim().toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9\-]/g,'');
+        card.setAttribute('data-pid', pid);
+        // add rating display if not present
+        if(card.querySelector('.product-rating')) return;
+        const ratingDiv = document.createElement('div');
+        ratingDiv.className='product-rating small';
+        ratingDiv.innerText='No ratings';
+        // append ratingDiv below price row
+        const priceRow = titleEl.nextElementSibling; if(priceRow) priceRow.appendChild(ratingDiv);
+        // build rating buttons
+        const ratingUI = document.createElement('div');
+        ratingUI.className='rating-ui';
+        for(let r=1;r<=5;r++){
+          const b=document.createElement('button'); b.className='rateBtn btn-ghost'; b.type='button'; b.innerText=r; b.dataset.rating=r;
+          ratingUI.appendChild(b);
+        }
+        card.appendChild(ratingUI);
+
+        // listeners for rating buttons
+        ratingUI.querySelectorAll('.rateBtn').forEach(btn=>{
+          btn.addEventListener('click', async (ev)=>{
+            if(!auth.currentUser){ alert('Sign in to rate products'); return; }
+            const uid = auth.currentUser.uid; const rating = Number(ev.currentTarget.dataset.rating);
+            try{
+              await setDoc(doc(db, `products/${pid}/ratings/${uid}`), { rating: rating, createdAt: serverTimestamp() });
+              toast('Thanks for rating');
+            }catch(err){ console.error('rating save failed', err); alert('Failed to save rating'); }
+          });
+        });
+
+        // realtime average listener for this product
+        const ratingsColRef = collection(db, `products/${pid}/ratings`);
+        onSnapshot(ratingsColRef, snap=>{
+          let sum=0,cnt=0; snap.forEach(s=>{ const d=s.data(); if(d && typeof d.rating==='number'){ sum += d.rating; cnt++; } });
+          const avg = cnt ? (sum / cnt).toFixed(1) : null;
+          ratingDiv.innerText = avg ? `★ ${avg} (${cnt})` : 'No ratings';
+        }, err=>{ console.error('ratings snapshot failed', err); });
+      });
+    }
+
+    setupRatings();
 
     console.log('UI ready');
   }catch(err){
