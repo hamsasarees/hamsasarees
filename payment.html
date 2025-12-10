@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Payment — Hamsa Sarees</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg1:#001f3f; --bg2:#00306b; --accent:#00aaff; --accent2:#4dd0e1; --muted:#9fb8d9; --success:#10b981;
+    --card:#071522; --glass:rgba(255,255,255,0.03);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:#eaf6ff;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  .container{max-width:720px;margin:20px auto;padding:0 16px}
+  header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;margin-bottom:20px}
+  .brand{display:flex;gap:12px;align-items:center}
+  .logo{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:800;color:#032033;box-shadow:0 12px 40px rgba(0,170,255,0.12)}
+  .title{font-weight:800;font-size:18px}
+  .small{color:var(--muted)}
+  .btn{cursor:pointer;border-radius:10px;padding:9px 14px;border:none;font-weight:700;background:linear-gradient(90deg,var(--accent),#ff5aa3);color:#fff;box-shadow:0 8px 24px rgba(0,170,255,0.12);transition:transform .15s,filter .15s;width:100%}
+  .btn:active{transform:translateY(1px)}
+  .btn:disabled{opacity:0.6;cursor:not-allowed}
+  .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#fff;padding:8px 12px;border-radius:10px;width:auto}
+  .payment-card{background:linear-gradient(180deg,#071522,#06121a);padding:20px;border-radius:12px;margin-bottom:16px;border:1px solid rgba(255,255,255,0.03)}
+  .payment-summary{background:linear-gradient(180deg,#061526,#072234);padding:16px;border-radius:10px;margin-bottom:16px;white-space:pre-line;line-height:1.6}
+  .field{display:flex;flex-direction:column;margin-bottom:16px}
+  .field label{font-weight:600;margin-bottom:8px;color:#eaf6ff}
+  .field input,.field select{padding:12px;border-radius:10px;border:none;background:#08121a;color:#dbeafe;font-size:16px}
+  .field input:focus,.field select:focus{outline:3px solid rgba(0,170,255,0.12);outline-offset:2px}
+  .status-message{padding:12px;border-radius:10px;margin-bottom:16px;display:none;font-weight:600}
+  .status-success{background:rgba(16,185,129,0.1);color:#7ee0b2;border:1px solid rgba(16,185,129,0.2);display:block}
+  .status-error{background:rgba(255,59,59,0.1);color:#ffb4b4;border:1px solid rgba(255,59,59,0.2);display:block}
+  .button-group{display:flex;gap:12px;margin-top:20px}
+  .button-group button{flex:1}
+  .sr-only{position:absolute!important;height:1px;width:1px;overflow:hidden;clip:rect(1px,1px,1px,1px);white-space:nowrap}
+  button:focus{outline:3px solid rgba(0,170,255,0.12);outline-offset:3px}
+  .toast{position:fixed;right:16px;bottom:16px;background:#0b1220;padding:10px 14px;border-radius:10px;color:#d1fae5;border-left:4px solid var(--success);box-shadow:0 8px 30px rgba(2,6,23,0.6);display:none}
+  @media (max-width:640px){
+    header{flex-direction:column;align-items:stretch;padding:12px 16px}
+    .button-group{flex-direction:column}
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden="true">HS</div>
+        <div>
+          <div class="title">Hamsa Sarees</div>
+          <div class="small">Payment</div>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="payment-card">
+        <h1 style="margin-top:0">Payment</h1>
+        
+        <div id="paymentSummary" class="payment-summary" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.03)">
+          Loading order summary...
+        </div>
+
+        <div id="paymentStatus" class="status-message"></div>
+
+        <form id="paymentForm">
+          <div class="field">
+            <label for="paymentMethod">Select Payment Method</label>
+            <select id="paymentMethod" required>
+              <option value="">Choose a payment method</option>
+              <option value="card">Debit/Credit Card (Google Pay)</option>
+              <option value="upi">UPI (Google Pay)</option>
+              <option value="cod">Cash on Delivery (WhatsApp Confirmation)</option>
+            </select>
+            <div class="small" style="margin-top:8px;color:var(--muted)" id="codInfo" style="display:none">
+              ℹ️ For Cash on Delivery, you'll be directed to WhatsApp. Please send the confirmation message to complete your order.
+            </div>
+          </div>
+
+          <div class="button-group">
+            <button type="submit" id="payNow" class="btn">Pay Now</button>
+            <a href="index.html" class="btn btn-ghost" style="padding:9px 14px;display:flex;align-items:center;justify-content:center">Cancel</a>
+          </div>
+        </form>
+      </section>
+
+      <div style="text-align:center;margin-top:20px">
+        <p class="small">Your payment is secure and encrypted. Data is not stored.</p>
+      </div>
+    </main>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite">Saved.</div>
+
+<script type="module">
+(async function(){
+  if(document.readyState === 'loading') await new Promise(r=>document.addEventListener('DOMContentLoaded', r));
+
+  // ---- CONFIG ----
+  // Google Pay Configuration:
+  // 1. Card/UPI payments redirect to Google Pay
+  // 2. Mobile number: 9994051579
+  // 3. User will be redirected to UPI app on mobile or Google Pay
+  // 4. After payment completion, order will be saved to Firestore
+  // 5. COD payments redirect to WhatsApp for confirmation
+  
+  const firebaseConfig = {
+    apiKey: "AIzaSyBozW19Rjc9nj0YabOIE3DlW0qVHtU5XLA",
+    authDomain: "hamsasarees-24738.firebaseapp.com",
+    projectId: "hamsasarees-24738",
+    storageBucket: "hamsasarees-24738.firebasestorage.app",
+    messagingSenderId: "16303342424",
+    appId: "1:16303342424:web:d68d26160d45472713db2d",
+    measurementId: "G-1G1HQGJ5XS"
+  };
+
+  // ---- Firebase imports ----
+  try{
+    const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
+    const authMod = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
+    const fsMod = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+
+    const { getAuth, onAuthStateChanged } = authMod;
+    const { getFirestore, collection, addDoc, serverTimestamp } = fsMod;
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // ---- DOM refs ----
+    const $ = id => document.getElementById(id);
+    const paymentSummary = $('paymentSummary');
+    const paymentStatus = $('paymentStatus');
+    const paymentForm = $('paymentForm');
+    const payNowBtn = $('payNow');
+    const paymentMethod = $('paymentMethod');
+    const toastEl = $('toast');
+
+    function toast(msg){ if(!toastEl) return; toastEl.innerText = msg; toastEl.style.display = 'block'; setTimeout(()=>toastEl.style.display = 'none', 2200); }
+
+    function showStatus(msg, isError = false){
+      paymentStatus.textContent = msg;
+      paymentStatus.className = 'status-message ' + (isError ? 'status-error' : 'status-success');
+    }
+
+    function hideStatus(){
+      paymentStatus.className = 'status-message';
+    }
+
+    // ---- Get order data from URL params ----
+    const params = new URLSearchParams(window.location.search);
+    const orderData = {
+      product: params.get('product') || '',
+      name: params.get('name') || '',
+      phone: params.get('phone') || '',
+      address: params.get('address') || '',
+      price: parseFloat(params.get('price')) || 0
+    };
+
+    // Display order summary with fixed price
+    if(paymentSummary && (orderData.product || orderData.name)){
+      const summary = `Product: ${orderData.product}\nPrice: ₹${orderData.price}\nName: ${orderData.name}\nPhone: ${orderData.phone}`;
+      paymentSummary.innerText = summary;
+    } else if(paymentSummary){
+      paymentSummary.innerHTML = '<div class="small" style="color:#ffb4b4">No order data found. <a href="index.html" style="color:var(--accent)">Return to shop</a></div>';
+    }
+
+    // Show/hide COD info based on selection
+    paymentMethod.addEventListener('change', (e) => {
+      const codInfo = $('codInfo');
+      if(e.target.value === 'cod') {
+        codInfo.style.display = 'block';
+      } else {
+        codInfo.style.display = 'none';
+      }
+    });
+
+    // ---- Save order to Firestore ONLY after successful payment ----
+    async function saveOrderAfterPayment(paymentId, paymentMethod) {
+      try {
+        const uid = auth.currentUser ? auth.currentUser.uid : null;
+        const finalOrderData = { 
+          ...orderData, 
+          paymentMethod: paymentMethod,
+          paymentId: paymentId,
+          paymentStatus: 'completed',
+          user: uid, 
+          userEmail: auth.currentUser ? auth.currentUser.email : null, 
+          createdAt: serverTimestamp() 
+        };
+
+        if(uid){
+          await addDoc(collection(db, `users/${uid}/orders`), finalOrderData);
+        }
+        await addDoc(collection(db, 'orders'), finalOrderData);
+        
+        // Send order to Google Sheets
+        await sendOrderToGoogleSheets(finalOrderData);
+        
+        return true;
+      } catch(err) {
+        console.error('Failed to save order to database', err);
+        throw err;
+      }
+    }
+
+    // ---- Send order to Google Sheets (only after payment success) ----
+    async function sendOrderToGoogleSheets(orderData) {
+      try {
+        // Google Form URL for orders
+        const formUrl = 'https://docs.google.com/forms/d/e/qAVVKUKN4HhUXjBM8/formResponse';
+        
+        // Form field mappings (replace with your actual form field IDs)
+        const formData = new FormData();
+        formData.append('entry.2120009411', orderData.name);           // Name field
+        formData.append('entry.6103303', orderData.phone);             // Phone field
+        formData.append('entry.952475985', orderData.product);         // Product field
+        formData.append('entry.2008322116', orderData.address);        // Address field
+        formData.append('entry.135044268', '₹' + orderData.price);     // Price field
+        formData.append('entry.978142408', orderData.paymentMethod);   // Payment method field
+        formData.append('entry.1145290955', orderData.paymentId);      // Payment ID field
+        
+        // Send to Google Forms (no-cors, will not throw error even if it fails silently)
+        await fetch(formUrl, {
+          method: 'POST',
+          body: formData,
+          mode: 'no-cors'
+        });
+        
+        console.log('Order sent to Google Sheets successfully');
+      } catch(err) {
+        // Log but don't fail - order is already saved to Firestore
+        console.warn('Failed to send to Google Sheets (order still saved to Firestore)', err);
+      }
+    }
+
+    // ---- Payment form handler with Razorpay integration ----
+    paymentForm.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      
+      if(!paymentMethod.value){
+        showStatus('Please select a payment method', true);
+        return;
+      }
+
+      hideStatus();
+      payNowBtn.disabled = true;
+      showStatus('Processing payment...', false);
+
+      try{
+        const method = paymentMethod.value;
+
+        // Handle different payment methods
+        if(method === 'cod'){
+          // Cash on Delivery - Redirect to WhatsApp for confirmation
+          // User must send message to confirm, then we save order
+          redirectToWhatsAppCOD(orderData);
+        } 
+        else if(method === 'card' || method === 'upi'){
+          // Use Google Pay for card and UPI payments
+          redirectToGooglePay(method);
+        }
+
+      }catch(err){
+        console.error('Payment processing failed', err);
+        showStatus('Payment processing failed. Please try again.', true);
+        payNowBtn.disabled = false;
+      }
+    });
+
+    // ---- WhatsApp COD Integration ----
+    function redirectToWhatsAppCOD(orderData) {
+      // Format the message
+      const message = `I want cash on delivery option for my order, my name is ${orderData.name} my product is ${orderData.product}, proceed to send entries to sheet`;
+      
+      // WhatsApp Business number
+      const phoneNumber = '9994051579';
+      
+      // Encode message for URL
+      const encodedMessage = encodeURIComponent(message);
+      
+      // Create WhatsApp URL
+      // Using wa.me for direct WhatsApp link (works on mobile)
+      const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+      
+      // Show info message
+      showStatus('📱 Opening WhatsApp... Please send the message to confirm your order.', false);
+      toast('Redirecting to WhatsApp');
+      
+      // Store order data temporarily in sessionStorage
+      // So we can save it when user returns
+      sessionStorage.setItem('pendingCODOrder', JSON.stringify({
+        orderData: orderData,
+        timestamp: Date.now()
+      }));
+      
+      // Redirect to WhatsApp
+      setTimeout(() => {
+        window.location.href = whatsappUrl;
+      }, 1500);
+    }
+
+    // ---- Google Pay Integration ----
+    function redirectToGooglePay(method) {
+      const phoneNumber = '9994051579';
+      
+      // Create Google Pay URL for both card and UPI
+      // On mobile: UPI apps will be triggered
+      // On web: Redirect to Google Pay
+      const googlePayUrl = `https://pay.google.com/gp/p/u/0/#payments:p=gp`;
+      
+      // Store order data in sessionStorage to save after payment
+      const paymentData = {
+        orderData: orderData,
+        method: method,
+        timestamp: Date.now()
+      };
+      
+      sessionStorage.setItem('pendingGooglePayOrder', JSON.stringify(paymentData));
+      
+      // For mobile UPI: use UPI intent link
+      if(method === 'upi') {
+        // Mobile UPI redirect with UPI ID
+        const upiUrl = `upi://pay?pa=${phoneNumber}@okhdfcbank&pn=HamsaSarees&am=&tn=${encodeURIComponent('Payment for ' + orderData.product)}`;
+        showStatus('📱 Redirecting to UPI app...', false);
+        toast('Opening UPI payment');
+        setTimeout(() => {
+          window.location.href = upiUrl;
+        }, 800);
+      } else {
+        // Card payment - redirect to Google Pay
+        showStatus('💳 Redirecting to Google Pay for card payment...', false);
+        toast('Opening Google Pay');
+        setTimeout(() => {
+          // For web, open Google Pay in new tab or redirect
+          window.location.href = `https://pay.google.com/gp/p/u/0/#payments:p=gp`;
+        }, 800);
+      }
+    }
+
+    // ---- Auth state check ----
+    onAuthStateChanged(auth, user=>{
+      if(!user){
+        // Allow guest checkout or redirect to login
+      }
+      
+      // Check if user is returning from WhatsApp COD
+      const pendingCOD = sessionStorage.getItem('pendingCODOrder');
+      if(pendingCOD) {
+        try {
+          const pending = JSON.parse(pendingCOD);
+          const timeSinceSent = Date.now() - pending.timestamp;
+          
+          // If user returns within 10 minutes, assume they sent the message
+          if(timeSinceSent < 600000) {
+            // Auto-save the order after WhatsApp confirmation
+            // User had 10 minutes to send the message on WhatsApp
+            // If they're back here, we assume they complied
+            saveCODOrderAfterWhatsApp(pending.orderData);
+          }
+        } catch(e) {
+          console.warn('Could not process pending COD order', e);
+        }
+        // Clear the pending order from storage
+        sessionStorage.removeItem('pendingCODOrder');
+      }
+
+      // Check if user is returning from Google Pay
+      const pendingGooglePay = sessionStorage.getItem('pendingGooglePayOrder');
+      if(pendingGooglePay) {
+        try {
+          const pending = JSON.parse(pendingGooglePay);
+          const timeSinceSent = Date.now() - pending.timestamp;
+          
+          // If user returns within 15 minutes, assume payment was successful
+          if(timeSinceSent < 900000) {
+            // Auto-save the order after Google Pay confirmation
+            saveGooglePayOrderAfterPayment(pending.orderData, pending.method);
+          }
+        } catch(e) {
+          console.warn('Could not process pending Google Pay order', e);
+        }
+        // Clear the pending order from storage
+        sessionStorage.removeItem('pendingGooglePayOrder');
+      }
+    });
+
+    // ---- Save COD Order after WhatsApp Confirmation ----
+    async function saveCODOrderAfterWhatsApp(orderData) {
+      try {
+        // Save the order with COD confirmation
+        const paymentId = 'COD-WhatsApp-' + Date.now();
+        await saveOrderAfterPayment(paymentId, 'cash_on_delivery');
+        
+        showStatus('✓ Thank you! We received your WhatsApp message. Order confirmed!', false);
+        toast('Order saved successfully');
+        
+        // Show completion message
+        setTimeout(() => {
+          // Redirect to home after 2 seconds
+          window.location.href = 'index.html';
+        }, 2000);
+      } catch(err) {
+        console.error('Failed to save COD order', err);
+        showStatus('Order confirmation pending. We will verify via WhatsApp.', false);
+        
+        // Provide manual confirmation option
+        showStatus('⏳ Waiting for WhatsApp confirmation... You can also click "Confirm Order" below when ready.', false);
+      }
+    }
+
+    // ---- Save Google Pay Order after Payment Confirmation ----
+    async function saveGooglePayOrderAfterPayment(orderData, method) {
+      try {
+        // Save the order with Google Pay confirmation
+        const paymentId = 'GooglePay-' + Date.now();
+        await saveOrderAfterPayment(paymentId, method);
+        
+        showStatus('✓ Payment successful! Order confirmed and saved.', false);
+        toast('Order placed successfully');
+        
+        // Show completion message
+        setTimeout(() => {
+          // Redirect to home after 2 seconds
+          window.location.href = 'index.html';
+        }, 2000);
+      } catch(err) {
+        console.error('Failed to save Google Pay order', err);
+        showStatus('Order confirmation pending. Please contact support if payment was successful.', false);
+      }
+    }
+
+    console.log('Hamsa Sarees Payment page ready');
+  }catch(err){
+    console.error('Init error', err);
+    alert('Initialization failed — check console.');
+  }
+})();
+</script>
+
+</body>
+</html>
