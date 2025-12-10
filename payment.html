@@ -70,8 +70,7 @@
             <label for="paymentMethod">Select Payment Method</label>
             <select id="paymentMethod" required>
               <option value="">Choose a payment method</option>
-              <option value="card">Debit/Credit Card (Google Pay)</option>
-              <option value="upi">UPI (Google Pay)</option>
+              <option value="upi">UPI Payment</option>
               <option value="cod">Cash on Delivery (WhatsApp Confirmation)</option>
             </select>
             <div class="small" style="margin-top:8px;color:var(--muted)" id="codInfo" style="display:none">
@@ -255,12 +254,11 @@
         // Handle different payment methods
         if(method === 'cod'){
           // Cash on Delivery - Redirect to WhatsApp for confirmation
-          // User must send message to confirm, then we save order
           redirectToWhatsAppCOD(orderData);
         } 
-        else if(method === 'card' || method === 'upi'){
-          // Use Google Pay for card and UPI payments
-          redirectToGooglePay(method);
+        else if(method === 'upi'){
+          // UPI Payment - Redirect to UPI app
+          redirectToUPI(orderData);
         }
 
       }catch(err){
@@ -302,42 +300,31 @@
       }, 1500);
     }
 
-    // ---- Google Pay Integration ----
-    function redirectToGooglePay(method) {
-      const phoneNumber = '9994051579';
+    // ---- UPI Payment Integration ----
+    function redirectToUPI(orderData) {
+      // Your UPI configuration
+      const upiString = 'thottanna23481-2@okicici';
+      const payeeName = 'Murugan Santosh';
+      const aid = 'uGICAgIDotMS0DQ';
       
-      // Create Google Pay URL for both card and UPI
-      // On mobile: UPI apps will be triggered
-      // On web: Redirect to Google Pay
-      const googlePayUrl = `https://pay.google.com/gp/p/u/0/#payments:p=gp`;
+      // Create UPI URL with order details
+      const upiUrl = `upi://pay?pa=${upiString}&pn=${encodeURIComponent(payeeName)}&am=${orderData.price}&tn=${encodeURIComponent('Payment for ' + orderData.product)}&aid=${aid}`;
       
       // Store order data in sessionStorage to save after payment
       const paymentData = {
         orderData: orderData,
-        method: method,
+        method: 'upi',
         timestamp: Date.now()
       };
       
       sessionStorage.setItem('pendingGooglePayOrder', JSON.stringify(paymentData));
       
-      // For mobile UPI: use UPI intent link
-      if(method === 'upi') {
-        // Mobile UPI redirect with UPI ID
-        const upiUrl = `upi://pay?pa=${phoneNumber}@okhdfcbank&pn=HamsaSarees&am=&tn=${encodeURIComponent('Payment for ' + orderData.product)}`;
-        showStatus('📱 Redirecting to UPI app...', false);
-        toast('Opening UPI payment');
-        setTimeout(() => {
-          window.location.href = upiUrl;
-        }, 800);
-      } else {
-        // Card payment - redirect to Google Pay
-        showStatus('💳 Redirecting to Google Pay for card payment...', false);
-        toast('Opening Google Pay');
-        setTimeout(() => {
-          // For web, open Google Pay in new tab or redirect
-          window.location.href = `https://pay.google.com/gp/p/u/0/#payments:p=gp`;
-        }, 800);
-      }
+      showStatus('📱 Opening UPI app... Please complete the payment.', false);
+      toast('Opening UPI payment');
+      
+      setTimeout(() => {
+        window.location.href = upiUrl;
+      }, 800);
     }
 
     // ---- Auth state check ----
