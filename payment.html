@@ -71,6 +71,21 @@
 
         <form id="paymentForm">
           <div class="field">
+            <label for="buyerName">Name</label>
+            <input id="buyerName" type="text" placeholder="Full name" required />
+          </div>
+
+          <div class="field">
+            <label for="buyerPhone">Mobile number</label>
+            <input id="buyerPhone" type="tel" placeholder="10-digit mobile number" required />
+          </div>
+
+          <div class="field">
+            <label for="buyerAddress">Address</label>
+            <input id="buyerAddress" type="text" placeholder="Delivery address" required />
+          </div>
+
+          <div class="field">
             <label for="paymentMethod">Select Payment Method</label>
             <select id="paymentMethod" required>
               <option value="">Choose a payment method</option>
@@ -125,7 +140,7 @@
     const fsMod = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
 
     const { getAuth, onAuthStateChanged } = authMod;
-    const { getFirestore, collection, addDoc, serverTimestamp } = fsMod;
+    const { getFirestore, collection, addDoc, serverTimestamp, doc, getDoc, setDoc } = fsMod;
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
@@ -139,6 +154,9 @@
     const payNowBtn = $('payNow');
     const paymentMethod = $('paymentMethod');
     const toastEl = $('toast');
+    const buyerName = $('buyerName');
+    const buyerPhone = $('buyerPhone');
+    const buyerAddress = $('buyerAddress');
 
     function toast(msg){ if(!toastEl) return; toastEl.innerText = msg; toastEl.style.display = 'block'; setTimeout(()=>toastEl.style.display = 'none', 2200); }
 
@@ -176,6 +194,13 @@
 
     // Auto-select Razorpay by default
     try{ paymentMethod.value = 'razorpay'; }catch(e){}
+
+    // Prefill buyer inputs from URL params
+    try{
+      if(buyerName && orderData.name) buyerName.value = orderData.name;
+      if(buyerPhone && orderData.phone) buyerPhone.value = orderData.phone;
+      if(buyerAddress && orderData.address) buyerAddress.value = orderData.address;
+    }catch(e){/* ignore */}
 
     // ---- Save order to Firestore ONLY after successful payment ----
     async function saveOrderAfterPayment(paymentId, paymentMethod) {
@@ -252,6 +277,22 @@
       try{
         const method = paymentMethod.value;
 
+        // Update orderData from editable fields
+        try{
+          if(buyerName) orderData.name = buyerName.value.trim();
+          if(buyerPhone) orderData.phone = buyerPhone.value.trim();
+          if(buyerAddress) orderData.address = buyerAddress.value.trim();
+        }catch(e){/*ignore*/}
+
+        // If logged in, persist profile for future orders
+        try{
+          const user = auth.currentUser;
+          if(user){
+            const profileRef = doc(db, 'users', user.uid, 'profile');
+            await setDoc(profileRef, { name: orderData.name || '', phone: orderData.phone || '', address: orderData.address || '' }, { merge: true });
+          }
+        }catch(e){ console.warn('Failed to save profile', e); }
+
         // Use Razorpay checkout for payments
         if(method === 'razorpay'){
           await startRazorpay(orderData);
@@ -315,11 +356,36 @@
     }
 
     // ---- Auth state check ----
-    onAuthStateChanged(auth, user=>{
-      if(!user){
-        // Allow guest checkout or redirect to login
-      }
-      
+    onAuthStateChanged(auth, async (user)=>{
+      try{
+        if(!user){
+          // Allow guest checkout or prompt login if required
+          return;
+        }
+
+        const uid = user.uid;
+        const profileRef = doc(db, 'users', uid, 'profile');
+        const snap = await getDoc(profileRef);
+        if(snap && snap.exists()){
+          const profile = snap.data();
+          if(buyerName && profile.name) buyerName.value = profile.name;
+          if(buyerPhone && profile.phone) buyerPhone.value = profile.phone;
+          if(buyerAddress && profile.address) buyerAddress.value = profile.address;
+
+          // Ensure orderData uses saved profile where URL params were absent
+          if(!orderData.name && profile.name) orderData.name = profile.name;
+          if(!orderData.phone && profile.phone) orderData.phone = profile.phone;
+          if(!orderData.address && profile.address) orderData.address = profile.address;
+        } else {
+          // First-time login: if we have order data from URL, save it as initial profile
+          if(orderData.name || orderData.phone || orderData.address){
+            try{
+              await setDoc(profileRef, { name: orderData.name || '', phone: orderData.phone || '', address: orderData.address || '' }, { merge: true });
+            }catch(e){ console.warn('Failed to save initial profile', e); }
+          }
+        }
+      }catch(e){ console.warn('Profile load failed', e); }
+
       // No external pending-payments logic required for Razorpay flow
     });
 
