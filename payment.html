@@ -14,32 +14,35 @@
   html,body{height:100%;margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:#eaf6ff;-webkit-font-smoothing:antialiased}
   a{color:inherit;text-decoration:none}
   .container{max-width:720px;margin:20px auto;padding:0 16px}
-  header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;margin-bottom:20px}
+  header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;margin-bottom:20px;background:rgba(255,255,255,0.01);border-radius:12px}
   .brand{display:flex;gap:12px;align-items:center}
   .logo{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:800;color:#032033;box-shadow:0 12px 40px rgba(0,170,255,0.12)}
   .title{font-weight:800;font-size:18px}
-  .small{color:var(--muted)}
-  .btn{cursor:pointer;border-radius:10px;padding:9px 14px;border:none;font-weight:700;background:linear-gradient(90deg,var(--accent),#ff5aa3);color:#fff;box-shadow:0 8px 24px rgba(0,170,255,0.12);transition:transform .15s,filter .15s;width:100%}
+  .small{color:var(--muted);font-size:14px}
+  .btn{cursor:pointer;border-radius:10px;padding:9px 14px;border:none;font-weight:700;background:linear-gradient(90deg,var(--accent),#ff5aa3);color:#fff;box-shadow:0 8px 24px rgba(0,170,255,0.12);transition:transform .15s,filter .15s;width:100%;display:flex;align-items:center;justify-content:center}
   .btn:active{transform:translateY(1px)}
   .btn:disabled{opacity:0.6;cursor:not-allowed}
-  .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#fff;padding:8px 12px;border-radius:10px;width:auto}
+  .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#fff;padding:8px 12px;border-radius:10px;width:auto;cursor:pointer;font-weight:600}
   .payment-card{background:linear-gradient(180deg,#071522,#06121a);padding:20px;border-radius:12px;margin-bottom:16px;border:1px solid rgba(255,255,255,0.03)}
-  .payment-summary{background:linear-gradient(180deg,#061526,#072234);padding:16px;border-radius:10px;margin-bottom:16px;white-space:pre-line;line-height:1.6}
+  .payment-card h1{margin-top:0;font-size:24px;margin-bottom:16px}
+  .payment-summary{background:linear-gradient(180deg,#061526,#072234);padding:16px;border-radius:10px;margin-bottom:16px;white-space:pre-line;line-height:1.6;border:1px solid rgba(0,170,255,0.2);font-size:14px}
   .field{display:flex;flex-direction:column;margin-bottom:16px}
-  .field label{font-weight:600;margin-bottom:8px;color:#eaf6ff}
-  .field input,.field select{padding:12px;border-radius:10px;border:none;background:#08121a;color:#dbeafe;font-size:16px}
-  .field input:focus,.field select:focus{outline:3px solid rgba(0,170,255,0.12);outline-offset:2px}
-  .status-message{padding:12px;border-radius:10px;margin-bottom:16px;display:none;font-weight:600}
+  .field label{font-weight:600;margin-bottom:8px;color:#eaf6ff;font-size:14px}
+  .field input,.field select{padding:12px;border-radius:10px;border:none;background:rgba(8,18,26,0.8);color:#dbeafe;font-size:14px;border:1px solid rgba(255,255,255,0.06);transition:border-color .2s}
+  .field input:focus,.field select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 8px rgba(0,170,255,0.2)}
+  .status-message{padding:12px;border-radius:10px;margin-bottom:16px;display:none;font-weight:600;border:1px solid transparent;font-size:14px}
   .status-success{background:rgba(16,185,129,0.1);color:#7ee0b2;border:1px solid rgba(16,185,129,0.2);display:block}
   .status-error{background:rgba(255,59,59,0.1);color:#ffb4b4;border:1px solid rgba(255,59,59,0.2);display:block}
   .button-group{display:flex;gap:12px;margin-top:20px}
   .button-group button{flex:1}
   .sr-only{position:absolute!important;height:1px;width:1px;overflow:hidden;clip:rect(1px,1px,1px,1px);white-space:nowrap}
   button:focus{outline:3px solid rgba(0,170,255,0.12);outline-offset:3px}
-  .toast{position:fixed;right:16px;bottom:16px;background:#0b1220;padding:10px 14px;border-radius:10px;color:#d1fae5;border-left:4px solid var(--success);box-shadow:0 8px 30px rgba(2,6,23,0.6);display:none}
+  .toast{position:fixed;right:16px;bottom:16px;background:#0b1220;padding:10px 14px;border-radius:10px;color:#d1fae5;border-left:4px solid var(--success);box-shadow:0 8px 30px rgba(2,6,23,0.6);display:none;z-index:2000;font-weight:600}
+  footer{text-align:center;padding:18px;color:#9fb8d9;font-size:12px;margin-top:20px;border-top:1px solid rgba(255,255,255,0.06)}
   @media (max-width:640px){
     header{flex-direction:column;align-items:stretch;padding:12px 16px}
     .button-group{flex-direction:column}
+    .payment-card{padding:16px}
   }
 </style>
 </head>
@@ -64,6 +67,14 @@
         </div>
 
         <div id="paymentStatus" class="status-message"></div>
+        <div id="finishPanel" class="payment-summary" style="display:none;margin-top:12px;text-align:center;">
+          <div id="finishMessage" class="small" style="margin-bottom:8px;color:var(--muted)"></div>
+          <div id="finishSummary" style="padding:10px;border-radius:8px;margin-bottom:10px;white-space:pre-line;text-align:left;max-width:520px;margin-left:auto;margin-right:auto;color:#dbeafe"></div>
+          <div style="display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap">
+            <button id="finishOrderBtn" class="btn">Finish your order</button>
+            <button id="cancelPendingBtn" class="btn btn-ghost">Cancel</button>
+          </div>
+        </div>
 
         <form id="paymentForm">
           <div class="field">
@@ -71,11 +82,7 @@
             <select id="paymentMethod" required>
               <option value="">Choose a payment method</option>
               <option value="upi">UPI Payment</option>
-              <option value="cod">Cash on Delivery (WhatsApp Confirmation)</option>
             </select>
-            <div class="small" style="margin-top:8px;color:var(--muted)" id="codInfo" style="display:none">
-              ℹ️ For Cash on Delivery, you'll be directed to WhatsApp. Please send the confirmation message to complete your order.
-            </div>
           </div>
 
           <div class="button-group">
@@ -88,6 +95,27 @@
       <div style="text-align:center;margin-top:20px">
         <p class="small">Your payment is secure and encrypted. Data is not stored.</p>
       </div>
+
+      <section id="desktopUpiHelp" style="margin-top:18px;background:rgba(255,255,255,0.02);padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);text-align:center">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+          <div class="small" style="color:var(--muted)">If you're on a desktop, scan the QR or copy the UPI ID to pay using your mobile UPI app.</div>
+          <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:center">
+            <div style="text-align:center">
+              <img id="upiQr" alt="UPI QR" style="width:120px;height:120px;border-radius:8px;background:#fff;padding:6px" src="" />
+              <div class="small" style="margin-top:6px;color:var(--muted)">Scan QR in Google Pay / UPI app</div>
+            </div>
+            <div style="min-width:180px;text-align:left">
+              <div class="small" style="margin-bottom:6px;color:var(--muted)">UPI ID</div>
+              <div style="display:flex;gap:8px;align-items:center">
+                <div id="upiIdText" style="font-weight:800;color:#eaf6ff">—</div>
+                <button id="copyUpiBtn" class="btn btn-ghost" style="padding:6px 10px">Copy</button>
+              </div>
+              <div class="small" style="margin-top:8px;color:var(--muted)">Tip: Use Google Pay and paste the UPI ID if the intent doesn't open.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </main>
   </div>
 
@@ -166,15 +194,13 @@
       paymentSummary.innerHTML = '<div class="small" style="color:#ffb4b4">No order data found. <a href="index.html" style="color:var(--accent)">Return to shop</a></div>';
     }
 
-    // Show/hide COD info based on selection
+    // Payment method change handler (no COD option)
     paymentMethod.addEventListener('change', (e) => {
-      const codInfo = $('codInfo');
-      if(e.target.value === 'cod') {
-        codInfo.style.display = 'block';
-      } else {
-        codInfo.style.display = 'none';
-      }
+      // Placeholder for future payment UI toggles
     });
+
+    // Auto-select UPI by default for clarity
+    try{ paymentMethod.value = 'upi'; }catch(e){}
 
     // ---- Save order to Firestore ONLY after successful payment ----
     async function saveOrderAfterPayment(paymentId, paymentMethod) {
@@ -251,14 +277,13 @@
       try{
         const method = paymentMethod.value;
 
-        // Handle different payment methods
-        if(method === 'cod'){
-          // Cash on Delivery - Redirect to WhatsApp for confirmation
-          redirectToWhatsAppCOD(orderData);
-        } 
-        else if(method === 'upi'){
+        // Handle payment methods (UPI only)
+        if(method === 'upi'){
           // UPI Payment - Redirect to UPI app
           redirectToUPI(orderData);
+        } else {
+          showStatus('Unsupported payment method selected', true);
+          payNowBtn.disabled = false;
         }
 
       }catch(err){
@@ -268,63 +293,54 @@
       }
     });
 
-    // ---- WhatsApp COD Integration ----
-    function redirectToWhatsAppCOD(orderData) {
-      // Format the message
-      const message = `I want cash on delivery option for my order, my name is ${orderData.name} my product is ${orderData.product}, proceed to send entries to sheet`;
-      
-      // WhatsApp number
-      const phoneNumber = '919994051579';
-      
-      // Encode message for URL
-      const encodedMessage = encodeURIComponent(message);
-      
-      // Create WhatsApp URL
-      // Using wa.me for direct WhatsApp link (works on mobile)
-      const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
-      
-      // Show info message
-      showStatus('📱 Opening WhatsApp... Please send the message to confirm your order.', false);
-      toast('Redirecting to WhatsApp');
-      
-      // Store order data temporarily in sessionStorage
-      // So we can save it when user returns
-      sessionStorage.setItem('pendingCODOrder', JSON.stringify({
-        orderData: orderData,
-        timestamp: Date.now()
-      }));
-      
-      // Redirect to WhatsApp
-      setTimeout(() => {
-        window.location.href = whatsappUrl;
-      }, 1500);
-    }
+    // ---- COD removed: WhatsApp integration removed ----
 
-    // ---- UPI Payment Integration ----
+    // ---- UPI → Google Pay Integration ----
     function redirectToUPI(orderData) {
-      // Your UPI configuration
-      const upiString = 'thottanna23481-2@okicici';
+      // UPI configuration: use mobile number as payee
+      const upiString = '9994051579@okicici';
       const payeeName = 'Murugan Santosh';
       const aid = 'uGICAgIDotMS0DQ';
-      
-      // Create UPI URL with order details
-      const upiUrl = `upi://pay?pa=${upiString}&pn=${encodeURIComponent(payeeName)}&am=${orderData.price}&tn=${encodeURIComponent('Payment for ' + orderData.product)}&aid=${aid}`;
-      
+
+      const amount = orderData.price ? String(orderData.price) : '';
+      const tn = 'Payment for ' + (orderData.product || 'order');
+
+      // Build parameter string
+      const params = `pa=${encodeURIComponent(upiString)}&pn=${encodeURIComponent(payeeName)}&am=${encodeURIComponent(amount)}&tn=${encodeURIComponent(tn)}&aid=${encodeURIComponent(aid)}`;
+
+      // Android Intent URI to specifically open Google Pay app
+      const intentUri = `intent://upi/pay?${params}#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;end`;
+
+      // Google Pay web URL (desktop/browser fallback) using same params
+      const googlePayWeb = `https://pay.google.com/gp/p/u/0/#upi/pay?${params}`;
+
+      // Fallback UPI URI (generic) in case intent unsupported
+      const fallbackUpi = `upi://pay?${params}`;
+
       // Store order data in sessionStorage to save after payment
       const paymentData = {
         orderData: orderData,
         method: 'upi',
         timestamp: Date.now()
       };
-      
+
       sessionStorage.setItem('pendingGooglePayOrder', JSON.stringify(paymentData));
-      
-      showStatus('📱 Opening UPI app... Please complete the payment.', false);
-      toast('Opening UPI payment');
-      
+
+      showStatus('📱 Redirecting to Google Pay... Please complete the payment in the Google Pay app.', false);
+      toast('Opening Google Pay');
+
+      // Try intent URI first (opens Google Pay on Android). For desktop, open Google Pay web page in a new tab as fallback.
       setTimeout(() => {
-        window.location.href = upiUrl;
-      }, 800);
+        // Attempt to open Google Pay via intent (Android)
+        window.location.href = intentUri;
+
+        // After a short delay, open Google Pay web fallback in new tab (desktop browsers will use this)
+        setTimeout(() => {
+          try { window.open(googlePayWeb, '_blank'); } catch(e) { /* ignore */ }
+          // Also attempt generic UPI scheme as last resort
+          setTimeout(()=>{ window.location.href = fallbackUpi; }, 600);
+        }, 800);
+      }, 600);
     }
 
     // ---- Auth state check ----
@@ -333,26 +349,7 @@
         // Allow guest checkout or redirect to login
       }
       
-      // Check if user is returning from WhatsApp COD
-      const pendingCOD = sessionStorage.getItem('pendingCODOrder');
-      if(pendingCOD) {
-        try {
-          const pending = JSON.parse(pendingCOD);
-          const timeSinceSent = Date.now() - pending.timestamp;
-          
-          // If user returns within 10 minutes, assume they sent the message
-          if(timeSinceSent < 600000) {
-            // Auto-save the order after WhatsApp confirmation
-            // User had 10 minutes to send the message on WhatsApp
-            // If they're back here, we assume they complied
-            saveCODOrderAfterWhatsApp(pending.orderData);
-          }
-        } catch(e) {
-          console.warn('Could not process pending COD order', e);
-        }
-        // Clear the pending order from storage
-        sessionStorage.removeItem('pendingCODOrder');
-      }
+      // (COD removed) No pending COD checks
 
       // Check if user is returning from Google Pay
       const pendingGooglePay = sessionStorage.getItem('pendingGooglePayOrder');
@@ -360,43 +357,23 @@
         try {
           const pending = JSON.parse(pendingGooglePay);
           const timeSinceSent = Date.now() - pending.timestamp;
-          
-          // If user returns within 15 minutes, assume payment was successful
+
+          // If within 15 minutes, show a finish panel instead of auto-saving.
           if(timeSinceSent < 900000) {
-            // Auto-save the order after Google Pay confirmation
-            saveGooglePayOrderAfterPayment(pending.orderData, pending.method);
+            showFinishPanel(pending);
+            // do NOT clear the session here; wait until user finishes or cancels
+          } else {
+            // expired - remove pending
+            sessionStorage.removeItem('pendingGooglePayOrder');
           }
         } catch(e) {
           console.warn('Could not process pending Google Pay order', e);
+          sessionStorage.removeItem('pendingGooglePayOrder');
         }
-        // Clear the pending order from storage
-        sessionStorage.removeItem('pendingGooglePayOrder');
       }
     });
 
-    // ---- Save COD Order after WhatsApp Confirmation ----
-    async function saveCODOrderAfterWhatsApp(orderData) {
-      try {
-        // Save the order with COD confirmation
-        const paymentId = 'COD-WhatsApp-' + Date.now();
-        await saveOrderAfterPayment(paymentId, 'cash_on_delivery');
-        
-        showStatus('✓ Thank you! We received your WhatsApp message. Order confirmed!', false);
-        toast('Order saved successfully');
-        
-        // Show completion message
-        setTimeout(() => {
-          // Redirect to home after 2 seconds
-          window.location.href = 'index.html';
-        }, 2000);
-      } catch(err) {
-        console.error('Failed to save COD order', err);
-        showStatus('Order confirmation pending. We will verify via WhatsApp.', false);
-        
-        // Provide manual confirmation option
-        showStatus('⏳ Waiting for WhatsApp confirmation... You can also click "Confirm Order" below when ready.', false);
-      }
-    }
+    // ---- COD removed: no saveCODOrderAfterWhatsApp ----
 
     // ---- Save Google Pay Order after Payment Confirmation ----
     async function saveGooglePayOrderAfterPayment(orderData, method) {
@@ -404,13 +381,12 @@
         // Save the order with Google Pay confirmation
         const paymentId = 'GooglePay-' + Date.now();
         await saveOrderAfterPayment(paymentId, method);
-        
+
         showStatus('✓ Payment successful! Order confirmed and saved.', false);
         toast('Order placed successfully');
-        
-        // Show completion message
+
+        // Show completion message and redirect after short delay
         setTimeout(() => {
-          // Redirect to home after 2 seconds
           window.location.href = 'index.html';
         }, 2000);
       } catch(err) {
@@ -418,6 +394,75 @@
         showStatus('Order confirmation pending. Please contact support if payment was successful.', false);
       }
     }
+
+    // ---- Finish panel helpers ----
+    function showFinishPanel(pending){
+      const finishPanel = document.getElementById('finishPanel');
+      const finishMessage = document.getElementById('finishMessage');
+      const finishBtn = document.getElementById('finishOrderBtn');
+      const cancelBtn = document.getElementById('cancelPendingBtn');
+      if(!finishPanel || !finishMessage || !finishBtn) return;
+
+      finishMessage.innerText = 'If you completed the payment in Google Pay, click "Finish your order" to save your order to our system.';
+      // Build and show a clear order summary including fixed amount
+      const summaryEl = document.getElementById('finishSummary');
+      const amountStr = '₹' + (pending.orderData && pending.orderData.price ? String(pending.orderData.price) : '0');
+      const summaryText = `Product: ${pending.orderData.product || ''}\nName: ${pending.orderData.name || ''}\nPhone: ${pending.orderData.phone || ''}\nAddress: ${pending.orderData.address || ''}\n\nAmount to be charged: ${amountStr}`;
+      if(summaryEl) summaryEl.innerText = summaryText;
+      // Update button to show amount
+      if(finishBtn) finishBtn.innerText = `Finish your order — ${amountStr}`;
+      finishPanel.style.display = 'block';
+      const onFinish = async () => {
+        finishBtn.disabled = true;
+        cancelBtn.disabled = true;
+        showStatus('Saving order... Please wait.', false);
+        try{
+          // Use existing save flow; this will also send to Google Sheets
+          await saveGooglePayOrderAfterPayment(pending.orderData, pending.method || 'upi');
+          // clear pending
+          sessionStorage.removeItem('pendingGooglePayOrder');
+        }catch(e){
+          console.error('Finish order failed', e);
+          finishBtn.disabled = false;
+          cancelBtn.disabled = false;
+        }
+      };
+
+      const onCancel = () => {
+        sessionStorage.removeItem('pendingGooglePayOrder');
+        finishPanel.style.display = 'none';
+        showStatus('Pending payment cancelled.', true);
+      };
+
+      // Use direct assignment to avoid duplicate listeners when panel is shown multiple times
+      finishBtn.onclick = onFinish;
+      if(cancelBtn) cancelBtn.onclick = onCancel;
+
+      // Focus and scroll into view for clarity
+      finishBtn.focus({ preventScroll: false });
+      finishPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    // ---- Desktop UPI helper (copy + QR) ----
+    try{
+      const upiId = '9994051579@okicici';
+      const upiPayee = 'Murugan Santosh';
+      const upiUriForQr = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(upiPayee)}`;
+      const upiQrEl = document.getElementById('upiQr');
+      const upiIdText = document.getElementById('upiIdText');
+      const copyBtn = document.getElementById('copyUpiBtn');
+      if(upiIdText) upiIdText.innerText = upiId;
+      if(upiQrEl) upiQrEl.src = 'https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=' + encodeURIComponent(upiUriForQr);
+      if(copyBtn) {
+        copyBtn.onclick = () => {
+          if(navigator.clipboard && navigator.clipboard.writeText){
+            navigator.clipboard.writeText(upiId).then(()=>{ toast('UPI ID copied'); }).catch(()=>{ alert('Could not copy UPI ID'); });
+          } else {
+            alert('Select and copy the UPI ID: ' + upiId);
+          }
+        };
+      }
+    }catch(e){ console.warn('Desktop UPI helper init failed', e); }
 
     console.log('Hamsa Sarees Payment page ready');
   }catch(err){
