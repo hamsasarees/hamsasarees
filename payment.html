@@ -67,21 +67,14 @@
         </div>
 
         <div id="paymentStatus" class="status-message"></div>
-        <div id="finishPanel" class="payment-summary" style="display:none;margin-top:12px;text-align:center;">
-          <div id="finishMessage" class="small" style="margin-bottom:8px;color:var(--muted)"></div>
-          <div id="finishSummary" style="padding:10px;border-radius:8px;margin-bottom:10px;white-space:pre-line;text-align:left;max-width:520px;margin-left:auto;margin-right:auto;color:#dbeafe"></div>
-          <div style="display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap">
-            <button id="finishOrderBtn" class="btn">Finish your order</button>
-            <button id="cancelPendingBtn" class="btn btn-ghost">Cancel</button>
-          </div>
-        </div>
+        <!-- Razorpay checkout will be used; no external intent flows -->
 
         <form id="paymentForm">
           <div class="field">
             <label for="paymentMethod">Select Payment Method</label>
             <select id="paymentMethod" required>
               <option value="">Choose a payment method</option>
-              <option value="upi">UPI Payment</option>
+              <option value="razorpay">Pay with Razorpay (Card/UPI)</option>
             </select>
           </div>
 
@@ -96,25 +89,7 @@
         <p class="small">Your payment is secure and encrypted. Data is not stored.</p>
       </div>
 
-      <section id="desktopUpiHelp" style="margin-top:18px;background:rgba(255,255,255,0.02);padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);text-align:center">
-        <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
-          <div class="small" style="color:var(--muted)">If you're on a desktop, scan the QR or copy the UPI ID to pay using your mobile UPI app.</div>
-          <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:center">
-            <div style="text-align:center">
-              <img id="upiQr" alt="UPI QR" style="width:120px;height:120px;border-radius:8px;background:#fff;padding:6px" src="" />
-              <div class="small" style="margin-top:6px;color:var(--muted)">Scan QR in Google Pay / UPI app</div>
-            </div>
-            <div style="min-width:180px;text-align:left">
-              <div class="small" style="margin-bottom:6px;color:var(--muted)">UPI ID</div>
-              <div style="display:flex;gap:8px;align-items:center">
-                <div id="upiIdText" style="font-weight:800;color:#eaf6ff">—</div>
-                <button id="copyUpiBtn" class="btn btn-ghost" style="padding:6px 10px">Copy</button>
-              </div>
-              <div class="small" style="margin-top:8px;color:var(--muted)">Tip: Use Google Pay and paste the UPI ID if the intent doesn't open.</div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <!-- Desktop UPI helper removed (Razorpay integrated) -->
 
     </main>
   </div>
@@ -131,7 +106,7 @@
   // 2. Mobile number: 9994051579
   // 3. User will be redirected to UPI app on mobile or Google Pay
   // 4. After payment completion, order will be saved to Firestore
-  // 5. COD payments redirect to WhatsApp for confirmation
+  // 5. Payments processed via Razorpay checkout
   
   const firebaseConfig = {
     apiKey: "AIzaSyBozW19Rjc9nj0YabOIE3DlW0qVHtU5XLA",
@@ -199,8 +174,8 @@
       // Placeholder for future payment UI toggles
     });
 
-    // Auto-select UPI by default for clarity
-    try{ paymentMethod.value = 'upi'; }catch(e){}
+    // Auto-select Razorpay by default
+    try{ paymentMethod.value = 'razorpay'; }catch(e){}
 
     // ---- Save order to Firestore ONLY after successful payment ----
     async function saveOrderAfterPayment(paymentId, paymentMethod) {
@@ -277,10 +252,10 @@
       try{
         const method = paymentMethod.value;
 
-        // Handle payment methods (UPI only)
-        if(method === 'upi'){
-          // UPI Payment - Redirect to UPI app
-          redirectToUPI(orderData);
+        // Use Razorpay checkout for payments
+        if(method === 'razorpay'){
+          await startRazorpay(orderData);
+          // Razorpay handler will handle saving the order and redirecting on success
         } else {
           showStatus('Unsupported payment method selected', true);
           payNowBtn.disabled = false;
@@ -295,52 +270,48 @@
 
     // ---- COD removed: WhatsApp integration removed ----
 
-    // ---- UPI → Google Pay Integration ----
-    function redirectToUPI(orderData) {
-      // UPI configuration: use mobile number as payee
-      const upiString = '9994051579@okicici';
-      const payeeName = 'Murugan Santosh';
-      const aid = 'uGICAgIDotMS0DQ';
+    // ---- Razorpay integration ----
+    function loadScript(src){
+      return new Promise((resolve)=>{
+        const s = document.createElement('script'); s.src = src; s.onload = ()=>resolve(true); s.onerror = ()=>resolve(false); document.body.appendChild(s);
+      });
+    }
 
-      const amount = orderData.price ? String(orderData.price) : '';
-      const tn = 'Payment for ' + (orderData.product || 'order');
+    async function startRazorpay(orderData){
+      const ok = await loadScript('https://checkout.razorpay.com/v1/checkout.js');
+      if(!ok){ showStatus('Failed to load payment gateway. Try again later.', true); payNowBtn.disabled=false; return; }
 
-      // Build parameter string
-      const params = `pa=${encodeURIComponent(upiString)}&pn=${encodeURIComponent(payeeName)}&am=${encodeURIComponent(amount)}&tn=${encodeURIComponent(tn)}&aid=${encodeURIComponent(aid)}`;
-
-      // Android Intent URI to specifically open Google Pay app
-      const intentUri = `intent://upi/pay?${params}#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;end`;
-
-      // Google Pay web URL (desktop/browser fallback) using same params
-      const googlePayWeb = `https://pay.google.com/gp/p/u/0/#upi/pay?${params}`;
-
-      // Fallback UPI URI (generic) in case intent unsupported
-      const fallbackUpi = `upi://pay?${params}`;
-
-      // Store order data in sessionStorage to save after payment
-      const paymentData = {
-        orderData: orderData,
-        method: 'upi',
-        timestamp: Date.now()
+      const amountPaise = Math.round((orderData.price || 0) * 100);
+      const options = {
+        key: 'REPLACE_WITH_YOUR_RAZORPAY_KEY', // <-- replace with your Razorpay Key ID
+        amount: amountPaise,
+        currency: 'INR',
+        name: 'Hamsa Sarees',
+        description: orderData.product || 'Order',
+        handler: async function(response){
+          try{
+            // Save order only after successful payment
+            await saveOrderAfterPayment(response.razorpay_payment_id, 'razorpay');
+            showStatus('✓ Payment successful! Order confirmed and saved.', false);
+            toast('Order placed successfully');
+            setTimeout(()=> window.location.href = 'index.html', 1800);
+          }catch(err){
+            console.error('Saving after payment failed', err);
+            showStatus('Payment succeeded but saving failed. Contact support with payment ID.', true);
+          }
+        },
+        prefill: { name: orderData.name || '', contact: orderData.phone || '' },
+        theme: { color: '#00aaff' }
       };
 
-      sessionStorage.setItem('pendingGooglePayOrder', JSON.stringify(paymentData));
+      const rzp = new Razorpay(options);
+      rzp.on('payment.failed', function(resp){
+        console.error('Payment failed', resp);
+        showStatus('Payment failed. Please try another method or retry.', true);
+        payNowBtn.disabled = false;
+      });
 
-      showStatus('📱 Redirecting to Google Pay... Please complete the payment in the Google Pay app.', false);
-      toast('Opening Google Pay');
-
-      // Try intent URI first (opens Google Pay on Android). For desktop, open Google Pay web page in a new tab as fallback.
-      setTimeout(() => {
-        // Attempt to open Google Pay via intent (Android)
-        window.location.href = intentUri;
-
-        // After a short delay, open Google Pay web fallback in new tab (desktop browsers will use this)
-        setTimeout(() => {
-          try { window.open(googlePayWeb, '_blank'); } catch(e) { /* ignore */ }
-          // Also attempt generic UPI scheme as last resort
-          setTimeout(()=>{ window.location.href = fallbackUpi; }, 600);
-        }, 800);
-      }, 600);
+      rzp.open();
     }
 
     // ---- Auth state check ----
@@ -349,120 +320,16 @@
         // Allow guest checkout or redirect to login
       }
       
-      // (COD removed) No pending COD checks
-
-      // Check if user is returning from Google Pay
-      const pendingGooglePay = sessionStorage.getItem('pendingGooglePayOrder');
-      if(pendingGooglePay) {
-        try {
-          const pending = JSON.parse(pendingGooglePay);
-          const timeSinceSent = Date.now() - pending.timestamp;
-
-          // If within 15 minutes, show a finish panel instead of auto-saving.
-          if(timeSinceSent < 900000) {
-            showFinishPanel(pending);
-            // do NOT clear the session here; wait until user finishes or cancels
-          } else {
-            // expired - remove pending
-            sessionStorage.removeItem('pendingGooglePayOrder');
-          }
-        } catch(e) {
-          console.warn('Could not process pending Google Pay order', e);
-          sessionStorage.removeItem('pendingGooglePayOrder');
-        }
-      }
+      // No external pending-payments logic required for Razorpay flow
     });
 
     // ---- COD removed: no saveCODOrderAfterWhatsApp ----
 
-    // ---- Save Google Pay Order after Payment Confirmation ----
-    async function saveGooglePayOrderAfterPayment(orderData, method) {
-      try {
-        // Save the order with Google Pay confirmation
-        const paymentId = 'GooglePay-' + Date.now();
-        await saveOrderAfterPayment(paymentId, method);
+    // ---- (Razorpay) Order saving is handled in the Razorpay success handler ----
 
-        showStatus('✓ Payment successful! Order confirmed and saved.', false);
-        toast('Order placed successfully');
+    // Finish panel helpers removed — Razorpay checkout handles payment lifecycle
 
-        // Show completion message and redirect after short delay
-        setTimeout(() => {
-          window.location.href = 'index.html';
-        }, 2000);
-      } catch(err) {
-        console.error('Failed to save Google Pay order', err);
-        showStatus('Order confirmation pending. Please contact support if payment was successful.', false);
-      }
-    }
-
-    // ---- Finish panel helpers ----
-    function showFinishPanel(pending){
-      const finishPanel = document.getElementById('finishPanel');
-      const finishMessage = document.getElementById('finishMessage');
-      const finishBtn = document.getElementById('finishOrderBtn');
-      const cancelBtn = document.getElementById('cancelPendingBtn');
-      if(!finishPanel || !finishMessage || !finishBtn) return;
-
-      finishMessage.innerText = 'If you completed the payment in Google Pay, click "Finish your order" to save your order to our system.';
-      // Build and show a clear order summary including fixed amount
-      const summaryEl = document.getElementById('finishSummary');
-      const amountStr = '₹' + (pending.orderData && pending.orderData.price ? String(pending.orderData.price) : '0');
-      const summaryText = `Product: ${pending.orderData.product || ''}\nName: ${pending.orderData.name || ''}\nPhone: ${pending.orderData.phone || ''}\nAddress: ${pending.orderData.address || ''}\n\nAmount to be charged: ${amountStr}`;
-      if(summaryEl) summaryEl.innerText = summaryText;
-      // Update button to show amount
-      if(finishBtn) finishBtn.innerText = `Finish your order — ${amountStr}`;
-      finishPanel.style.display = 'block';
-      const onFinish = async () => {
-        finishBtn.disabled = true;
-        cancelBtn.disabled = true;
-        showStatus('Saving order... Please wait.', false);
-        try{
-          // Use existing save flow; this will also send to Google Sheets
-          await saveGooglePayOrderAfterPayment(pending.orderData, pending.method || 'upi');
-          // clear pending
-          sessionStorage.removeItem('pendingGooglePayOrder');
-        }catch(e){
-          console.error('Finish order failed', e);
-          finishBtn.disabled = false;
-          cancelBtn.disabled = false;
-        }
-      };
-
-      const onCancel = () => {
-        sessionStorage.removeItem('pendingGooglePayOrder');
-        finishPanel.style.display = 'none';
-        showStatus('Pending payment cancelled.', true);
-      };
-
-      // Use direct assignment to avoid duplicate listeners when panel is shown multiple times
-      finishBtn.onclick = onFinish;
-      if(cancelBtn) cancelBtn.onclick = onCancel;
-
-      // Focus and scroll into view for clarity
-      finishBtn.focus({ preventScroll: false });
-      finishPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-
-    // ---- Desktop UPI helper (copy + QR) ----
-    try{
-      const upiId = '9994051579@okicici';
-      const upiPayee = 'Murugan Santosh';
-      const upiUriForQr = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(upiPayee)}`;
-      const upiQrEl = document.getElementById('upiQr');
-      const upiIdText = document.getElementById('upiIdText');
-      const copyBtn = document.getElementById('copyUpiBtn');
-      if(upiIdText) upiIdText.innerText = upiId;
-      if(upiQrEl) upiQrEl.src = 'https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=' + encodeURIComponent(upiUriForQr);
-      if(copyBtn) {
-        copyBtn.onclick = () => {
-          if(navigator.clipboard && navigator.clipboard.writeText){
-            navigator.clipboard.writeText(upiId).then(()=>{ toast('UPI ID copied'); }).catch(()=>{ alert('Could not copy UPI ID'); });
-          } else {
-            alert('Select and copy the UPI ID: ' + upiId);
-          }
-        };
-      }
-    }catch(e){ console.warn('Desktop UPI helper init failed', e); }
+    // Desktop UPI helper removed (Razorpay is used)
 
     console.log('Hamsa Sarees Payment page ready');
   }catch(err){
