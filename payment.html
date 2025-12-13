@@ -335,9 +335,19 @@
     // ---- Payment form handler with Razorpay integration ----
     paymentForm.addEventListener('submit', async (ev) => {
       ev.preventDefault();
-      
+
       if(!paymentMethod.value){
         showStatus('Please select a payment method', true);
+        return;
+      }
+
+      // Validate form fields before proceeding
+      if (!buyerName.value.trim() || !buyerPhone.value.trim() || !buyerAddress.value.trim()) {
+        showStatus('Please fill in your name, phone, and address.', true);
+        return;
+      }
+      if (!/^[6-9]\d{9}$/.test(buyerPhone.value.trim())) {
+        showStatus('Please enter a valid 10-digit Indian mobile number.', true);
         return;
       }
 
@@ -353,18 +363,16 @@
         const method = paymentMethod.value;
 
         // Update orderData from editable fields
-        try{
-          if(buyerName) orderData.name = buyerName.value.trim();
-          if(buyerPhone) orderData.phone = buyerPhone.value.trim();
-          if(buyerAddress) orderData.address = buyerAddress.value.trim();
-        }catch(e){/*ignore*/}
+        orderData.name = buyerName.value.trim();
+        orderData.phone = buyerPhone.value.trim();
+        orderData.address = buyerAddress.value.trim();
 
         // If logged in, persist profile for future orders
         try{
           const user = auth.currentUser;
           if(user){
-            const profileRef = doc(db, 'users', user.uid, 'profile');
-            await setDoc(profileRef, { name: orderData.name || '', phone: orderData.phone || '', address: orderData.address || '' }, { merge: true });
+            const profileRef = doc(db, 'users', user.uid, 'profile', 'main');
+            await setDoc(profileRef, { name: orderData.name, phone: orderData.phone, address: orderData.address }, { merge: true });
           }
         }catch(e){ console.warn('Failed to save profile', e); }
 
@@ -445,7 +453,7 @@
       });
 
       // Restore button if user closes Razorpay modal
-      rzp.on('modal.close', function(){
+      rzp.on('modal.hidden', function(){
           if(!payNowBtn.innerText.includes('Success')) payNowBtn.innerHTML = 'Pay Now';
       });
 
@@ -461,19 +469,19 @@
         }
 
         const uid = user.uid;
-        const profileRef = doc(db, 'users', uid, 'profile');
+        const profileRef = doc(db, 'users', uid, 'profile', 'main');
         const snap = await getDoc(profileRef);
         if(snap && snap.exists()){
           const profile = snap.data();
-          if(buyerName && profile.name) buyerName.value = profile.name;
-          if(buyerPhone && profile.phone) buyerPhone.value = profile.phone;
-          if(buyerAddress && profile.address) buyerAddress.value = profile.address;
+          if(buyerName && !buyerName.value) buyerName.value = profile.name || '';
+          if(buyerPhone && !buyerPhone.value) buyerPhone.value = profile.phone || '';
+          if(buyerAddress && !buyerAddress.value) buyerAddress.value = profile.address || '';
 
           // Ensure orderData uses saved profile where URL params were absent
           if(!orderData.name && profile.name) orderData.name = profile.name;
           if(!orderData.phone && profile.phone) orderData.phone = profile.phone;
           if(!orderData.address && profile.address) orderData.address = profile.address;
-        } else {
+        } else if (orderData.name || orderData.phone || orderData.address) {
           // First-time login: if we have order data from URL, save it as initial profile
           if(orderData.name || orderData.phone || orderData.address){
             try{
@@ -497,7 +505,7 @@
     console.log('Hamsa Sarees Payment page ready');
   }catch(err){
     console.error('Init error', err);
-    alert('Initialization failed — check console.');
+    document.body.innerHTML = `<div style="color:white; padding:40px;">Initialization failed. Check the developer console for errors. It might be a Firebase configuration or network issue.</div>`;
   }
 })();
 </script>
