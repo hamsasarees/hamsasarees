@@ -249,17 +249,16 @@
     };
 
     // Display order summary with fixed price
-    if(paymentSummary && (orderData.product || orderData.name)){
+    if(paymentSummary && orderData.product && orderData.price > 0){
       paymentSummary.innerHTML = `
         <ul class="summary-list">
           <li><span>Product</span> <strong>${orderData.product}</strong></li>
-          <li><span>Name</span> <strong>${orderData.name}</strong></li>
-          <li><span>Phone</span> <strong>${orderData.phone}</strong></li>
-          <li><span>Price</span> <strong>₹${orderData.price}</strong></li>
+          <li><span>Price</span> <strong id="summaryPrice">₹${orderData.price}</strong></li>
         </ul>
       `;
     } else if(paymentSummary){
       paymentSummary.innerHTML = '<div class="small" style="color:var(--error)">No order data found. <a href="index.html" style="color:var(--accent-hover)">Return to shop</a></div>';
+      payNowBtn.disabled = true;
     }
 
     // Payment method change handler (no COD option)
@@ -431,7 +430,7 @@
             showStatus('✓ Payment successful! Order confirmed and saved.', false);
             payNowBtn.innerHTML = '✓ Success';
             toast('Order placed successfully');
-            setTimeout(()=> window.location.href = 'index.html', 1800);
+            window.location.href = 'yourorders.html'; // Immediate redirect to order history
           }catch(err){
             console.error('Saving after payment failed', err);
             showStatus('Payment succeeded but saving failed. Contact support with payment ID.', true);
