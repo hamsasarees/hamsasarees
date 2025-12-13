@@ -3,66 +3,96 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Hamsa Sarees — Single Page (Fixed)</title>
+<title>Hamsa Sarees — Official</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root{
       --bg1:#001f3f; --bg2:#00306b; --accent:#00aaff; --accent2:#4dd0e1; --muted:#9fb8d9; --success:#10b981;
       --card:#071522; --glass:rgba(255,255,255,0.03); --danger:#ff3b3b;
+      --bg1: #0d1117; --bg2: #010409; --accent: #238636; --accent-glow: rgba(35, 134, 54, 0.6);
+      --accent-hover: #2ea043; --text-primary: #e6edf3; --text-secondary: #7d8590;
+      --border-color: rgba(255, 255, 255, 0.1); --card-bg: #161b22; --input-bg: #0d1117;
+      --error: #f85149; --error-bg: rgba(248, 81, 73, 0.1); --success:#10b981; --danger:#f85149;
     }
     *{box-sizing:border-box}
-    html,body{height:100%;margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:#eaf6ff;-webkit-font-smoothing:antialiased}
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:var(--bg2);color:var(--text-primary);-webkit-font-smoothing:antialiased}
     a{color:inherit;text-decoration:none}
     .container{max-width:1100px;margin:20px auto;padding:0 16px}
     header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;margin-bottom:20px;background:rgba(255,255,255,0.01);border-radius:12px}
     .brand{display:flex;gap:12px;align-items:center}
     .logo{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:800;color:#032033;box-shadow:0 12px 40px rgba(0,170,255,0.12)}
     .title{font-weight:800;font-size:18px;line-height:1.2}
-    .small{color:var(--muted);font-size:14px}
-    .search{flex:1;display:flex;align-items:center;gap:8px;padding:10px 12px;background:rgba(255,255,255,0.03);border-radius:10px;border:1px solid rgba(255,255,255,0.06)}
-    .search input{flex:1;background:transparent;border:none;color:#dbeafe;outline:none;font-size:14px}
-    .search input::placeholder{color:var(--muted)}
+    header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;margin-bottom:24px}
+    .brand{display:flex;gap:14px;align-items:center}
+    .logo{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg, #f9ce34, #ee2a7b, #6228d7);display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:20px;box-shadow:0 8px 30px rgba(0,0,0,0.3);}
+    .title{font-weight:700;font-size:20px;line-height:1.2}
+    .small{color:var(--text-secondary);font-size:14px}
+    .search{flex:1;display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--input-bg);border-radius:8px;border:1px solid var(--border-color)}
+    .search input{flex:1;background:transparent;border:none;color:var(--text-primary);outline:none;font-size:14px}
+    .search input::placeholder{color:var(--text-secondary)}
     .actions{display:flex;gap:8px;align-items:center}
-    .btn{cursor:pointer;border-radius:10px;padding:9px 14px;border:none;font-weight:700;background:linear-gradient(90deg,var(--accent),#ff5aa3);color:#fff;box-shadow:0 8px 24px rgba(0,170,255,0.12);transition:transform .15s,filter .15s;display:inline-flex;align-items:center;justify-content:center}
-    .btn:active{transform:translateY(1px)}
+    .btn{
+      cursor:pointer; border-radius:8px; padding:9px 16px; border:1px solid var(--accent); font-weight:700;
+      background:var(--accent); color:#fff; box-shadow:0 1px 0 rgba(255,255,255,0.1) inset, 0 4px 12px rgba(0,0,0,0.4);
+      transition: all .2s ease; display:inline-flex; align-items:center; justify-content:center; gap: 8px;
+    }
+    .btn:hover:not(:disabled){background:var(--accent-hover); border-color:var(--accent-hover);}
+    .btn:active:not(:disabled){transform:translateY(1px); box-shadow:0 1px 0 rgba(255,255,255,0.1) inset, 0 2px 6px rgba(0,0,0,0.4);}
     .btn:disabled{opacity:0.6;cursor:not-allowed}
-    .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#fff;padding:8px 12px;border-radius:10px;cursor:pointer;font-weight:600;transition:background .2s}
-    .btn-ghost:hover{background:rgba(255,255,255,0.05)}
+    .btn-ghost{
+      background:transparent; border:1px solid var(--border-color); color:var(--text-secondary);
+      box-shadow:none; font-weight:600; padding:8px 14px; border-radius:8px;
+    }
+    .btn-ghost:hover{background:var(--card-bg); color:var(--text-primary); border-color:var(--text-secondary);}
     .hero{gap:16px;display:flex;flex-direction:column}
     .hero-card{background:linear-gradient(180deg,#071522,#06121a);padding:20px;border-radius:12px;border:1px solid rgba(255,255,255,0.03)}
     .hero-card h1{margin:0 0 8px 0;font-size:28px;line-height:1.3}
     .hero-card p{margin:0 0 14px 0}
-    .promo{background:linear-gradient(180deg,rgba(0,170,255,0.1),rgba(77,208,225,0.05));padding:16px;border-radius:10px;border:1px solid rgba(0,170,255,0.2);text-align:center}
+    .promo{background:rgba(35,134,54,0.15);padding:16px;border-radius:8px;border:1px solid rgba(35,134,54,0.3);text-align:center}
     .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-top:16px}
-    .card{background:linear-gradient(180deg,#071522,#06121a);border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.03);transition:transform .2s,box-shadow .2s}
-    .card:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(0,170,255,0.15)}
-    .tag{position:absolute;top:8px;right:8px;background:linear-gradient(90deg,var(--accent),#ff5aa3);padding:4px 10px;border-radius:6px;font-size:12px;font-weight:700;color:#fff;z-index:10}
-    .imgwrap{position:relative;overflow:hidden;padding-bottom:100%;background:rgba(255,255,255,0.02)}
+    .card{background:var(--card-bg);border-radius:12px;overflow:hidden;border:1px solid var(--border-color);transition:transform .2s,box-shadow .2s; padding:12px;}
+    .card:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(0,0,0,0.3)}
+    .tag{position:absolute;top:8px;right:8px;background:var(--accent);padding:4px 10px;border-radius:6px;font-size:12px;font-weight:700;color:#fff;z-index:10}
+    .imgwrap{position:relative;overflow:hidden;padding-bottom:100%;background:var(--input-bg); border-radius:8px;}
     .imgwrap img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-    .card h3{margin:12px;font-size:16px;line-height:1.3}
-    .price{font-weight:800;color:var(--accent2);font-size:16px}
+    .card h3{margin:12px 0;font-size:16px;line-height:1.3}
+    .price{font-weight:800;color:#58a6ff;font-size:16px}
     .product-rating{font-size:13px;color:var(--success)}
     .rating-ui{display:flex;gap:4px}
-    .rateBtn{padding:4px 6px;font-size:12px;border-radius:6px;border:none;cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.1);color:var(--muted);transition:all .2s}
-    .rateBtn:hover{background:rgba(0,170,255,0.2);color:var(--accent)}
+    .rateBtn{padding:4px 6px;font-size:12px;border-radius:6px;cursor:pointer;background:transparent;border:1px solid var(--border-color);color:var(--text-secondary);transition:all .2s}
+    .rateBtn:hover{background:rgba(35,134,54,0.2);color:var(--accent-hover)}
     .field{display:flex;flex-direction:column;margin-bottom:16px}
-    .field label{font-weight:600;margin-bottom:8px;color:#eaf6ff;font-size:14px}
-    .field input,.field select,.field textarea{padding:12px;border-radius:10px;border:none;background:rgba(8,18,26,0.8);color:#dbeafe;font-size:14px;border:1px solid rgba(255,255,255,0.06);transition:border-color .2s}
-    .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 8px rgba(0,170,255,0.2)}
-    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(3,8,20,0.6),rgba(2,8,18,0.85));z-index:1200;padding:12px}
+    .field label{font-weight:600;margin-bottom:8px;color:var(--text-secondary);font-size:13px}
+    .field input,.field select,.field textarea{
+      padding:12px; border-radius:8px; border:1px solid var(--border-color);
+      background:var(--input-bg); color:var(--text-primary); font-size:15px;
+      transition:all .2s;
+    }
+    .field input:focus,.field select:focus,.field textarea:focus{
+      outline:none; border-color:var(--accent);
+      box-shadow:0 0 0 3px var(--accent-glow);
+    }
+    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(1,4,9,0.8);z-index:1200;padding:12px;animation:fade-in .3s ease}
+    @keyframes fade-in { from { opacity: 0; } }
     .modal.show{display:flex}
-    .modal-box{max-width:720px;width:100%;background:linear-gradient(180deg,#071522,#06121a);border-radius:12px;padding:20px;color:#eaf6ff;position:relative;box-shadow:0 30px 80px rgba(2,6,23,0.6);border:1px solid rgba(255,255,255,0.03);max-height:90vh;overflow-y:auto}
+    .modal-box{max-width:720px;width:100%;background:var(--card-bg);border-radius:12px;padding:24px;color:var(--text-primary);position:relative;box-shadow:0 30px 80px rgba(0,0,0,0.5);border:1px solid var(--border-color);max-height:90vh;overflow-y:auto}
     .modal-box h2{margin-top:0;margin-bottom:12px;font-size:22px}
-    .close-x{position:absolute;top:12px;right:12px;background:none;border:none;color:#ff5aa3;font-weight:800;font-size:18px;cursor:pointer;transition:transform .2s}
+    .close-x{position:absolute;top:12px;right:12px;background:none;border:none;color:var(--text-secondary);font-weight:800;font-size:18px;cursor:pointer;transition:transform .2s}
     .close-x:hover{transform:scale(1.2)}
     .sr-only{position:absolute!important;height:1px;width:1px;overflow:hidden;clip:rect(1px,1px,1px,1px);white-space:nowrap}
-    button:focus,input:focus,select:focus,textarea:focus{outline:3px solid rgba(0,170,255,0.12);outline-offset:2px}
-    .toast{position:fixed;right:16px;bottom:16px;background:#0b1220;padding:12px 16px;border-radius:10px;color:#d1fae5;border-left:4px solid var(--success);box-shadow:0 8px 30px rgba(2,6,23,0.6);display:none;z-index:2000;font-weight:600}
+    button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible{outline:3px solid var(--accent-glow); outline-offset:2px; border-radius: 8px;}
+    .toast{
+      position:fixed; right:16px; bottom:16px; background:#1f2937; padding:12px 18px;
+      border-radius:8px; color:var(--text-primary); border-left:4px solid var(--accent);
+      box-shadow:0 10px 40px rgba(0,0,0,0.5); display:none; z-index:2000; font-weight:600;
+      animation:toast-in .3s ease;
+    }
+    @keyframes toast-in { from { transform: translateY(20px); opacity: 0; } }
     @media (max-width:640px){
       header{flex-direction:column;align-items:stretch;padding:12px 16px}
       .actions{flex-wrap:wrap}
       .grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
-      .card h3{font-size:14px;margin:10px}
+      .card h3{font-size:14px;margin:10px 0;}
       .hero-card h1{font-size:24px}
     }
   </style>
@@ -73,14 +103,14 @@
       <div class="brand">
         <div class="logo" aria-hidden="true">HS</div>
         <div>
-          <div class="title">Hamsa Sarees<br> ! This Site Is Under Construction !</div>
+          <div class="title">Hamsa Sarees</div>
           <div class="small">Handpicked • Ethnic • Quality</div>
         </div>
       </div>
 
       <div style="flex:1;display:flex;justify-content:center">
         <div class="search" role="search" aria-label="Search products">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 21l-4.35-4.35" stroke="#9fb6c9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 21l-4.35-4.35" stroke="var(--text-secondary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11" cy="11" r="8" stroke="var(--text-secondary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
           <input id="searchBox" placeholder="Search sarees, cotton, silk..." aria-label="Search products" />
         </div>
       </div>
@@ -107,7 +137,7 @@
 
         <aside class="promo" aria-hidden="true">
           <strong>Limited Offer</strong>
-          <div class="small" style="margin-top:8px">Free shipping on orders above ₹3000</div>
+          <div class="small" style="margin-top:8px; color: var(--text-secondary)">Free shipping on orders above ₹3000</div>
           <div style="margin-top:12px;font-weight:800;color:#7ee0b2">Best Seller: Elegant Cotton — ₹1499</div>
         </aside>
       </section>
@@ -115,11 +145,11 @@
       <section style="margin-top:12px">
         <div style="display:flex;justify-content:space-between;align-items:center">
           <h2 style="margin:0">Products</h2>
-          <div class="small">Sign in to place orders; orders saved to your account</div>
+          <div class="small" style="color: var(--text-secondary)">Sign in to place orders; orders saved to your account</div>
         </div>
         <div class="grid" id="productGrid" aria-live="polite">
-          <div class="card" style="grid-column:1/-1;text-align:center;color:var(--muted);padding:32px;background:transparent">
-            <strong style="color:#eaf6ff">No products yet</strong>
+          <div class="card" style="grid-column:1/-1;text-align:center;color:var(--text-secondary);padding:32px;background:transparent; border: 1px dashed var(--border-color)">
+            <strong style="color:var(--text-primary)">No products yet</strong>
             <div class="small" style="margin-top:8px">As admin, open Admin → Add Product to upload items. The product grid updates live for users.</div>
             <div style="margin-top:12px"><button id="openAdminFromEmpty" class="btn-ghost">Open Admin</button></div>
           </div>
@@ -128,25 +158,7 @@
     </main>
   </div>
 
-  <!-- Modals (Order, Login, Payment, My Orders, Admin, Detail) -->
-  <div class="modal" id="orderModal" aria-hidden="true">
-    <div class="modal-box" role="dialog" aria-modal="true">
-      <button class="close-x" id="closeOrderModal" title="Close">✕</button>
-      <h2 id="orderModalTitle">Confirm Your Order</h2>
-      <p class="small" id="selectedProduct"></p>
-      <form id="orderForm" method="POST" target="hiddenFrame" action="https://docs.google.com/forms/d/e/1FAIpQLSfREKvTld9R59UADJQK6jxQIbM64tt1iP0M-XiPq4ykOOwe5w/formResponse">
-        <div class="field"><label class="sr-only" for="custName">Your name</label><input id="custName" name="entry.1128392407" placeholder="Your Name" required></div>
-        <div class="field"><label class="sr-only" for="custAddress">Address</label><textarea id="custAddress" name="entry.654904844" placeholder="Address" required></textarea></div>
-        <div class="field"><label class="sr-only" for="custPhone">Mobile number</label><input id="custPhone" name="entry.1644126654" placeholder="Mobile Number" required></div>
-        <div class="field"><input id="productField" name="entry.1866699911" readonly aria-readonly="true"></div>
-        <div class="modal-footer" style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
-          <button class="btn" id="placeOrder">Place Order</button>
-          <button type="button" class="btn-ghost" id="cancelOrder">Cancel</button>
-        </div>
-      </form>
-      <div id="orderStatus" class="small" style="margin-top:10px;color:var(--success);display:none">Order placed. Thank you!</div>
-    </div>
-  </div>
+  <!-- Modals (Login, Admin, Detail) -->
 
   <div class="modal" id="loginModal" aria-hidden="true">
     <div class="modal-box" role="dialog" aria-modal="true">
@@ -156,7 +168,7 @@
       <div style="display:flex;justify-content:center;margin-top:12px">
         <button id="googleBtnLarge" class="btn">Sign in with Google</button>
       </div>
-      <p id="loginErr" class="small" style="margin-top:12px;color:#ffb4b4;display:none"></p>
+      <p id="loginErr" class="small" style="margin-top:12px;color:var(--error);display:none"></p>
     </div>
   </div>
 
@@ -177,12 +189,15 @@
       <!-- Add Product Section -->
       <div style="border-bottom:1px solid rgba(255,255,255,0.06);padding-bottom:16px;margin-bottom:16px;background:rgba(255,255,255,0.01);padding:16px;border-radius:10px">
         <h3 style="margin-top:0;color:#eaf6ff">Add Product</h3>
+      <div style="border-bottom:1px solid var(--border-color);padding-bottom:16px;margin-bottom:16px;background:var(--input-bg);padding:16px;border-radius:8px">
+        <h3 style="margin-top:0;color:var(--text-primary)">Add Product</h3>
         <p class="small">Products added here are saved to Firestore (admin-only).</p>
         <div class="field"><label class="small" style="font-weight:600">Title *</label><input id="admin_pTitle" placeholder="Product title" required></div>
         <div class="field"><label class="small" style="font-weight:600">Price (₹) *</label><input id="admin_pPrice" type="number" placeholder="1499" required></div>
         <div class="field"><label class="small" style="font-weight:600">Tag</label><input id="admin_pTag" placeholder="e.g. New, Best"></div>
         <div class="field"><label class="small" style="font-weight:600">Upload Image</label><input id="admin_pImg" type="file" accept="image/*" placeholder="Select image"></div>
         <div id="admin_imgPreview" style="display:none;margin-top:10px;text-align:center"><img id="admin_imgPreviewImg" style="max-width:200px;max-height:200px;border-radius:8px;border:1px solid rgba(255,255,255,0.1)" alt="Preview" /></div>
+        <div id="admin_imgPreview" style="display:none;margin-top:10px;text-align:center"><img id="admin_imgPreviewImg" style="max-width:200px;max-height:200px;border-radius:8px;border:1px solid var(--border-color)" alt="Preview" /></div>
         <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
           <button id="adminSave" class="btn">Add Product</button>
         </div>
@@ -191,8 +206,10 @@
       <!-- Remove Product Section -->
       <div>
         <h3 style="margin-top:0;color:#eaf6ff">Remove Product</h3>
+        <h3 style="margin-top:0;color:var(--text-primary)">Remove Product</h3>
         <p class="small">Click the delete button next to a product to remove it.</p>
         <div id="adminProductsList" style="border:1px solid rgba(255,255,255,0.06);border-radius:10px;max-height:400px;overflow-y:auto;background:rgba(255,255,255,0.01)">
+        <div id="adminProductsList" style="border:1px solid var(--border-color);border-radius:8px;max-height:400px;overflow-y:auto;background:var(--input-bg)">
           <div class="small" style="padding:12px;text-align:center;color:var(--muted)">Loading products...</div>
         </div>
       </div>
@@ -203,7 +220,6 @@
     </div>
   </div>
 
-  <iframe name="hiddenFrame" style="display:none"></iframe>
   <div id="toast" class="toast" role="status" aria-live="polite">Saved.</div>
 
 <script type="module">
@@ -244,7 +260,7 @@
 
     // ---- DOM refs ----
     const $ = id => document.getElementById(id);
-    const loginModal = $('loginModal'), orderModal = $('orderModal'), adminModal = $('adminModal');
+    const loginModal = $('loginModal'), adminModal = $('adminModal');
     const loginErr = $('loginErr'), userBadge = $('userBadge'), signOutBtn = $('signOutBtn'), loginShowBtn = $('loginShowBtn'), googleBtnLarge = $('googleBtnLarge');
     const myOrdersBtn = $('myOrdersBtn');
     const adminBtn = $('adminBtn');
@@ -333,8 +349,8 @@
         // render from DB
         productGrid.innerHTML = '';
         if(snap.empty){
-          const fallback = document.createElement('div'); fallback.className='card'; fallback.style.gridColumn='1/-1'; fallback.style.textAlign='center'; fallback.style.color='var(--muted)'; fallback.style.padding='32px';
-          fallback.innerHTML = '<strong style="color:#eaf6ff">No products yet</strong><div class="small" style="margin-top:8px">As admin, open Admin → Add Product to upload items. The product grid updates live for users.</div><div style="margin-top:12px"><button id="openAdminFromEmptyInner" class="btn-ghost">Open Admin</button></div>';
+          const fallback = document.createElement('div'); fallback.className='card'; fallback.style.gridColumn='1/-1'; fallback.style.textAlign='center'; fallback.style.color='var(--text-secondary)'; fallback.style.padding='32px'; fallback.style.border = '1px dashed var(--border-color)';
+          fallback.innerHTML = '<strong style="color:var(--text-primary)">No products yet</strong><div class="small" style="margin-top:8px">As admin, open Admin → Add Product to upload items. The product grid updates live for users.</div><div style="margin-top:12px"><button id="openAdminFromEmptyInner" class="btn-ghost">Open Admin</button></div>';
           productGrid.appendChild(fallback);
           // attach handler to that button
           setTimeout(()=>{ document.getElementById('openAdminFromEmptyInner')?.addEventListener('click', ()=>{ if(!auth.currentUser){ openModal(loginModal); showLoginError('Sign in as admin to add products'); return; } if(auth.currentUser.uid !== ADMIN_UID){ alert('You are not admin'); return; } openModal(adminModal); }); },50);
@@ -355,13 +371,10 @@
       if(!btn) return;
       const prod = btn.getAttribute('data-product') || '';
       const price = btn.getAttribute('data-price') || '0';
-      if(!auth.currentUser){ openModal(loginModal); showLoginError('Please sign in with Google to place orders'); return; }
-      const sel = $('selectedProduct'); if(sel) sel.innerText = `${prod} (₹${price})`;
-      const pf = $('productField'); if(pf) {
-        pf.value = prod;
-        pf.dataset.price = price;
-      }
-      openModal(orderModal);
+      // Redirect to payment page with order details as URL parameters
+      const params = new URLSearchParams({ product: prod, price: price });
+      // No need to ask for user details here, payment page will handle it.
+      window.location.href = `payment.html?${params.toString()}`;
     });
 
     // ---- Rating listeners and live averages per product ----
@@ -401,20 +414,6 @@
 
     attachRatingListenersToGrid();
 
-    // ---- Orders: place & redirect to payment page ----
-    $('placeOrder').addEventListener('click', ev=>{
-      ev.preventDefault();
-      const name = $('custName').value.trim(), address = $('custAddress').value.trim(), phone = $('custPhone').value.trim();
-      const product = $('productField').value || '';
-      const price = $('productField').dataset.price || '0';
-      if(!name || !address || !phone){ alert('Fill all fields'); return; }
-      if(!/^[6-9]\d{9}$/.test(phone)){ alert('Enter a valid 10-digit Indian mobile number'); return; }
-      closeModal(orderModal);
-      // Redirect to payment page with order details as URL parameters
-      const params = new URLSearchParams({ product, name, address, phone, price });
-      window.location.href = `payment.html?${params.toString()}`;
-    });
-
     // Load user orders (persistent) and allow delete + view
     // Moved to yourorders.html as a separate page
 
@@ -432,12 +431,12 @@
     async function loadAdminProductsList(){
       const listContainer = $('adminProductsList');
       if(!listContainer) return;
-      listContainer.innerHTML = '<div class="small" style="padding:12px;text-align:center;color:var(--muted)">Loading products...</div>';
+      listContainer.innerHTML = '<div class="small" style="padding:12px;text-align:center;color:var(--text-secondary)">Loading products...</div>';
       
       try{
         const snap = await getDocs(productsColRef);
         if(snap.empty){
-          listContainer.innerHTML = '<div class="small" style="padding:12px;text-align:center;color:var(--muted)">No products to remove</div>';
+          listContainer.innerHTML = '<div class="small" style="padding:12px;text-align:center;color:var(--text-secondary)">No products to remove</div>';
           return;
         }
         listContainer.innerHTML = '';
@@ -448,13 +447,13 @@
           const price = data.price || '0';
           
           const row = document.createElement('div');
-          row.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:12px;border-bottom:1px solid rgba(255,255,255,0.03)';
+          row.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:12px;border-bottom:1px solid var(--border-color)';
           row.innerHTML = `
             <div style="flex:1">
-              <strong style="color:#eaf6ff">${escapeHtml(title)}</strong>
-              <div class="small" style="color:var(--muted)">₹${escapeHtml(price)}</div>
+              <strong style="color:var(--text-primary)">${escapeHtml(title)}</strong>
+              <div class="small" style="color:var(--text-secondary)">₹${escapeHtml(price)}</div>
             </div>
-            <button class="deleteProductBtn btn" data-id="${id}" style="background:linear-gradient(90deg,#ff3b3b,#ff5252);white-space:nowrap" type="button">Delete</button>
+            <button class="deleteProductBtn btn" data-id="${id}" style="background:var(--danger); border-color:var(--danger); white-space:nowrap" type="button">Delete</button>
           `;
           listContainer.appendChild(row);
         });
@@ -478,7 +477,7 @@
         });
       }catch(err){
         console.error('load admin products failed', err);
-        listContainer.innerHTML = '<div class="small" style="padding:12px;color:#ffb4b4">Failed to load products</div>';
+        listContainer.innerHTML = '<div class="small" style="padding:12px;color:var(--error)">Failed to load products</div>';
       }
     }
 
@@ -524,7 +523,6 @@
 
     // ---- Generic modal close (fix for all X buttons) ----
     document.querySelectorAll('.close-x').forEach(btn=>{ btn.addEventListener('click', ()=>{ const modal = btn.closest('.modal'); closeModal(modal); }); });
-    $('cancelOrder')?.addEventListener('click', ()=>{ closeModal(orderModal); });
     $('closeOrderDetail')?.addEventListener('click', ()=>{ closeModal(orderDetailModal); });
     $('closeDetailBtn')?.addEventListener('click', ()=>{ closeModal(orderDetailModal); });
 
@@ -588,45 +586,45 @@
     </div>
   </div>
 
-  <script>
-    // Lightweight zoom handlers (no dependencies)
-    document.addEventListener('click', function(ev){
-      try{
-        var target = ev.target;
-        var imgEl = (target && target.closest) ? target.closest('.imgwrap img') : null;
-        if(imgEl){
-          var src = imgEl.getAttribute('src');
-          if(!src) return;
-          var zoomImg = document.getElementById('zoomImg');
-          if(zoomImg) zoomImg.src = src;
-          var modal = document.getElementById('zoomModal');
-          if(modal) modal.classList.add('show'), modal.removeAttribute('aria-hidden'), document.body.style.overflow = 'hidden';
-        }
-      }catch(e){ console.error('zoom click handler failed', e); }
-    });
+<script>
+  // Consolidated lightweight zoom handlers
+  (function() {
+    const zoomModal = document.getElementById('zoomModal');
+    const zoomImg = document.getElementById('zoomImg');
+    const closeZoomBtn = document.getElementById('closeZoom');
 
-    var closeZoomBtn = document.getElementById && document.getElementById('closeZoom');
-    if(closeZoomBtn){
-      closeZoomBtn.addEventListener('click', function(){
-        var zoomImg = document.getElementById('zoomImg'); if(zoomImg) zoomImg.src = '';
-        var modal = document.getElementById('zoomModal'); if(modal) modal.classList.remove('show'), modal.setAttribute('aria-hidden','true'), document.body.style.overflow = '';
-      });
+    function closeModal() {
+      if (zoomModal) {
+        zoomModal.classList.remove('show');
+        zoomModal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+        if (zoomImg) zoomImg.src = '';
+      }
     }
 
-    document.addEventListener('keydown', function(e){
-      if(e.key === 'Escape'){
-        var modal = document.getElementById('zoomModal');
-        if(modal && modal.classList.contains('show')){
-          modal.classList.remove('show');
-          modal.setAttribute('aria-hidden','true');
-          document.body.style.overflow = '';
-          var zoomImg = document.getElementById('zoomImg'); if(zoomImg) zoomImg.src = '';
-        }
+    document.addEventListener('click', function(ev) {
+      const imgEl = ev.target.closest('.imgwrap img');
+      if (imgEl && imgEl.src && zoomModal && zoomImg) {
+        zoomImg.src = imgEl.src;
+        zoomModal.classList.add('show');
+        zoomModal.removeAttribute('aria-hidden');
+        document.body.style.overflow = 'hidden';
       }
     });
-  </script>
 
-  <footer style="text-align:center;padding:18px;color:#9fb8d9;font-size:13px;line-height:1.6;">
+    if (closeZoomBtn) closeZoomBtn.addEventListener('click', closeModal);
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+  })();
+</script>
+
+  <footer style="text-align:center;padding:24px;color:var(--text-secondary);font-size:12px;margin-top:20px;border-top:1px solid var(--border-color);line-height:1.8;">
+    <div class="policy-links" style="margin-bottom: 16px; display: flex; justify-content: center; gap: 8px 16px; flex-wrap: wrap;">
+      <a href="https://merchant.razorpay.com/policy/RqTr3sOZEqSD8V/privacy" target="_blank" style="color: var(--text-secondary); text-decoration: underline;">Privacy Policy</a>
+      <a href="https://merchant.razorpay.com/policy/RqTr3sOZEqSD8V/terms" target="_blank" style="color: var(--text-secondary); text-decoration: underline;">Terms & Conditions</a>
+      <a href="https://merchant.razorpay.com/policy/RqTr3sOZEqSD8V/shipping" target="_blank" style="color: var(--text-secondary); text-decoration: underline;">Shipping</a>
+      <a href="https://merchant.razorpay.com/policy/RqTr3sOZEqSD8V/refund" target="_blank" style="color: var(--text-secondary); text-decoration: underline;">Cancellation & Refunds</a>
+      <a href="https://merchant.razorpay.com/policy/RqTr3sOZEqSD8V/contact_us" target="_blank" style="color: var(--text-secondary); text-decoration: underline;">Contact Us</a>
+    </div>
     ©2025 Hamsa Sarees, unauthorized use is strictly prohibited.<br>
     Website designed, created & published by Terminal Joint.
   </footer>
