@@ -296,7 +296,6 @@
 
     // ---- Modal close handlers ----
     document.querySelectorAll('.close-x').forEach(btn=>{ btn.addEventListener('click', ()=>{ const modal = btn.closest('.modal'); closeModal(modal); }); });
-    $('closeDetailBtn')?.addEventListener('click', ()=>{ closeModal(orderDetailModal); });
     $('closeOrderDetail')?.addEventListener('click', ()=>{ closeModal(orderDetailModal); });
 
     console.log('Hamsa Sarees My Orders page ready');
