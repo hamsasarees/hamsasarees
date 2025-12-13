@@ -1,1 +1,239 @@
-1
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Payment — Hamsa Sarees</title>
+
+<meta http-equiv="Content-Security-Policy" content="
+  default-src 'self';
+  script-src 'self' https://www.gstatic.com/firebasejs/ https://apis.google.com https://checkout.razorpay.com;
+  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+  font-src 'self' https://fonts.gstatic.com;
+  connect-src 'self' https://*.firebaseio.com wss://*.firebaseio.com https://www.googleapis.com https://lumberjack-cx.razorpay.com;
+  frame-src https://checkout.razorpay.com;
+  img-src 'self' https: data:;
+  object-src 'none';">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="container-sm">
+
+  <header>
+    <div class="brand">
+      <div class="logo">HS</div>
+      <div>
+        <div class="title">Hamsa Sarees</div>
+        <div class="small">Secure Checkout</div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+
+    <div class="card payment-card">
+      <h1>Payment</h1>
+
+      <div id="summary" class="payment-summary">
+        Loading product…
+      </div>
+
+      <div id="status" class="status-message"></div>
+
+      <form id="payForm">
+
+        <div class="field">
+          <label>Name</label>
+          <input id="buyerName" required />
+        </div>
+
+        <div class="field">
+          <label>Phone</label>
+          <input id="buyerPhone" required />
+        </div>
+
+        <div class="field">
+          <label>Address</label>
+          <textarea id="buyerAddress" required></textarea>
+        </div>
+
+        <div class="button-group">
+          <button id="payBtn" class="btn btn-full" type="submit">Pay Now</button>
+          <a href="index.html" class="btn-ghost btn-full">Cancel</a>
+        </div>
+
+      </form>
+    </div>
+
+  </main>
+</div>
+
+<div id="toast" class="toast">Saved</div>
+
+<script type="module">
+(async () => {
+
+  /* ===============================
+     BASIC SETUP
+     =============================== */
+
+  const params = new URLSearchParams(location.search);
+  const productId = params.get('pid');
+
+  if (!productId) {
+    alert('Invalid payment link.');
+    location.href = 'index.html';
+    return;
+  }
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBozW19Rjc9nj0YabOIE3DlW0qVHtU5XLA",
+    authDomain: "hamsasarees-24738.firebaseapp.com",
+    projectId: "hamsasarees-24738",
+    storageBucket: "hamsasarees-24738.firebasestorage.app",
+    messagingSenderId: "16303342424",
+    appId: "1:16303342424:web:d68d26160d45472713db2d"
+  };
+
+  const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
+  const { getAuth, onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
+  const { getFirestore, doc, getDoc, addDoc, updateDoc, collection, serverTimestamp } =
+    await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  const $ = id => document.getElementById(id);
+  const summary = $('summary');
+  const statusBox = $('status');
+  const payBtn = $('payBtn');
+
+  function showStatus(msg, error=false){
+    statusBox.textContent = msg;
+    statusBox.className = error ? 'status-message status-error' : 'status-message status-success';
+  }
+
+  function toast(msg){
+    const t = $('toast');
+    t.textContent = msg;
+    t.style.display = 'block';
+    setTimeout(()=>t.style.display='none',2000);
+  }
+
+  /* ===============================
+     AUTH REQUIRED
+     =============================== */
+
+  let currentUser = null;
+
+  await new Promise(resolve => {
+    onAuthStateChanged(auth, u => {
+      if (!u) {
+        alert('Please sign in to continue payment.');
+        location.href = 'index.html';
+      } else {
+        currentUser = u;
+        resolve();
+      }
+    });
+  });
+
+  /* ===============================
+     LOAD PRODUCT FROM FIRESTORE
+     =============================== */
+
+  const productRef = doc(db, 'products', productId);
+  const productSnap = await getDoc(productRef);
+
+  if (!productSnap.exists()) {
+    alert('Product not found.');
+    location.href = 'index.html';
+    return;
+  }
+
+  const product = productSnap.data();
+
+  summary.textContent =
+`Product: ${product.title}
+Price: ₹${product.price}`;
+
+  /* ===============================
+     PAYMENT FLOW
+     =============================== */
+
+  $('payForm').addEventListener('submit', async e => {
+    e.preventDefault();
+
+    const name = $('buyerName').value.trim();
+    const phone = $('buyerPhone').value.trim();
+    const address = $('buyerAddress').value.trim();
+
+    if (!name || !phone || !address) {
+      showStatus('Fill all details', true);
+      return;
+    }
+
+    payBtn.disabled = true;
+
+    // 1. CREATE ORDER (PENDING)
+    const orderRef = await addDoc(collection(db,'orders'), {
+      userId: currentUser.uid,
+      productId,
+      productSnapshot: {
+        title: product.title,
+        price: product.price
+      },
+      buyer: { name, phone, address },
+      payment: {
+        provider: 'razorpay',
+        status: 'pending'
+      },
+      createdAt: serverTimestamp()
+    });
+
+    // 2. LOAD RAZORPAY
+    await new Promise(res => {
+      const s = document.createElement('script');
+      s.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      s.onload = res;
+      document.body.appendChild(s);
+    });
+
+    const rzp = new Razorpay({
+      key: 'rzp_live_Rqulhc8rZRz8Iw',
+      amount: product.price * 100,
+      currency: 'INR',
+      name: 'Hamsa Sarees',
+      description: product.title,
+      handler: async resp => {
+        await updateDoc(orderRef, {
+          payment: {
+            provider: 'razorpay',
+            status: 'paid',
+            paymentId: resp.razorpay_payment_id
+          }
+        });
+        toast('Payment successful');
+        location.href = 'yourorders.html';
+      }
+    });
+
+    rzp.on('payment.failed', () => {
+      showStatus('Payment failed. Try again.', true);
+      payBtn.disabled = false;
+    });
+
+    rzp.open();
+  });
+
+})();
+</script>
+
+</body>
+</html>
+
