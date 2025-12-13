@@ -3,26 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Hamsa Sarees.</title>
+<title>Hamsa Sarees</title>
 
+<!-- WORKING CSP FOR FIREBASE AUTH (frontend-only) -->
 <meta http-equiv="Content-Security-Policy" content="
-  default-src 'self';
-  script-src 'self' 'unsafe-inline'
-    https://www.gstatic.com
-    https://apis.google.com
-    https://accounts.google.com;
-  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-  font-src https://fonts.gstatic.com;
-  connect-src
-    https://www.googleapis.com
-    https://firestore.googleapis.com
-    https://securetoken.googleapis.com
-    https://identitytoolkit.googleapis.com
-    https://firebasestorage.googleapis.com;
-  frame-src
-    https://accounts.google.com
-    https://*.firebaseapp.com;
-  img-src 'self' https: data:;
+  default-src * data: blob:;
+  script-src * 'unsafe-inline' 'unsafe-eval';
+  style-src * 'unsafe-inline';
+  img-src * data: blob:;
+  connect-src *;
+  frame-src *;
 ">
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
@@ -111,17 +101,12 @@ input{
   </div>
 </header>
 
-<!-- ADMIN PANEL -->
 <div id="adminPanel" class="card hidden" style="margin-bottom:24px">
   <h3>Admin – Add Product</h3>
-
-  <input id="pName" placeholder="Product name">
-  <br><br>
-  <input id="pPrice" type="number" placeholder="Price">
-  <br><br>
+  <input id="pName" placeholder="Product name"><br><br>
+  <input id="pPrice" type="number" placeholder="Price"><br><br>
   <input id="pImages" type="file" accept="image/*" multiple>
-  <div class="small">Max 6 images</div>
-  <br>
+  <div class="small">Max 6 images</div><br>
   <button id="addProductBtn" class="btn">Upload Product</button>
 </div>
 
@@ -132,16 +117,12 @@ input{
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import {
-  getAuth, GoogleAuthProvider,
-  signInWithPopup, signOut, onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import {
-  getFirestore, collection, addDoc, getDocs, deleteDoc, doc, serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import {
-  getStorage, ref, uploadBytes, getDownloadURL
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+  from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL }
+  from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
 const ADMIN_UID = "EenXHJIvZpavhkGTCI8EZyFAfH93";
 
@@ -158,14 +139,17 @@ const db = getFirestore(app);
 const storage = getStorage(app);
 const provider = new GoogleAuthProvider();
 
-const loginBtn = loginBtn = document.getElementById("loginBtn");
+const loginBtn = document.getElementById("loginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
 const userEmail = document.getElementById("userEmail");
 const adminPanel = document.getElementById("adminPanel");
 const productsDiv = document.getElementById("products");
 
-loginBtn.onclick = ()=>signInWithPopup(auth,provider);
-logoutBtn.onclick = ()=>signOut(auth);
+loginBtn.onclick = async ()=> {
+  try{ await signInWithPopup(auth, provider); }
+  catch(e){ alert(e.message); }
+};
+logoutBtn.onclick = ()=> signOut(auth);
 
 onAuthStateChanged(auth, user=>{
   productsDiv.innerHTML="";
@@ -221,7 +205,10 @@ document.getElementById("addProductBtn").onclick = async ()=>{
   const price=Number(pPrice.value);
   const files=[...pImages.files];
 
-  if(!name||!price||files.length===0||files.length>6) return alert("Invalid input");
+  if(!name||!price||files.length===0||files.length>6){
+    alert("Invalid product input");
+    return;
+  }
 
   const urls=[];
   for(const f of files){
