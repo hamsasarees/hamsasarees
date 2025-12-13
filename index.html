@@ -10,6 +10,7 @@
   default-src 'self';
   script-src
     'self'
+    'unsafe-inline'
     https://www.gstatic.com/firebasejs/
     https://apis.google.com
     https://accounts.google.com;
@@ -26,7 +27,8 @@
     https://accounts.google.com
     https://*.firebaseapp.com;
   img-src 'self' https: data:;
-  object-src 'none';">
+  object-src 'none';
+">
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
