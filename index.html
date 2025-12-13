@@ -325,7 +325,9 @@
         } else showLoginError(e && e.message ? e.message : 'Sign-in failed');
       }
     }
-    googleBtnLarge && googleBtnLarge.addEventListener('click', ()=>signInPopup());
+    
+    $('googleBtnLarge')?.addEventListener('click', ()=>signInPopup());
+
     loginShowBtn && loginShowBtn.addEventListener('click', ()=>{ openModal(loginModal); });
 
     signOutBtn && signOutBtn.addEventListener('click', async () => { try{ await signOut(auth); toast('Signed out'); }catch(e){ console.error('signout failed', e); } });
@@ -565,6 +567,7 @@
               $('admin_pPrice').value = data.price || '';
               $('admin_pDesc').value = data.description || '';
               $('adminFormTitle').textContent = 'Update Product';
+              $('adminSave').textContent = 'Update Product';
               $('adminSave').dataset.editId = id;
               // Image previews are more complex to handle for edits, so we'll just clear for now
               $('admin_pImgs').value = '';
@@ -636,6 +639,7 @@
         $('admin_pTitle').value=''; $('admin_pPrice').value=''; $('admin_pDesc').value=''; fileInput.value='';
         $('admin_imgPreviews').innerHTML = '';
         btn.disabled=false; btn.innerText='Add Product';
+        btn.textContent = 'Add Product';
         $('adminFormTitle').textContent = 'Add Product';
         await loadAdminProductsList();
       }catch(err){ console.error('Save product failed', err); alert('Failed to save product: ' + (err.message || '')); btn.disabled=false; btn.innerText='Add Product'; }
