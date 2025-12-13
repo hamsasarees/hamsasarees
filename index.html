@@ -1,9 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<meta http-equiv="Content-Security-Policy" content="
+  default-src 'self';
+  script-src 'self' https://www.gstatic.com/firebasejs/ https://apis.google.com;
+  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+  font-src 'self' https://fonts.gstatic.com;
+  connect-src 'self' https://*.firebaseio.com wss://*.firebaseio.com https://www.googleapis.com https://securetoken.googleapis.com;
+  frame-src 'self' https://*.firebaseapp.com;
+  img-src 'self' https: data:;
+  object-src 'none';">
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Hamsa Sarees — Official</title>
+<title>Hamsa Sarees — Handpicked Ethnic Sarees</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root{
@@ -17,11 +26,7 @@
     *{box-sizing:border-box}
     html,body{height:100%;margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:var(--bg2);color:var(--text-primary);-webkit-font-smoothing:antialiased}
     a{color:inherit;text-decoration:none}
-    .container{max-width:1100px;margin:20px auto;padding:0 16px}
-    header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;margin-bottom:20px;background:rgba(255,255,255,0.01);border-radius:12px}
-    .brand{display:flex;gap:12px;align-items:center}
-    .logo{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:800;color:#032033;box-shadow:0 12px 40px rgba(0,170,255,0.12)}
-    .title{font-weight:800;font-size:18px;line-height:1.2}
+    .container{max-width:1200px;margin:0 auto;padding:0 24px}
     header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;margin-bottom:24px}
     .brand{display:flex;gap:14px;align-items:center}
     .logo{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg, #f9ce34, #ee2a7b, #6228d7);display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:20px;box-shadow:0 8px 30px rgba(0,0,0,0.3);}
@@ -45,22 +50,20 @@
     }
     .btn-ghost:hover{background:var(--card-bg); color:var(--text-primary); border-color:var(--text-secondary);}
     .hero{gap:16px;display:flex;flex-direction:column}
-    .hero-card{background:linear-gradient(180deg,#071522,#06121a);padding:20px;border-radius:12px;border:1px solid rgba(255,255,255,0.03)}
+    .hero-card{background:var(--card-bg);padding:24px;border-radius:12px;border:1px solid var(--border-color); box-shadow: 0 10px 40px rgba(0,0,0,0.3);}
     .hero-card h1{margin:0 0 8px 0;font-size:28px;line-height:1.3}
     .hero-card p{margin:0 0 14px 0}
     .promo{background:rgba(35,134,54,0.15);padding:16px;border-radius:8px;border:1px solid rgba(35,134,54,0.3);text-align:center}
     .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-top:16px}
-    .card{background:var(--card-bg);border-radius:12px;overflow:hidden;border:1px solid var(--border-color);transition:transform .2s,box-shadow .2s; padding:12px;}
-    .card:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(0,0,0,0.3)}
+    .card{background:var(--card-bg);border-radius:12px;overflow:hidden;border:1px solid var(--border-color);transition:transform .2s,box-shadow .2s; display:flex; flex-direction:column;}
+    .card:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(0,0,0,0.3); z-index:10;}
     .tag{position:absolute;top:8px;right:8px;background:var(--accent);padding:4px 10px;border-radius:6px;font-size:12px;font-weight:700;color:#fff;z-index:10}
     .imgwrap{position:relative;overflow:hidden;padding-bottom:100%;background:var(--input-bg); border-radius:8px;}
     .imgwrap img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-    .card h3{margin:12px 0;font-size:16px;line-height:1.3}
+    .card-content{padding:12px; flex-grow:1; display:flex; flex-direction:column;}
+    .card h3{margin:0 0 4px 0;font-size:16px;line-height:1.3; flex-grow:1;}
     .price{font-weight:800;color:#58a6ff;font-size:16px}
     .product-rating{font-size:13px;color:var(--success)}
-    .rating-ui{display:flex;gap:4px}
-    .rateBtn{padding:4px 6px;font-size:12px;border-radius:6px;cursor:pointer;background:transparent;border:1px solid var(--border-color);color:var(--text-secondary);transition:all .2s}
-    .rateBtn:hover{background:rgba(35,134,54,0.2);color:var(--accent-hover)}
     .field{display:flex;flex-direction:column;margin-bottom:16px}
     .field label{font-weight:600;margin-bottom:8px;color:var(--text-secondary);font-size:13px}
     .field input,.field select,.field textarea{
@@ -95,6 +98,7 @@
       .card h3{font-size:14px;margin:10px 0;}
       .hero-card h1{font-size:24px}
     }
+    .detail-modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;} @media(max-width:768px){.detail-modal-grid{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
@@ -174,10 +178,41 @@
 
   <div class="modal" id="orderDetailModal" aria-hidden="true">
     <div class="modal-box" role="dialog" aria-modal="true">
-      <button class="close-x" id="closeOrderDetail" title="Close">✕</button>
-      <h2>Order Details</h2>
-      <div id="orderDetailContent" class="small" style="white-space:pre-line;margin-top:8px"></div>
-      <div style="display:flex;gap:10px;margin-top:12px;justify-content:flex-end"><button id="closeDetailBtn" class="btn-ghost">Close</button></div>
+      <button class="close-x" title="Close">✕</button>
+      <div class="detail-modal-grid">
+        <div>
+          <div class="imgwrap" style="border-radius:12px; margin-bottom:12px;"><img id="detailImg" src="" alt="Product image"/></div>
+          <div id="detailThumbnails" style="display:flex; gap:8px; overflow-x:auto;"></div>
+        </div>
+        <div>
+          <h2 id="detailTitle" style="margin-top:0"></h2>
+          <div id="detailPrice" class="price" style="font-size:20px; margin-bottom:12px;"></div>
+          <div id="detailRating" class="small" style="margin-bottom:16px;"></div>
+          <div style="display:flex; border-bottom:1px solid var(--border-color); margin-bottom:16px;">
+            <button id="detailTabInfo" class="btn-ghost" style="border-radius:8px 8px 0 0; border-bottom:none; background:var(--card-bg);">Info</button>
+            <button id="detailTabReviews" class="btn-ghost" style="border-radius:8px 8px 0 0; border:none;">Reviews</button>
+          </div>
+          <div id="detailInfoContent">
+            <p id="detailDesc" class="small"></p>
+          </div>
+          <div id="detailReviewsContent" style="display:none;">
+            <div id="reviewsList" class="small" style="max-height:200px; overflow-y:auto; padding-right:10px;"></div>
+            <div id="addReviewSection" style="margin-top:16px;">
+              <h3 style="font-size:16px;">Leave a review</h3>
+              <div class="field">
+                <label for="reviewRating" class="small">Rating (1-5)</label>
+                <input id="reviewRating" type="number" min="1" max="5" placeholder="5" style="width:80px;"/>
+              </div>
+              <div class="field">
+                <label for="reviewText" class="small">Comment</label>
+                <textarea id="reviewText" placeholder="How was the product?" rows="3"></textarea>
+              </div>
+              <button id="submitReviewBtn" class="btn">Submit Review</button>
+            </div>
+          </div>
+          <div style="margin-top:24px;"><button id="detailBuyNow" class="btn">Buy Now</button></div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -187,17 +222,14 @@
       <h2>Admin Panel</h2>
       
       <!-- Add Product Section -->
-      <div style="border-bottom:1px solid rgba(255,255,255,0.06);padding-bottom:16px;margin-bottom:16px;background:rgba(255,255,255,0.01);padding:16px;border-radius:10px">
-        <h3 style="margin-top:0;color:#eaf6ff">Add Product</h3>
       <div style="border-bottom:1px solid var(--border-color);padding-bottom:16px;margin-bottom:16px;background:var(--input-bg);padding:16px;border-radius:8px">
-        <h3 style="margin-top:0;color:var(--text-primary)">Add Product</h3>
+        <h3 style="margin-top:0;color:var(--text-primary)" id="adminFormTitle">Add Product</h3>
         <p class="small">Products added here are saved to Firestore (admin-only).</p>
         <div class="field"><label class="small" style="font-weight:600">Title *</label><input id="admin_pTitle" placeholder="Product title" required></div>
         <div class="field"><label class="small" style="font-weight:600">Price (₹) *</label><input id="admin_pPrice" type="number" placeholder="1499" required></div>
-        <div class="field"><label class="small" style="font-weight:600">Tag</label><input id="admin_pTag" placeholder="e.g. New, Best"></div>
-        <div class="field"><label class="small" style="font-weight:600">Upload Image</label><input id="admin_pImg" type="file" accept="image/*" placeholder="Select image"></div>
-        <div id="admin_imgPreview" style="display:none;margin-top:10px;text-align:center"><img id="admin_imgPreviewImg" style="max-width:200px;max-height:200px;border-radius:8px;border:1px solid rgba(255,255,255,0.1)" alt="Preview" /></div>
-        <div id="admin_imgPreview" style="display:none;margin-top:10px;text-align:center"><img id="admin_imgPreviewImg" style="max-width:200px;max-height:200px;border-radius:8px;border:1px solid var(--border-color)" alt="Preview" /></div>
+        <div class="field"><label class="small" style="font-weight:600">Description</label><textarea id="admin_pDesc" placeholder="Product description..." rows="3"></textarea></div>
+        <div class="field"><label class="small" style="font-weight:600">Upload Images (first is main)</label><input id="admin_pImgs" type="file" accept="image/*" multiple placeholder="Select images"></div>
+        <div id="admin_imgPreviews" style="display:flex; gap:8px; margin-top:10px; flex-wrap:wrap;"></div>
         <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
           <button id="adminSave" class="btn">Add Product</button>
         </div>
@@ -205,10 +237,8 @@
 
       <!-- Remove Product Section -->
       <div>
-        <h3 style="margin-top:0;color:#eaf6ff">Remove Product</h3>
-        <h3 style="margin-top:0;color:var(--text-primary)">Remove Product</h3>
+        <h3 style="margin-top:0;color:var(--text-primary)">Manage Products</h3>
         <p class="small">Click the delete button next to a product to remove it.</p>
-        <div id="adminProductsList" style="border:1px solid rgba(255,255,255,0.06);border-radius:10px;max-height:400px;overflow-y:auto;background:rgba(255,255,255,0.01)">
         <div id="adminProductsList" style="border:1px solid var(--border-color);border-radius:8px;max-height:400px;overflow-y:auto;background:var(--input-bg)">
           <div class="small" style="padding:12px;text-align:center;color:var(--muted)">Loading products...</div>
         </div>
@@ -241,7 +271,7 @@
   // ---- helper: escape text for safe insertion ----
   function escapeHtml(s){ return String(s===undefined||s===null?'':s).replace(/[&<>\"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-  // ---- Firebase imports (modular) ----
+  // ---- Firebase imports ----
   try{
     const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
     const authMod = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
@@ -249,7 +279,7 @@
     const storageMod = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js');
 
     const { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } = authMod;
-    const { getFirestore, collection, addDoc, setDoc, doc, deleteDoc, serverTimestamp, query, orderBy, getDocs, onSnapshot } = fsMod;
+    const { getFirestore, collection, addDoc, setDoc, doc, getDoc, deleteDoc, serverTimestamp, query, orderBy, getDocs, onSnapshot } = fsMod;
     const { getStorage, ref, uploadBytes, getDownloadURL } = storageMod;
 
     const app = initializeApp(firebaseConfig);
@@ -259,7 +289,7 @@
     const googleProvider = new GoogleAuthProvider();
 
     // ---- DOM refs ----
-    const $ = id => document.getElementById(id);
+    const $ = id => document.getElementById(id); const toastEl = $('toast');
     const loginModal = $('loginModal'), adminModal = $('adminModal');
     const loginErr = $('loginErr'), userBadge = $('userBadge'), signOutBtn = $('signOutBtn'), loginShowBtn = $('loginShowBtn'), googleBtnLarge = $('googleBtnLarge');
     const myOrdersBtn = $('myOrdersBtn');
@@ -308,38 +338,28 @@
     function renderProductCard(docSnap){
       const id = docSnap.id;
       const data = docSnap.data() || {};
-      const title = data.title || 'Untitled';
-      const tag = data.tag || '';
-      const img = data.img || 'https://images.unsplash.com/photo-1520975918016-4d0b5b0b2f3d?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder';
-      const price = data.price || '0';
+      const title = data.title || 'Untitled Product';
+      const mainImg = (data.images && data.images[0]) ? data.images[0] : 'https://via.placeholder.com/300';
+      const price = data.price || 0;
       const avg = data._avg ? Number(data._avg).toFixed(1) : null;
       const avgDisplay = avg ? `★ ${avg} (${data._count||0})` : 'No ratings';
 
       const card = document.createElement('div'); card.className = 'card'; card.dataset.pid = id;
 
-      // build DOM safely (no raw innerHTML from user content)
-      if(tag){ const tagEl = document.createElement('div'); tagEl.className = 'tag'; tagEl.textContent = tag; card.appendChild(tagEl); }
       const imgWrap = document.createElement('div'); imgWrap.className = 'imgwrap';
-      const imgEl = document.createElement('img'); imgEl.loading = 'lazy'; imgEl.src = img; imgEl.alt = title; imgWrap.appendChild(imgEl); card.appendChild(imgWrap);
+      imgWrap.innerHTML = `<img loading="lazy" src="${escapeHtml(mainImg)}" alt="${escapeHtml(title)}">`;
+      card.appendChild(imgWrap);
 
-      const h3 = document.createElement('h3'); h3.textContent = title; card.appendChild(h3);
-
-      const row = document.createElement('div'); row.style.display = 'flex'; row.style.justifyContent = 'space-between'; row.style.alignItems = 'center';
-      const priceEl = document.createElement('div'); priceEl.className = 'price'; priceEl.textContent = `₹${price}`;
-      const ratingWrap = document.createElement('div'); ratingWrap.style.display='flex'; ratingWrap.style.alignItems='center';
-      const rEl = document.createElement('div'); rEl.className = 'product-rating small'; rEl.dataset.pid = id; rEl.textContent = avgDisplay;
-      ratingWrap.appendChild(rEl);
-      row.appendChild(priceEl); row.appendChild(ratingWrap);
-      card.appendChild(row);
-
-      const ratingUI = document.createElement('div'); ratingUI.className = 'rating-ui'; ratingUI.style.marginTop='8px';
-      for(let i=1;i<=5;i++){ const b = document.createElement('button'); b.className='rateBtn btn-ghost'; b.dataset.rating = String(i); b.type='button'; b.textContent = String(i); ratingUI.appendChild(b); }
-      card.appendChild(ratingUI);
-
-      const orderWrap = document.createElement('div'); orderWrap.style.marginTop='8px';
-      const orderBtn = document.createElement('button'); orderBtn.className='orderBtn btn'; orderBtn.type='button'; orderBtn.dataset.product = title; orderBtn.dataset.price = price; orderBtn.textContent='Order Now'; orderWrap.appendChild(orderBtn);
-      card.appendChild(orderWrap);
-
+      card.innerHTML += `
+        <div class="card-content">
+          <h3>${escapeHtml(title)}</h3>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+            <div class="price">₹${price}</div>
+            <div class="product-rating small" data-pid="${id}">${avgDisplay}</div>
+          </div>
+          <button class="btn-ghost view-details-btn" style="width:100%; margin-top:12px;" data-pid="${id}">View Details</button>
+        </div>
+      `;
       return card;
     }
 
@@ -354,6 +374,7 @@
           productGrid.appendChild(fallback);
           // attach handler to that button
           setTimeout(()=>{ document.getElementById('openAdminFromEmptyInner')?.addEventListener('click', ()=>{ if(!auth.currentUser){ openModal(loginModal); showLoginError('Sign in as admin to add products'); return; } if(auth.currentUser.uid !== ADMIN_UID){ alert('You are not admin'); return; } openModal(adminModal); }); },50);
+          loadAdminProductsList(); // Also load for admin view
           return;
         }
 
@@ -361,62 +382,117 @@
           const card = renderProductCard(d);
           productGrid.appendChild(card);
         });
-        attachRatingListenersToGrid();
       }, err => { console.error('products snapshot error', err); });
     }catch(e){ console.warn('products onSnapshot not available', e); }
 
-    // delegate order button via productGrid click
+    // ---- Product Detail Modal ----
     productGrid.addEventListener('click', ev=>{
-      const btn = ev.target.closest('.orderBtn');
-      if(!btn) return;
-      const prod = btn.getAttribute('data-product') || '';
-      const price = btn.getAttribute('data-price') || '0';
-      // Redirect to payment page with order details as URL parameters
-      const params = new URLSearchParams({ product: prod, price: price });
-      // No need to ask for user details here, payment page will handle it.
-      window.location.href = `payment.html?${params.toString()}`;
+      const btn = ev.target.closest('.view-details-btn');
+      if(btn) openProductDetail(btn.dataset.pid);
     });
 
-    // ---- Rating listeners and live averages per product ----
-    function attachRatingListenersToGrid(){
-      document.querySelectorAll('#productGrid .card').forEach(card=>{
-        const pid = card.dataset.pid;
-        if(!pid) return;
+    let currentDetailProductId = null;
+    async function openProductDetail(pid){
+      if(!pid) return;
+      currentDetailProductId = pid;
+      const docRef = doc(db, 'products', pid);
+      const docSnap = await getDoc(docRef);
+      if(!docSnap.exists()){
+        alert('Product not found.');
+        return;
+      }
+      const data = docSnap.data();
+      $('detailTitle').textContent = data.title || '';
+      $('detailPrice').textContent = `₹${data.price || 0}`;
+      $('detailDesc').textContent = data.description || 'No description available.';
+      const mainImg = (data.images && data.images[0]) ? data.images[0] : '';
+      $('detailImg').src = mainImg;
 
-        // bind click for rating buttons
-        card.querySelectorAll('.rateBtn').forEach(btn=>{
-          if(btn._bound) return; btn._bound = true;
-          btn.addEventListener('click', async (ev)=>{
-            if(!auth.currentUser){ alert('Sign in to rate products'); return; }
-            const uid = auth.currentUser.uid; const rating = Number(ev.currentTarget.dataset.rating);
-            try{
-              const ratingRef = doc(db, 'products', pid, 'ratings', uid);
-              await setDoc(ratingRef, { rating: rating, createdAt: serverTimestamp() });
-              toast('Thanks for rating');
-            }catch(err){ console.error('rating save failed', err); alert('Failed to save rating'); }
-          });
+      const thumbsContainer = $('detailThumbnails');
+      thumbsContainer.innerHTML = '';
+      (data.images || []).forEach(imgUrl => {
+        const thumb = document.createElement('img');
+        thumb.src = imgUrl;
+        thumb.style.cssText = 'width:60px; height:60px; border-radius:8px; cursor:pointer; border:2px solid transparent; object-fit:cover;';
+        if(imgUrl === mainImg) thumb.style.borderColor = 'var(--accent)';
+        thumb.addEventListener('click', ()=>{
+          $('detailImg').src = imgUrl;
+          thumbsContainer.querySelectorAll('img').forEach(t => t.style.borderColor = 'transparent');
+          thumb.style.borderColor = 'var(--accent)';
         });
+        thumbsContainer.appendChild(thumb);
+      });
 
-        // attach subcollection listener if not already
-        if(card._ratingsUnsub) return;
-        try{
-          const ratingsColRef = collection(db, 'products', pid, 'ratings');
-          card._ratingsUnsub = onSnapshot(ratingsColRef, snap=>{
-            let sum = 0, cnt = 0;
-            snap.forEach(s => { const d = s.data(); if(d && typeof d.rating === 'number'){ sum += d.rating; cnt++; }});
-            const avg = cnt ? (sum / cnt) : null;
-            const rEl = card.querySelector(`.product-rating[data-pid="${pid}"]`);
-            if(rEl) rEl.innerText = avg ? `★ ${avg.toFixed(1)} (${cnt})` : 'No ratings';
-          }, err => { console.error('ratings snapshot failed', err); });
-        }catch(e){ console.warn('ratings onSnapshot error', e); }
+      $('detailBuyNow').onclick = () => {
+        const params = new URLSearchParams({ product: data.title, price: data.price });
+        window.location.href = `payment.html?${params.toString()}`;
+      };
+
+      loadReviews(pid);
+      openModal($('orderDetailModal'));
+    }
+
+    // Reviews
+    async function loadReviews(pid){
+      const reviewsList = $('reviewsList');
+      reviewsList.innerHTML = 'Loading reviews...';
+      const q = query(collection(db, `products/${pid}/reviews`), orderBy('createdAt', 'desc'));
+      const snap = await getDocs(q);
+      if(snap.empty){
+        reviewsList.innerHTML = 'No reviews yet.';
+        return;
+      }
+      reviewsList.innerHTML = '';
+      snap.forEach(docSnap => {
+        const review = docSnap.data();
+        const item = document.createElement('div');
+        item.style.cssText = 'padding:10px 0; border-bottom:1px solid var(--border-color);';
+        item.innerHTML = `
+          <div><strong>${'★'.repeat(review.rating)}${'☆'.repeat(5-review.rating)}</strong> by ${escapeHtml(review.userName || 'Anonymous')}</div>
+          <p style="margin:4px 0 0 0;">${escapeHtml(review.text || '')}</p>
+        `;
+        reviewsList.appendChild(item);
       });
     }
 
-    attachRatingListenersToGrid();
+    $('submitReviewBtn').addEventListener('click', async ()=>{
+      if(!currentDetailProductId) return;
+      if(!auth.currentUser){
+        alert('Please sign in to leave a review.');
+        return;
+      }
+      const rating = parseInt($('reviewRating').value);
+      const text = $('reviewText').value.trim();
+      if(!rating || rating < 1 || rating > 5){
+        alert('Please provide a rating between 1 and 5.');
+        return;
+      }
 
-    // Load user orders (persistent) and allow delete + view
-    // Moved to yourorders.html as a separate page
+      const btn = $('submitReviewBtn');
+      btn.disabled = true; btn.textContent = 'Submitting...';
+      try {
+        const reviewRef = doc(collection(db, `products/${currentDetailProductId}/reviews`));
+        await setDoc(reviewRef, {
+          rating, text,
+          userId: auth.currentUser.uid,
+          userName: auth.currentUser.displayName,
+          createdAt: serverTimestamp()
+        });
+        toast('Review submitted!');
+        $('reviewRating').value = '';
+        $('reviewText').value = '';
+        loadReviews(currentDetailProductId);
+      } catch(err){
+        console.error("Review submission failed:", err);
+        alert('Failed to submit review.');
+      } finally {
+        btn.disabled = false; btn.textContent = 'Submit Review';
+      }
+    });
 
+    // Modal Tabs
+    $('detailTabInfo').addEventListener('click', ()=>{ $('detailInfoContent').style.display='block'; $('detailReviewsContent').style.display='none'; $('detailTabInfo').style.background='var(--card-bg)'; $('detailTabReviews').style.background='transparent'; });
+    $('detailTabReviews').addEventListener('click', ()=>{ $('detailInfoContent').style.display='none'; $('detailReviewsContent').style.display='block'; $('detailTabReviews').style.background='var(--card-bg)'; $('detailTabInfo').style.background='transparent'; });
 
     // ---- Admin UI: persist product to Firestore (must be guarded by rules) ----
     adminBtn && adminBtn.addEventListener('click', ()=>{
@@ -426,7 +502,6 @@
       openModal(adminModal);
     });
     $('adminCancel').addEventListener('click', ()=>{ closeModal(adminModal); });
-
     // Load and render products list for admin
     async function loadAdminProductsList(){
       const listContainer = $('adminProductsList');
@@ -444,16 +519,18 @@
           const id = docSnap.id;
           const data = docSnap.data() || {};
           const title = data.title || 'Untitled';
-          const price = data.price || '0';
-          
+          const mainImg = (data.images && data.images[0]) ? data.images[0] : 'https://via.placeholder.com/100';
           const row = document.createElement('div');
           row.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:12px;border-bottom:1px solid var(--border-color)';
           row.innerHTML = `
+            <img src="${escapeHtml(mainImg)}" style="width:40px; height:40px; border-radius:4px; object-fit:cover; margin-right:12px;">
             <div style="flex:1">
               <strong style="color:var(--text-primary)">${escapeHtml(title)}</strong>
-              <div class="small" style="color:var(--text-secondary)">₹${escapeHtml(price)}</div>
             </div>
-            <button class="deleteProductBtn btn" data-id="${id}" style="background:var(--danger); border-color:var(--danger); white-space:nowrap" type="button">Delete</button>
+            <div style="display:flex; gap:8px;">
+              <button class="editProductBtn btn-ghost" data-id="${id}" type="button">Edit</button>
+              <button class="deleteProductBtn btn" data-id="${id}" style="background:var(--danger); border-color:var(--danger); white-space:nowrap" type="button">Delete</button>
+            </div>
           `;
           listContainer.appendChild(row);
         });
@@ -475,56 +552,97 @@
             }
           });
         });
+
+        // Attach edit handlers
+        listContainer.querySelectorAll('.editProductBtn').forEach(btn => {
+          btn.addEventListener('click', async (ev) => {
+            const id = ev.currentTarget.getAttribute('data-id');
+            const docRef = doc(db, 'products', id);
+            const docSnap = await getDoc(docRef);
+            if(docSnap.exists()){
+              const data = docSnap.data();
+              $('admin_pTitle').value = data.title || '';
+              $('admin_pPrice').value = data.price || '';
+              $('admin_pDesc').value = data.description || '';
+              $('adminFormTitle').textContent = 'Update Product';
+              $('adminSave').dataset.editId = id;
+              // Image previews are more complex to handle for edits, so we'll just clear for now
+              $('admin_pImgs').value = '';
+              $('admin_imgPreviews').innerHTML = '';
+            }
+          });
+        });
+
       }catch(err){
         console.error('load admin products failed', err);
         listContainer.innerHTML = '<div class="small" style="padding:12px;color:var(--error)">Failed to load products</div>';
       }
     }
 
-    // Image preview on file select
-    const imgInput = $('admin_pImg');
+    // Multi-image preview
+    const imgInput = $('admin_pImgs');
     if(imgInput){
       imgInput.addEventListener('change', (e)=>{
-        const file = e.target.files?.[0];
-        if(file){
-          const reader = new FileReader();
-          reader.onload = (ev) => {
-            const preview = $('admin_imgPreview');
-            const previewImg = $('admin_imgPreviewImg');
-            if(preview && previewImg){ preview.style.display='block'; previewImg.src=ev.target.result; }
-          };
-          reader.readAsDataURL(file);
+        const previewsContainer = $('admin_imgPreviews');
+        previewsContainer.innerHTML = '';
+        if(e.target.files){
+          Array.from(e.target.files).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+              const img = document.createElement('img');
+              img.src = ev.target.result;
+              img.style.cssText = 'width:60px; height:60px; border-radius:4px; object-fit:cover;';
+              previewsContainer.appendChild(img);
+            };
+            reader.readAsDataURL(file);
+          });
         }
       });
     }
 
     $('adminSave').addEventListener('click', async ()=>{
-      const title = $('admin_pTitle').value.trim(); const price = Number($('admin_pPrice').value.trim()); const tag = $('admin_pTag').value.trim();
-      const fileInput = $('admin_pImg');
-      const file = fileInput?.files?.[0];
+      const title = $('admin_pTitle').value.trim(); const price = Number($('admin_pPrice').value.trim()); const description = $('admin_pDesc').value.trim();
+      const fileInput = $('admin_pImgs');
+      const files = fileInput?.files;
+      const editId = $('adminSave').dataset.editId;
+
       if(!title || !price){ alert('Title and price required'); return; }
-      if(!file){ alert('Please select an image'); return; }
+      if(!editId && (!files || files.length === 0)){ alert('Please select at least one image'); return; }
       if(!auth.currentUser || auth.currentUser.uid !== ADMIN_UID){ alert('Only admin can add products'); return; }
+
       try{
         const btn = $('adminSave'); btn.disabled=true; btn.innerText='Uploading...';
-        const fileName = `products/${Date.now()}_${file.name}`;
-        const storageRef = ref(storage, fileName);
-        await uploadBytes(storageRef, file);
-        const imgUrl = await getDownloadURL(storageRef);
-        const payload = { title, price, tag, img: imgUrl, createdAt: serverTimestamp() };
-        await addDoc(collection(db, 'products'), payload);
-        toast('Product added');
-        $('admin_pTitle').value=''; $('admin_pPrice').value=''; $('admin_pTag').value=''; fileInput.value='';
-        const preview = $('admin_imgPreview'); if(preview) preview.style.display='none';
+        const imageUrls = [];
+        if(files && files.length > 0){
+          for(const file of files){
+            const storageRef = ref(storage, `products/${Date.now()}_${file.name}`);
+            await uploadBytes(storageRef, file);
+            imageUrls.push(await getDownloadURL(storageRef));
+          }
+        }
+
+        const payload = { title, price, description, createdAt: serverTimestamp() };
+        if(imageUrls.length > 0) payload.images = imageUrls;
+
+        if(editId){
+          await setDoc(doc(db, 'products', editId), payload, { merge: true });
+          toast('Product updated');
+          delete btn.dataset.editId;
+        } else {
+          await addDoc(collection(db, 'products'), payload);
+          toast('Product added');
+        }
+
+        $('admin_pTitle').value=''; $('admin_pPrice').value=''; $('admin_pDesc').value=''; fileInput.value='';
+        $('admin_imgPreviews').innerHTML = '';
         btn.disabled=false; btn.innerText='Add Product';
+        $('adminFormTitle').textContent = 'Add Product';
         await loadAdminProductsList();
-      }catch(err){ console.error('add product failed', err); alert('Failed to add product: ' + (err.message || '')); $('adminSave').disabled=false; $('adminSave').innerText='Add Product'; }
+      }catch(err){ console.error('Save product failed', err); alert('Failed to save product: ' + (err.message || '')); btn.disabled=false; btn.innerText='Add Product'; }
     });
 
     // ---- Generic modal close (fix for all X buttons) ----
     document.querySelectorAll('.close-x').forEach(btn=>{ btn.addEventListener('click', ()=>{ const modal = btn.closest('.modal'); closeModal(modal); }); });
-    $('closeOrderDetail')?.addEventListener('click', ()=>{ closeModal(orderDetailModal); });
-    $('closeDetailBtn')?.addEventListener('click', ()=>{ closeModal(orderDetailModal); });
 
     // ---- Auth state changes: UI toggle ----
     onAuthStateChanged(auth, user=>{
@@ -573,48 +691,9 @@
     console.log('Hamsa Sarees SPA ready — fixed');
   }catch(err){
     console.error('Init error', err);
-    alert('Initialization failed — check console.');
+    document.body.innerHTML = `<div style="color:white; padding:40px;">Initialization failed. Check the developer console for errors. It might be a Firebase configuration or network issue.</div>`;
   }
 })();
-</script>
-
-  <!-- Image zoom modal (added) -->
-  <div class="modal zoom-modal" id="zoomModal" aria-hidden="true">
-    <div class="modal-box" role="dialog" aria-modal="true">
-      <button class="close-x" id="closeZoom" title="Close">✕</button>
-      <img id="zoomImg" src="" alt="Product zoom" />
-    </div>
-  </div>
-
-<script>
-  // Consolidated lightweight zoom handlers
-  (function() {
-    const zoomModal = document.getElementById('zoomModal');
-    const zoomImg = document.getElementById('zoomImg');
-    const closeZoomBtn = document.getElementById('closeZoom');
-
-    function closeModal() {
-      if (zoomModal) {
-        zoomModal.classList.remove('show');
-        zoomModal.setAttribute('aria-hidden', 'true');
-        document.body.style.overflow = '';
-        if (zoomImg) zoomImg.src = '';
-      }
-    }
-
-    document.addEventListener('click', function(ev) {
-      const imgEl = ev.target.closest('.imgwrap img');
-      if (imgEl && imgEl.src && zoomModal && zoomImg) {
-        zoomImg.src = imgEl.src;
-        zoomModal.classList.add('show');
-        zoomModal.removeAttribute('aria-hidden');
-        document.body.style.overflow = 'hidden';
-      }
-    });
-
-    if (closeZoomBtn) closeZoomBtn.addEventListener('click', closeModal);
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
-  })();
 </script>
 
   <footer style="text-align:center;padding:24px;color:var(--text-secondary);font-size:12px;margin-top:20px;border-top:1px solid var(--border-color);line-height:1.8;">
