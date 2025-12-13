@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Hamsa Sarees</title>
+<title>Hamsa Sarees-</title>
 
 <meta http-equiv="Content-Security-Policy" content="
   default-src 'self';
@@ -52,14 +52,15 @@
   <div class="modal-box modal-sm">
     <button class="close-x" id="closeLogin">✕</button>
     <h2>Sign in</h2>
-    <p class="small">Sign in to place orders and view history.</p>
+    <p class="small">Sign in to place orders.</p>
     <div class="mt-16">
       <button id="googleLoginBtn" class="btn btn-full">Sign in with Google</button>
     </div>
+    <p id="loginError" class="small text-danger mt-12" style="display:none"></p>
   </div>
 </div>
 
-<div id="toast" class="toast">Saved</div>
+<div id="toast" class="toast">Done</div>
 
 <script type="module">
 (async () => {
@@ -79,10 +80,19 @@
 
   const { initializeApp } =
     await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
-  const { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } =
-    await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
-  const { getFirestore, collection, getDocs } =
-    await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+  const {
+    getAuth,
+    GoogleAuthProvider,
+    signInWithPopup,
+    signInWithRedirect,
+    getRedirectResult,
+    onAuthStateChanged
+  } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
+  const {
+    getFirestore,
+    collection,
+    getDocs
+  } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
@@ -92,43 +102,63 @@
   const $ = id => document.getElementById(id);
 
   /* ===============================
-     AUTH UI
+     AUTH HANDLING
      =============================== */
+
+  // Handle redirect result (popup blocked case)
+  try {
+    await getRedirectResult(auth);
+  } catch (e) {
+    console.warn('Redirect sign-in error', e);
+  }
 
   onAuthStateChanged(auth, user => {
     if (user) {
       $('userBadge').style.display = 'block';
       $('userBadge').textContent = user.displayName || user.email;
       $('loginBtn').style.display = 'none';
+      $('loginModal').classList.remove('show');
     } else {
       $('userBadge').style.display = 'none';
       $('loginBtn').style.display = 'inline-block';
     }
   });
 
-  $('loginBtn').addEventListener('click', () => {
+  $('loginBtn').onclick = () => {
     $('loginModal').classList.add('show');
-  });
+  };
 
-  $('closeLogin').addEventListener('click', () => {
+  $('closeLogin').onclick = () => {
     $('loginModal').classList.remove('show');
-  });
+  };
 
-  $('googleLoginBtn').addEventListener('click', async () => {
+  $('googleLoginBtn').onclick = async () => {
+    $('loginError').style.display = 'none';
     try {
       await signInWithPopup(auth, provider);
-      $('loginModal').classList.remove('show');
     } catch (e) {
-      alert('Sign-in failed');
+      if (
+        e.code === 'auth/popup-blocked' ||
+        e.code === 'auth/cancelled-popup-request'
+      ) {
+        await signInWithRedirect(auth, provider);
+      } else {
+        $('loginError').textContent = e.message || 'Sign-in failed';
+        $('loginError').style.display = 'block';
+      }
     }
-  });
+  };
 
   /* ===============================
      LOAD PRODUCTS
      =============================== */
 
   const grid = $('productGrid');
+  grid.innerHTML = '<div class="text-muted p-16">Loading products…</div>';
+
   const snap = await getDocs(collection(db, 'products'));
+
+  grid.innerHTML = '';
 
   if (snap.empty) {
     grid.innerHTML =
@@ -138,32 +168,33 @@
 
   snap.forEach(doc => {
     const p = doc.data();
-    const id = doc.id;
+    const pid = doc.id;
+    const img = (p.images && p.images[0]) ? p.images[0] : '';
 
     const card = document.createElement('div');
     card.className = 'card';
 
     card.innerHTML = `
       <div class="imgwrap">
-        <img src="${p.image || ''}" alt="">
+        <img src="${img}" alt="">
       </div>
       <div class="p-12">
         <strong>${p.title}</strong>
         <div class="price mt-8">₹${p.price}</div>
         <div class="mt-12">
-          <button class="btn btn-full buyBtn">Buy Now</button>
+          <button class="btn btn-full">Buy Now</button>
         </div>
       </div>
     `;
 
-    card.querySelector('.buyBtn').addEventListener('click', () => {
+    card.querySelector('button').onclick = () => {
       if (!auth.currentUser) {
         alert('Please sign in to continue');
         $('loginModal').classList.add('show');
         return;
       }
-      location.href = `payment.html?pid=${id}`;
-    });
+      location.href = `payment.html?pid=${pid}`;
+    };
 
     grid.appendChild(card);
   });
