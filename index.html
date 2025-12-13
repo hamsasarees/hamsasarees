@@ -1,716 +1,175 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Hamsa Sarees</title>
+
 <meta http-equiv="Content-Security-Policy" content="
   default-src 'self';
   script-src 'self' https://www.gstatic.com/firebasejs/ https://apis.google.com;
   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
   font-src 'self' https://fonts.gstatic.com;
   connect-src 'self' https://*.firebaseio.com wss://*.firebaseio.com https://www.googleapis.com https://securetoken.googleapis.com;
-  frame-src 'self' https://*.firebaseapp.com;
   img-src 'self' https: data:;
   object-src 'none';">
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Hamsa Sarees — Handpicked Ethnic Sarees</title>
+
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-  <style>
-    :root{
-      --bg1:#001f3f; --bg2:#00306b; --accent:#00aaff; --accent2:#4dd0e1; --muted:#9fb8d9; --success:#10b981;
-      --card:#071522; --glass:rgba(255,255,255,0.03); --danger:#ff3b3b;
-      --bg1: #0d1117; --bg2: #010409; --accent: #238636; --accent-glow: rgba(35, 134, 54, 0.6);
-      --accent-hover: #2ea043; --text-primary: #e6edf3; --text-secondary: #7d8590;
-      --border-color: rgba(255, 255, 255, 0.1); --card-bg: #161b22; --input-bg: #0d1117;
-      --error: #f85149; --error-bg: rgba(248, 81, 73, 0.1); --success:#10b981; --danger:#f85149;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%;margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:var(--bg2);color:var(--text-primary);-webkit-font-smoothing:antialiased}
-    a{color:inherit;text-decoration:none}
-    .container{max-width:1200px;margin:0 auto;padding:0 24px}
-    header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;margin-bottom:24px}
-    .brand{display:flex;gap:14px;align-items:center}
-    .logo{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg, #f9ce34, #ee2a7b, #6228d7);display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:20px;box-shadow:0 8px 30px rgba(0,0,0,0.3);}
-    .title{font-weight:700;font-size:20px;line-height:1.2}
-    .small{color:var(--text-secondary);font-size:14px}
-    .search{flex:1;display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--input-bg);border-radius:8px;border:1px solid var(--border-color)}
-    .search input{flex:1;background:transparent;border:none;color:var(--text-primary);outline:none;font-size:14px}
-    .search input::placeholder{color:var(--text-secondary)}
-    .actions{display:flex;gap:8px;align-items:center}
-    .btn{
-      cursor:pointer; border-radius:8px; padding:9px 16px; border:1px solid var(--accent); font-weight:700;
-      background:var(--accent); color:#fff; box-shadow:0 1px 0 rgba(255,255,255,0.1) inset, 0 4px 12px rgba(0,0,0,0.4);
-      transition: all .2s ease; display:inline-flex; align-items:center; justify-content:center; gap: 8px;
-    }
-    .btn:hover:not(:disabled){background:var(--accent-hover); border-color:var(--accent-hover);}
-    .btn:active:not(:disabled){transform:translateY(1px); box-shadow:0 1px 0 rgba(255,255,255,0.1) inset, 0 2px 6px rgba(0,0,0,0.4);}
-    .btn:disabled{opacity:0.6;cursor:not-allowed}
-    .btn-ghost{
-      background:transparent; border:1px solid var(--border-color); color:var(--text-secondary);
-      box-shadow:none; font-weight:600; padding:8px 14px; border-radius:8px;
-    }
-    .btn-ghost:hover{background:var(--card-bg); color:var(--text-primary); border-color:var(--text-secondary);}
-    .hero{gap:16px;display:flex;flex-direction:column}
-    .hero-card{background:var(--card-bg);padding:24px;border-radius:12px;border:1px solid var(--border-color); box-shadow: 0 10px 40px rgba(0,0,0,0.3);}
-    .hero-card h1{margin:0 0 8px 0;font-size:28px;line-height:1.3}
-    .hero-card p{margin:0 0 14px 0}
-    .promo{background:rgba(35,134,54,0.15);padding:16px;border-radius:8px;border:1px solid rgba(35,134,54,0.3);text-align:center}
-    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-top:16px}
-    .card{background:var(--card-bg);border-radius:12px;overflow:hidden;border:1px solid var(--border-color);transition:transform .2s,box-shadow .2s; display:flex; flex-direction:column;}
-    .card:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(0,0,0,0.3); z-index:10;}
-    .tag{position:absolute;top:8px;right:8px;background:var(--accent);padding:4px 10px;border-radius:6px;font-size:12px;font-weight:700;color:#fff;z-index:10}
-    .imgwrap{position:relative;overflow:hidden;padding-bottom:100%;background:var(--input-bg); border-radius:8px;}
-    .imgwrap img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-    .card-content{padding:12px; flex-grow:1; display:flex; flex-direction:column;}
-    .card h3{margin:0 0 4px 0;font-size:16px;line-height:1.3; flex-grow:1;}
-    .price{font-weight:800;color:#58a6ff;font-size:16px}
-    .product-rating{font-size:13px;color:var(--success)}
-    .field{display:flex;flex-direction:column;margin-bottom:16px}
-    .field label{font-weight:600;margin-bottom:8px;color:var(--text-secondary);font-size:13px}
-    .field input,.field select,.field textarea{
-      padding:12px; border-radius:8px; border:1px solid var(--border-color);
-      background:var(--input-bg); color:var(--text-primary); font-size:15px;
-      transition:all .2s;
-    }
-    .field input:focus,.field select:focus,.field textarea:focus{
-      outline:none; border-color:var(--accent);
-      box-shadow:0 0 0 3px var(--accent-glow);
-    }
-    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(1,4,9,0.8);z-index:1200;padding:12px;animation:fade-in .3s ease}
-    @keyframes fade-in { from { opacity: 0; } }
-    .modal.show{display:flex}
-    .modal-box{max-width:720px;width:100%;background:var(--card-bg);border-radius:12px;padding:24px;color:var(--text-primary);position:relative;box-shadow:0 30px 80px rgba(0,0,0,0.5);border:1px solid var(--border-color);max-height:90vh;overflow-y:auto}
-    .modal-box h2{margin-top:0;margin-bottom:12px;font-size:22px}
-    .close-x{position:absolute;top:12px;right:12px;background:none;border:none;color:var(--text-secondary);font-weight:800;font-size:18px;cursor:pointer;transition:transform .2s}
-    .close-x:hover{transform:scale(1.2)}
-    .sr-only{position:absolute!important;height:1px;width:1px;overflow:hidden;clip:rect(1px,1px,1px,1px);white-space:nowrap}
-    button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible{outline:3px solid var(--accent-glow); outline-offset:2px; border-radius: 8px;}
-    .toast{
-      position:fixed; right:16px; bottom:16px; background:#1f2937; padding:12px 18px;
-      border-radius:8px; color:var(--text-primary); border-left:4px solid var(--accent);
-      box-shadow:0 10px 40px rgba(0,0,0,0.5); display:none; z-index:2000; font-weight:600;
-      animation:toast-in .3s ease;
-    }
-    @keyframes toast-in { from { transform: translateY(20px); opacity: 0; } }
-    @media (max-width:640px){
-      header{flex-direction:column;align-items:stretch;padding:12px 16px}
-      .actions{flex-wrap:wrap}
-      .grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
-      .card h3{font-size:14px;margin:10px 0;}
-      .hero-card h1{font-size:24px}
-    }
-    .detail-modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;} @media(max-width:768px){.detail-modal-grid{grid-template-columns:1fr}}
-  </style>
+<link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-  <div class="container">
-    <header>
-      <div class="brand">
-        <div class="logo" aria-hidden="true">HS</div>
-        <div>
-          <div class="title">Hamsa Sarees</div>
-          <div class="small">Handpicked • Ethnic • Quality</div>
-        </div>
-      </div>
 
-      <div style="flex:1;display:flex;justify-content:center">
-        <div class="search" role="search" aria-label="Search products">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 21l-4.35-4.35" stroke="var(--text-secondary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11" cy="11" r="8" stroke="var(--text-secondary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <input id="searchBox" placeholder="Search sarees, cotton, silk..." aria-label="Search products" />
-        </div>
-      </div>
+<div class="container">
 
-      <div class="actions">
-        <button id="adminBtn" class="btn-ghost" style="display:none" aria-hidden="true">Admin</button>
-        <div id="userBadge" style="display:none;background:rgba(255,255,255,0.03);padding:8px 10px;border-radius:10px;color:#fff;font-weight:700"></div>
-        <a id="myOrdersBtn" href="yourorders.html" class="btn-ghost" style="display:none">My Orders</a>
-        <button id="signOutBtn" class="btn-ghost" style="display:none">Sign out</button>
-        <button id="loginShowBtn" class="btn">Sign in</button>
-      </div>
-    </header>
-
-    <main>
-      <section class="hero" style="gap:16px">
-        <div class="hero-card">
-          <h1>Real sarees. Real people. Real style.</h1>
-          <p class="small">Curated collection, saved orders for your account, and a smooth checkout. Mobile-first.</p>
-          <div style="margin-top:14px;display:flex;gap:10px">
-            <button id="shopNow" class="btn">Shop Now</button>
-            <button id="exploreBtn" class="btn-ghost">Collections</button>
-          </div>
-        </div>
-
-        <aside class="promo" aria-hidden="true">
-          <strong>Limited Offer</strong>
-          <div class="small" style="margin-top:8px; color: var(--text-secondary)">Free shipping on orders above ₹3000</div>
-          <div style="margin-top:12px;font-weight:800;color:#7ee0b2">Best Seller: Elegant Cotton — ₹1499</div>
-        </aside>
-      </section>
-
-      <section style="margin-top:12px">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <h2 style="margin:0">Products</h2>
-          <div class="small" style="color: var(--text-secondary)">Sign in to place orders; orders saved to your account</div>
-        </div>
-        <div class="grid" id="productGrid" aria-live="polite">
-          <div class="card" style="grid-column:1/-1;text-align:center;color:var(--text-secondary);padding:32px;background:transparent; border: 1px dashed var(--border-color)">
-            <strong style="color:var(--text-primary)">No products yet</strong>
-            <div class="small" style="margin-top:8px">As admin, open Admin → Add Product to upload items. The product grid updates live for users.</div>
-            <div style="margin-top:12px"><button id="openAdminFromEmpty" class="btn-ghost">Open Admin</button></div>
-          </div>
-        </div>
-      </section>
-    </main>
-  </div>
-
-  <!-- Modals (Login, Admin, Detail) -->
-
-  <div class="modal" id="loginModal" aria-hidden="true">
-    <div class="modal-box" role="dialog" aria-modal="true">
-      <button class="close-x" id="closeLogin" title="Close">✕</button>
-      <h2>Sign in with Google</h2>
-      <p class="small">No typing required — uses Google auth.</p>
-      <div style="display:flex;justify-content:center;margin-top:12px">
-        <button id="googleBtnLarge" class="btn">Sign in with Google</button>
-      </div>
-      <p id="loginErr" class="small" style="margin-top:12px;color:var(--error);display:none"></p>
-    </div>
-  </div>
-
-  <div class="modal" id="orderDetailModal" aria-hidden="true">
-    <div class="modal-box" role="dialog" aria-modal="true">
-      <button class="close-x" title="Close">✕</button>
-      <div class="detail-modal-grid">
-        <div>
-          <div class="imgwrap" style="border-radius:12px; margin-bottom:12px;"><img id="detailImg" src="" alt="Product image"/></div>
-          <div id="detailThumbnails" style="display:flex; gap:8px; overflow-x:auto;"></div>
-        </div>
-        <div>
-          <h2 id="detailTitle" style="margin-top:0"></h2>
-          <div id="detailPrice" class="price" style="font-size:20px; margin-bottom:12px;"></div>
-          <div id="detailRating" class="small" style="margin-bottom:16px;"></div>
-          <div style="display:flex; border-bottom:1px solid var(--border-color); margin-bottom:16px;">
-            <button id="detailTabInfo" class="btn-ghost" style="border-radius:8px 8px 0 0; border-bottom:none; background:var(--card-bg);">Info</button>
-            <button id="detailTabReviews" class="btn-ghost" style="border-radius:8px 8px 0 0; border:none;">Reviews</button>
-          </div>
-          <div id="detailInfoContent">
-            <p id="detailDesc" class="small"></p>
-          </div>
-          <div id="detailReviewsContent" style="display:none;">
-            <div id="reviewsList" class="small" style="max-height:200px; overflow-y:auto; padding-right:10px;"></div>
-            <div id="addReviewSection" style="margin-top:16px;">
-              <h3 style="font-size:16px;">Leave a review</h3>
-              <div class="field">
-                <label for="reviewRating" class="small">Rating (1-5)</label>
-                <input id="reviewRating" type="number" min="1" max="5" placeholder="5" style="width:80px;"/>
-              </div>
-              <div class="field">
-                <label for="reviewText" class="small">Comment</label>
-                <textarea id="reviewText" placeholder="How was the product?" rows="3"></textarea>
-              </div>
-              <button id="submitReviewBtn" class="btn">Submit Review</button>
-            </div>
-          </div>
-          <div style="margin-top:24px;"><button id="detailBuyNow" class="btn">Buy Now</button></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal" id="adminModal" aria-hidden="true">
-    <div class="modal-box" role="dialog" aria-modal="true" style="max-height:90vh;overflow-y:auto">
-      <button class="close-x" id="closeAdmin" title="Close">✕</button>
-      <h2>Admin Panel</h2>
-      
-      <!-- Add Product Section -->
-      <div style="border-bottom:1px solid var(--border-color);padding-bottom:16px;margin-bottom:16px;background:var(--input-bg);padding:16px;border-radius:8px">
-        <h3 style="margin-top:0;color:var(--text-primary)" id="adminFormTitle">Add Product</h3>
-        <p class="small">Products added here are saved to Firestore (admin-only).</p>
-        <div class="field"><label class="small" style="font-weight:600">Title *</label><input id="admin_pTitle" placeholder="Product title" required></div>
-        <div class="field"><label class="small" style="font-weight:600">Price (₹) *</label><input id="admin_pPrice" type="number" placeholder="1499" required></div>
-        <div class="field"><label class="small" style="font-weight:600">Description</label><textarea id="admin_pDesc" placeholder="Product description..." rows="3"></textarea></div>
-        <div class="field"><label class="small" style="font-weight:600">Upload Images (first is main)</label><input id="admin_pImgs" type="file" accept="image/*" multiple placeholder="Select images"></div>
-        <div id="admin_imgPreviews" style="display:flex; gap:8px; margin-top:10px; flex-wrap:wrap;"></div>
-        <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
-          <button id="adminSave" class="btn">Add Product</button>
-        </div>
-      </div>
-
-      <!-- Remove Product Section -->
+  <!-- HEADER -->
+  <header>
+    <div class="brand">
+      <div class="logo">HS</div>
       <div>
-        <h3 style="margin-top:0;color:var(--text-primary)">Manage Products</h3>
-        <p class="small">Click the delete button next to a product to remove it.</p>
-        <div id="adminProductsList" style="border:1px solid var(--border-color);border-radius:8px;max-height:400px;overflow-y:auto;background:var(--input-bg)">
-          <div class="small" style="padding:12px;text-align:center;color:var(--muted)">Loading products...</div>
-        </div>
-      </div>
-
-      <div style="margin-top:16px;display:flex;gap:8px;justify-content:flex-end">
-        <button id="adminCancel" class="btn-ghost">Close</button>
+        <div class="title">Hamsa Sarees</div>
+        <div class="small">Handpicked • Ethnic • Quality</div>
       </div>
     </div>
-  </div>
 
-  <div id="toast" class="toast" role="status" aria-live="polite">Saved.</div>
+    <div class="actions">
+      <div id="userBadge" class="user-badge"></div>
+      <button id="loginBtn" class="btn-ghost">Sign in</button>
+      <a href="yourorders.html" class="btn-ghost">My Orders</a>
+    </div>
+  </header>
+
+  <!-- PRODUCTS -->
+  <main>
+    <h1>Products</h1>
+    <div id="productGrid" class="grid"></div>
+  </main>
+
+</div>
+
+<!-- LOGIN MODAL -->
+<div class="modal" id="loginModal">
+  <div class="modal-box modal-sm">
+    <button class="close-x" id="closeLogin">✕</button>
+    <h2>Sign in</h2>
+    <p class="small">Sign in to place orders and view history.</p>
+    <div class="mt-16">
+      <button id="googleLoginBtn" class="btn btn-full">Sign in with Google</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast">Saved</div>
 
 <script type="module">
-(async function(){
-  if(document.readyState === 'loading') await new Promise(r=>document.addEventListener('DOMContentLoaded', r));
+(async () => {
 
-  // ---- CONFIG ----
-  const ADMIN_UID = 'EenXHJIvZpavhkGTCI8EZyFAfH93'; // UI-only sentinel; enforce admin in Firestore rules / backend
+  /* ===============================
+     FIREBASE SETUP
+     =============================== */
+
   const firebaseConfig = {
     apiKey: "AIzaSyBozW19Rjc9nj0YabOIE3DlW0qVHtU5XLA",
     authDomain: "hamsasarees-24738.firebaseapp.com",
     projectId: "hamsasarees-24738",
     storageBucket: "hamsasarees-24738.firebasestorage.app",
     messagingSenderId: "16303342424",
-    appId: "1:16303342424:web:d68d26160d45472713db2d",
-    measurementId: "G-1G1HQGJ5XS"
+    appId: "1:16303342424:web:d68d26160d45472713db2d"
   };
 
-  // ---- helper: escape text for safe insertion ----
-  function escapeHtml(s){ return String(s===undefined||s===null?'':s).replace(/[&<>\"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  const { initializeApp } =
+    await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
+  const { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } =
+    await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
+  const { getFirestore, collection, getDocs } =
+    await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
 
-  // ---- Firebase imports ----
-  try{
-    const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
-    const authMod = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
-    const fsMod = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
-    const storageMod = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js');
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const provider = new GoogleAuthProvider();
 
-    const { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } = authMod;
-    const { getFirestore, collection, addDoc, setDoc, doc, getDoc, deleteDoc, serverTimestamp, query, orderBy, getDocs, onSnapshot } = fsMod;
-    const { getStorage, ref, uploadBytes, getDownloadURL } = storageMod;
+  const $ = id => document.getElementById(id);
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const storage = getStorage(app);
-    const googleProvider = new GoogleAuthProvider();
+  /* ===============================
+     AUTH UI
+     =============================== */
 
-    // ---- DOM refs ----
-    const $ = id => document.getElementById(id); const toastEl = $('toast');
-    const loginModal = $('loginModal'), adminModal = $('adminModal');
-    const loginErr = $('loginErr'), userBadge = $('userBadge'), signOutBtn = $('signOutBtn'), loginShowBtn = $('loginShowBtn'), googleBtnLarge = $('googleBtnLarge');
-    const myOrdersBtn = $('myOrdersBtn');
-    const adminBtn = $('adminBtn');
-
-    function toast(msg){ if(!toastEl) return; toastEl.innerText = msg; toastEl.style.display = 'block'; setTimeout(()=>toastEl.style.display = 'none', 2200); }
-    function showLoginError(msg){ if(!loginErr) return; loginErr.innerText = msg; loginErr.style.display = msg ? 'block' : 'none'; }
-
-    function openModal(modal){ if(!modal) return; modal.classList.add('show'); modal.removeAttribute('aria-hidden'); document.body.style.overflow = 'hidden'; }
-    function closeModal(modal){ if(!modal) return; modal.classList.remove('show'); modal.setAttribute('aria-hidden','true'); document.body.style.overflow = ''; }
-
-    // backdrop click and Esc
-    document.addEventListener('click', (ev)=>{
-      const m = ev.target.closest('.modal');
-      if(m && !ev.target.closest('.modal-box')){
-        closeModal(m);
-      }
-    });
-    document.addEventListener('keydown', (ev)=>{ if(ev.key === 'Escape'){ document.querySelectorAll('.modal.show').forEach(m=>closeModal(m)); } });
-
-    try{ const rr = await getRedirectResult(auth); if(rr && rr.user) console.log('redirect sign-in OK', rr.user.uid); }catch(e){ console.warn('redirect result', e && e.code); }
-
-    async function signInPopup(){
-      showLoginError('');
-      try{ await signInWithPopup(auth, googleProvider); toast('Signed in'); }catch(e){
-        console.error('sign-in error', e && e.code, e && e.message);
-        const popupErrors = ['auth/popup-blocked','auth/popup-closed-by-user','auth/cancelled-popup-request'];
-        if(e && popupErrors.includes(e.code)){
-          try{ await signInWithRedirect(auth, googleProvider); return; }catch(err){ showLoginError('Popup blocked and redirect failed. Allow popups or try another browser.'); return; }
-        }
-        if(e && e.code === 'auth/unauthorized-domain'){
-          showLoginError('Domain not authorized. Add your hosting domain in Firebase console → Authentication → Authorized domains.');
-        } else showLoginError(e && e.message ? e.message : 'Sign-in failed');
-      }
+  onAuthStateChanged(auth, user => {
+    if (user) {
+      $('userBadge').style.display = 'block';
+      $('userBadge').textContent = user.displayName || user.email;
+      $('loginBtn').style.display = 'none';
+    } else {
+      $('userBadge').style.display = 'none';
+      $('loginBtn').style.display = 'inline-block';
     }
-    
-    $('googleBtnLarge')?.addEventListener('click', ()=>signInPopup());
+  });
 
-    loginShowBtn && loginShowBtn.addEventListener('click', ()=>{ openModal(loginModal); });
+  $('loginBtn').addEventListener('click', () => {
+    $('loginModal').classList.add('show');
+  });
 
-    signOutBtn && signOutBtn.addEventListener('click', async () => { try{ await signOut(auth); toast('Signed out'); }catch(e){ console.error('signout failed', e); } });
+  $('closeLogin').addEventListener('click', () => {
+    $('loginModal').classList.remove('show');
+  });
 
-    // ---- PRODUCTS: load from Firestore (live) ----
-    const productGrid = $('productGrid');
-    const productsColRef = collection(db, 'products');
-
-    // render helper using doc snapshot (safe)
-    function renderProductCard(docSnap){
-      const id = docSnap.id;
-      const data = docSnap.data() || {};
-      const title = data.title || 'Untitled Product';
-      const mainImg = (data.images && data.images[0]) ? data.images[0] : 'https://via.placeholder.com/300';
-      const price = data.price || 0;
-      const avg = data._avg ? Number(data._avg).toFixed(1) : null;
-      const avgDisplay = avg ? `★ ${avg} (${data._count||0})` : 'No ratings';
-
-      const card = document.createElement('div'); card.className = 'card'; card.dataset.pid = id;
-
-      const imgWrap = document.createElement('div'); imgWrap.className = 'imgwrap';
-      imgWrap.innerHTML = `<img loading="lazy" src="${escapeHtml(mainImg)}" alt="${escapeHtml(title)}">`;
-      card.appendChild(imgWrap);
-
-      card.innerHTML += `
-        <div class="card-content">
-          <h3>${escapeHtml(title)}</h3>
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
-            <div class="price">₹${price}</div>
-            <div class="product-rating small" data-pid="${id}">${avgDisplay}</div>
-          </div>
-          <button class="btn-ghost view-details-btn" style="width:100%; margin-top:12px;" data-pid="${id}">View Details</button>
-        </div>
-      `;
-      return card;
+  $('googleLoginBtn').addEventListener('click', async () => {
+    try {
+      await signInWithPopup(auth, provider);
+      $('loginModal').classList.remove('show');
+    } catch (e) {
+      alert('Sign-in failed');
     }
+  });
 
-    let productsUnsub = null;
-    try{
-      productsUnsub = onSnapshot(productsColRef, snap=>{
-        // render from DB
-        productGrid.innerHTML = '';
-        if(snap.empty){
-          const fallback = document.createElement('div'); fallback.className='card'; fallback.style.gridColumn='1/-1'; fallback.style.textAlign='center'; fallback.style.color='var(--text-secondary)'; fallback.style.padding='32px'; fallback.style.border = '1px dashed var(--border-color)';
-          fallback.innerHTML = '<strong style="color:var(--text-primary)">No products yet</strong><div class="small" style="margin-top:8px">As admin, open Admin → Add Product to upload items. The product grid updates live for users.</div><div style="margin-top:12px"><button id="openAdminFromEmptyInner" class="btn-ghost">Open Admin</button></div>';
-          productGrid.appendChild(fallback);
-          // attach handler to that button
-          setTimeout(()=>{ document.getElementById('openAdminFromEmptyInner')?.addEventListener('click', ()=>{ if(!auth.currentUser){ openModal(loginModal); showLoginError('Sign in as admin to add products'); return; } if(auth.currentUser.uid !== ADMIN_UID){ alert('You are not admin'); return; } openModal(adminModal); }); },50);
-          loadAdminProductsList(); // Also load for admin view
-          return;
-        }
+  /* ===============================
+     LOAD PRODUCTS
+     =============================== */
 
-        snap.forEach(d => {
-          const card = renderProductCard(d);
-          productGrid.appendChild(card);
-        });
-      }, err => { console.error('products snapshot error', err); });
-    }catch(e){ console.warn('products onSnapshot not available', e); }
+  const grid = $('productGrid');
+  const snap = await getDocs(collection(db, 'products'));
 
-    // ---- Product Detail Modal ----
-    productGrid.addEventListener('click', ev=>{
-      const btn = ev.target.closest('.view-details-btn');
-      if(btn) openProductDetail(btn.dataset.pid);
-    });
-
-    let currentDetailProductId = null;
-    async function openProductDetail(pid){
-      if(!pid) return;
-      currentDetailProductId = pid;
-      const docRef = doc(db, 'products', pid);
-      const docSnap = await getDoc(docRef);
-      if(!docSnap.exists()){
-        alert('Product not found.');
-        return;
-      }
-      const data = docSnap.data();
-      $('detailTitle').textContent = data.title || '';
-      $('detailPrice').textContent = `₹${data.price || 0}`;
-      $('detailDesc').textContent = data.description || 'No description available.';
-      const mainImg = (data.images && data.images[0]) ? data.images[0] : '';
-      $('detailImg').src = mainImg;
-
-      const thumbsContainer = $('detailThumbnails');
-      thumbsContainer.innerHTML = '';
-      (data.images || []).forEach(imgUrl => {
-        const thumb = document.createElement('img');
-        thumb.src = imgUrl;
-        thumb.style.cssText = 'width:60px; height:60px; border-radius:8px; cursor:pointer; border:2px solid transparent; object-fit:cover;';
-        if(imgUrl === mainImg) thumb.style.borderColor = 'var(--accent)';
-        thumb.addEventListener('click', ()=>{
-          $('detailImg').src = imgUrl;
-          thumbsContainer.querySelectorAll('img').forEach(t => t.style.borderColor = 'transparent');
-          thumb.style.borderColor = 'var(--accent)';
-        });
-        thumbsContainer.appendChild(thumb);
-      });
-
-      $('detailBuyNow').onclick = () => {
-        const params = new URLSearchParams({ product: data.title, price: data.price });
-        window.location.href = `payment.html?${params.toString()}`;
-      };
-
-      loadReviews(pid);
-      openModal($('orderDetailModal'));
-    }
-
-    // Reviews
-    async function loadReviews(pid){
-      const reviewsList = $('reviewsList');
-      reviewsList.innerHTML = 'Loading reviews...';
-      const q = query(collection(db, `products/${pid}/reviews`), orderBy('createdAt', 'desc'));
-      const snap = await getDocs(q);
-      if(snap.empty){
-        reviewsList.innerHTML = 'No reviews yet.';
-        return;
-      }
-      reviewsList.innerHTML = '';
-      snap.forEach(docSnap => {
-        const review = docSnap.data();
-        const item = document.createElement('div');
-        item.style.cssText = 'padding:10px 0; border-bottom:1px solid var(--border-color);';
-        item.innerHTML = `
-          <div><strong>${'★'.repeat(review.rating)}${'☆'.repeat(5-review.rating)}</strong> by ${escapeHtml(review.userName || 'Anonymous')}</div>
-          <p style="margin:4px 0 0 0;">${escapeHtml(review.text || '')}</p>
-        `;
-        reviewsList.appendChild(item);
-      });
-    }
-
-    $('submitReviewBtn').addEventListener('click', async ()=>{
-      if(!currentDetailProductId) return;
-      if(!auth.currentUser){
-        alert('Please sign in to leave a review.');
-        return;
-      }
-      const rating = parseInt($('reviewRating').value);
-      const text = $('reviewText').value.trim();
-      if(!rating || rating < 1 || rating > 5){
-        alert('Please provide a rating between 1 and 5.');
-        return;
-      }
-
-      const btn = $('submitReviewBtn');
-      btn.disabled = true; btn.textContent = 'Submitting...';
-      try {
-        const reviewRef = doc(collection(db, `products/${currentDetailProductId}/reviews`));
-        await setDoc(reviewRef, {
-          rating, text,
-          userId: auth.currentUser.uid,
-          userName: auth.currentUser.displayName,
-          createdAt: serverTimestamp()
-        });
-        toast('Review submitted!');
-        $('reviewRating').value = '';
-        $('reviewText').value = '';
-        loadReviews(currentDetailProductId);
-      } catch(err){
-        console.error("Review submission failed:", err);
-        alert('Failed to submit review.');
-      } finally {
-        btn.disabled = false; btn.textContent = 'Submit Review';
-      }
-    });
-
-    // Modal Tabs
-    $('detailTabInfo').addEventListener('click', ()=>{ $('detailInfoContent').style.display='block'; $('detailReviewsContent').style.display='none'; $('detailTabInfo').style.background='var(--card-bg)'; $('detailTabReviews').style.background='transparent'; });
-    $('detailTabReviews').addEventListener('click', ()=>{ $('detailInfoContent').style.display='none'; $('detailReviewsContent').style.display='block'; $('detailTabReviews').style.background='var(--card-bg)'; $('detailTabInfo').style.background='transparent'; });
-
-    // ---- Admin UI: persist product to Firestore (must be guarded by rules) ----
-    adminBtn && adminBtn.addEventListener('click', ()=>{
-      if(!auth.currentUser){ alert('Sign in as admin'); return; }
-      if(auth.currentUser.uid !== ADMIN_UID){ alert('You are not admin'); return; }
-      loadAdminProductsList();
-      openModal(adminModal);
-    });
-    $('adminCancel').addEventListener('click', ()=>{ closeModal(adminModal); });
-    // Load and render products list for admin
-    async function loadAdminProductsList(){
-      const listContainer = $('adminProductsList');
-      if(!listContainer) return;
-      listContainer.innerHTML = '<div class="small" style="padding:12px;text-align:center;color:var(--text-secondary)">Loading products...</div>';
-      
-      try{
-        const snap = await getDocs(productsColRef);
-        if(snap.empty){
-          listContainer.innerHTML = '<div class="small" style="padding:12px;text-align:center;color:var(--text-secondary)">No products to remove</div>';
-          return;
-        }
-        listContainer.innerHTML = '';
-        snap.forEach(docSnap=>{
-          const id = docSnap.id;
-          const data = docSnap.data() || {};
-          const title = data.title || 'Untitled';
-          const mainImg = (data.images && data.images[0]) ? data.images[0] : 'https://via.placeholder.com/100';
-          const row = document.createElement('div');
-          row.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:12px;border-bottom:1px solid var(--border-color)';
-          row.innerHTML = `
-            <img src="${escapeHtml(mainImg)}" style="width:40px; height:40px; border-radius:4px; object-fit:cover; margin-right:12px;">
-            <div style="flex:1">
-              <strong style="color:var(--text-primary)">${escapeHtml(title)}</strong>
-            </div>
-            <div style="display:flex; gap:8px;">
-              <button class="editProductBtn btn-ghost" data-id="${id}" type="button">Edit</button>
-              <button class="deleteProductBtn btn" data-id="${id}" style="background:var(--danger); border-color:var(--danger); white-space:nowrap" type="button">Delete</button>
-            </div>
-          `;
-          listContainer.appendChild(row);
-        });
-        
-        // Attach delete handlers
-        listContainer.querySelectorAll('.deleteProductBtn').forEach(btn=>{
-          btn.addEventListener('click', async (ev)=>{
-            const id = ev.currentTarget.getAttribute('data-id');
-            if(!id) return;
-            const ok = confirm('Are you sure you want to delete this product? This cannot be undone.');
-            if(!ok) return;
-            try{
-              await deleteDoc(doc(db, 'products', id));
-              toast('Product deleted');
-              await loadAdminProductsList();
-            }catch(err){
-              console.error('delete product failed', err);
-              alert('Failed to delete product. See console.');
-            }
-          });
-        });
-
-        // Attach edit handlers
-        listContainer.querySelectorAll('.editProductBtn').forEach(btn => {
-          btn.addEventListener('click', async (ev) => {
-            const id = ev.currentTarget.getAttribute('data-id');
-            const docRef = doc(db, 'products', id);
-            const docSnap = await getDoc(docRef);
-            if(docSnap.exists()){
-              const data = docSnap.data();
-              $('admin_pTitle').value = data.title || '';
-              $('admin_pPrice').value = data.price || '';
-              $('admin_pDesc').value = data.description || '';
-              $('adminFormTitle').textContent = 'Update Product';
-              $('adminSave').textContent = 'Update Product';
-              $('adminSave').dataset.editId = id;
-              // Image previews are more complex to handle for edits, so we'll just clear for now
-              $('admin_pImgs').value = '';
-              $('admin_imgPreviews').innerHTML = '';
-            }
-          });
-        });
-
-      }catch(err){
-        console.error('load admin products failed', err);
-        listContainer.innerHTML = '<div class="small" style="padding:12px;color:var(--error)">Failed to load products</div>';
-      }
-    }
-
-    // Multi-image preview
-    const imgInput = $('admin_pImgs');
-    if(imgInput){
-      imgInput.addEventListener('change', (e)=>{
-        const previewsContainer = $('admin_imgPreviews');
-        previewsContainer.innerHTML = '';
-        if(e.target.files){
-          Array.from(e.target.files).forEach(file => {
-            const reader = new FileReader();
-            reader.onload = (ev) => {
-              const img = document.createElement('img');
-              img.src = ev.target.result;
-              img.style.cssText = 'width:60px; height:60px; border-radius:4px; object-fit:cover;';
-              previewsContainer.appendChild(img);
-            };
-            reader.readAsDataURL(file);
-          });
-        }
-      });
-    }
-
-    $('adminSave').addEventListener('click', async ()=>{
-      const title = $('admin_pTitle').value.trim(); const price = Number($('admin_pPrice').value.trim()); const description = $('admin_pDesc').value.trim();
-      const fileInput = $('admin_pImgs');
-      const files = fileInput?.files;
-      const editId = $('adminSave').dataset.editId;
-
-      if(!title || !price){ alert('Title and price required'); return; }
-      if(!editId && (!files || files.length === 0)){ alert('Please select at least one image'); return; }
-      if(!auth.currentUser || auth.currentUser.uid !== ADMIN_UID){ alert('Only admin can add products'); return; }
-
-      try{
-        const btn = $('adminSave'); btn.disabled=true; btn.innerText='Uploading...';
-        const imageUrls = [];
-        if(files && files.length > 0){
-          for(const file of files){
-            const storageRef = ref(storage, `products/${Date.now()}_${file.name}`);
-            await uploadBytes(storageRef, file);
-            imageUrls.push(await getDownloadURL(storageRef));
-          }
-        }
-
-        const payload = { title, price, description, createdAt: serverTimestamp() };
-        if(imageUrls.length > 0) payload.images = imageUrls;
-
-        if(editId){
-          await setDoc(doc(db, 'products', editId), payload, { merge: true });
-          toast('Product updated');
-          delete btn.dataset.editId;
-        } else {
-          await addDoc(collection(db, 'products'), payload);
-          toast('Product added');
-        }
-
-        $('admin_pTitle').value=''; $('admin_pPrice').value=''; $('admin_pDesc').value=''; fileInput.value='';
-        $('admin_imgPreviews').innerHTML = '';
-        btn.disabled=false; btn.innerText='Add Product';
-        btn.textContent = 'Add Product';
-        $('adminFormTitle').textContent = 'Add Product';
-        await loadAdminProductsList();
-      }catch(err){ console.error('Save product failed', err); alert('Failed to save product: ' + (err.message || '')); btn.disabled=false; btn.innerText='Add Product'; }
-    });
-
-    // ---- Generic modal close (fix for all X buttons) ----
-    document.querySelectorAll('.close-x').forEach(btn=>{ btn.addEventListener('click', ()=>{ const modal = btn.closest('.modal'); closeModal(modal); }); });
-
-    // ---- Auth state changes: UI toggle ----
-    onAuthStateChanged(auth, user=>{
-      if(user){
-        closeModal(loginModal);
-        if(userBadge){ userBadge.style.display='inline-block'; userBadge.innerText = user.displayName || user.email; }
-        if(signOutBtn) signOutBtn.style.display='inline-block';
-        if(myOrdersBtn) myOrdersBtn.style.display='inline-block';
-        if(loginShowBtn) loginShowBtn.style.display='none';
-        if(adminBtn) adminBtn.style.display = (user.uid === ADMIN_UID) ? 'inline-block' : 'none';
-      }else{
-        closeModal(loginModal);
-        if(userBadge) userBadge.style.display='none';
-        if(signOutBtn) signOutBtn.style.display='none';
-        if(myOrdersBtn) myOrdersBtn.style.display='none';
-        if(loginShowBtn) loginShowBtn.style.display='inline-block';
-        if(adminBtn) adminBtn.style.display='none';
-      }
-    });
-
-    // ---- Search and shopNow (debounced) ----
-    const searchBox = $('searchBox');
-    if(searchBox){
-      let searchTimer = null;
-      searchBox.addEventListener('input', e=>{
-        clearTimeout(searchTimer);
-        searchTimer = setTimeout(()=>{
-          const v = e.target.value.toLowerCase();
-          document.querySelectorAll('#productGrid .card').forEach(card=>{
-            const t = (card.querySelector('h3')||{innerText:''}).innerText.toLowerCase();
-            const tag = (card.querySelector('.tag')||{innerText:''}).innerText.toLowerCase();
-            const show = !v || t.includes(v) || tag.includes(v);
-            card.style.display = show ? '' : 'none';
-          });
-        }, 180);
-      });
-    }
-    const shopNow = $('shopNow'); if(shopNow) shopNow.addEventListener('click', ()=>{ const grid=document.getElementById('productGrid'); if(grid) grid.scrollIntoView({behavior:'smooth'}); });
-
-    // initial UI ready
-    document.getElementById('openAdminFromEmpty')?.addEventListener('click', ()=>{
-      if(!auth.currentUser){ openModal(loginModal); showLoginError('Sign in as admin to add products'); return; }
-      if(auth.currentUser.uid !== ADMIN_UID){ alert('You are not admin'); return; }
-      openModal(adminModal);
-    });
-    console.log('Hamsa Sarees SPA ready — fixed');
-  }catch(err){
-    console.error('Init error', err);
-    document.body.innerHTML = `<div style="color:white; padding:40px;">Initialization failed. Check the developer console for errors. It might be a Firebase configuration or network issue.</div>`;
+  if (snap.empty) {
+    grid.innerHTML =
+      '<div class="text-muted p-16">No products available.</div>';
+    return;
   }
+
+  snap.forEach(doc => {
+    const p = doc.data();
+    const id = doc.id;
+
+    const card = document.createElement('div');
+    card.className = 'card';
+
+    card.innerHTML = `
+      <div class="imgwrap">
+        <img src="${p.image || ''}" alt="">
+      </div>
+      <div class="p-12">
+        <strong>${p.title}</strong>
+        <div class="price mt-8">₹${p.price}</div>
+        <div class="mt-12">
+          <button class="btn btn-full buyBtn">Buy Now</button>
+        </div>
+      </div>
+    `;
+
+    card.querySelector('.buyBtn').addEventListener('click', () => {
+      if (!auth.currentUser) {
+        alert('Please sign in to continue');
+        $('loginModal').classList.add('show');
+        return;
+      }
+      location.href = `payment.html?pid=${id}`;
+    });
+
+    grid.appendChild(card);
+  });
+
 })();
 </script>
 
-  <footer style="text-align:center;padding:24px;color:var(--text-secondary);font-size:12px;margin-top:20px;border-top:1px solid var(--border-color);line-height:1.8;">
-    <div class="policy-links" style="margin-bottom: 16px; display: flex; justify-content: center; gap: 8px 16px; flex-wrap: wrap;">
-      <a href="https://merchant.razorpay.com/policy/RqTr3sOZEqSD8V/privacy" target="_blank" style="color: var(--text-secondary); text-decoration: underline;">Privacy Policy</a>
-      <a href="https://merchant.razorpay.com/policy/RqTr3sOZEqSD8V/terms" target="_blank" style="color: var(--text-secondary); text-decoration: underline;">Terms & Conditions</a>
-      <a href="https://merchant.razorpay.com/policy/RqTr3sOZEqSD8V/shipping" target="_blank" style="color: var(--text-secondary); text-decoration: underline;">Shipping</a>
-      <a href="https://merchant.razorpay.com/policy/RqTr3sOZEqSD8V/refund" target="_blank" style="color: var(--text-secondary); text-decoration: underline;">Cancellation & Refunds</a>
-      <a href="https://merchant.razorpay.com/policy/RqTr3sOZEqSD8V/contact_us" target="_blank" style="color: var(--text-secondary); text-decoration: underline;">Contact Us</a>
-    </div>
-    ©2025 Hamsa Sarees, unauthorized use is strictly prohibited.<br>
-    Website designed, created & published by Terminal Joint.
-  </footer>
-
-  </body>
-  </html>
+</body>
+</html>
