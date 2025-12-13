@@ -3,14 +3,28 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Hamsa Sarees-</title>
+<title>Hamsa Sarees</title>
 
+<!-- ✅ FIXED CSP FOR GOOGLE AUTH -->
 <meta http-equiv="Content-Security-Policy" content="
   default-src 'self';
-  script-src 'self' https://www.gstatic.com/firebasejs/ https://apis.google.com;
+  script-src
+    'self'
+    https://www.gstatic.com/firebasejs/
+    https://apis.google.com
+    https://accounts.google.com;
   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
   font-src 'self' https://fonts.gstatic.com;
-  connect-src 'self' https://*.firebaseio.com wss://*.firebaseio.com https://www.googleapis.com https://securetoken.googleapis.com;
+  connect-src
+    'self'
+    https://www.googleapis.com
+    https://securetoken.googleapis.com
+    https://identitytoolkit.googleapis.com
+    https://*.firebaseio.com
+    wss://*.firebaseio.com;
+  frame-src
+    https://accounts.google.com
+    https://*.firebaseapp.com;
   img-src 'self' https: data:;
   object-src 'none';">
 
@@ -22,7 +36,6 @@
 
 <div class="container">
 
-  <!-- HEADER -->
   <header>
     <div class="brand">
       <div class="logo">HS</div>
@@ -39,7 +52,6 @@
     </div>
   </header>
 
-  <!-- PRODUCTS -->
   <main>
     <h1>Products</h1>
     <div id="productGrid" class="grid"></div>
@@ -52,22 +64,18 @@
   <div class="modal-box modal-sm">
     <button class="close-x" id="closeLogin">✕</button>
     <h2>Sign in</h2>
-    <p class="small">Sign in to place orders.</p>
+    <p class="small">Sign in to continue.</p>
     <div class="mt-16">
-      <button id="googleLoginBtn" class="btn btn-full">Sign in with Google</button>
+      <button id="googleLoginBtn" class="btn btn-full">
+        Sign in with Google
+      </button>
     </div>
     <p id="loginError" class="small text-danger mt-12" style="display:none"></p>
   </div>
 </div>
 
-<div id="toast" class="toast">Done</div>
-
 <script type="module">
 (async () => {
-
-  /* ===============================
-     FIREBASE SETUP
-     =============================== */
 
   const firebaseConfig = {
     apiKey: "AIzaSyBozW19Rjc9nj0YabOIE3DlW0qVHtU5XLA",
@@ -101,16 +109,8 @@
 
   const $ = id => document.getElementById(id);
 
-  /* ===============================
-     AUTH HANDLING
-     =============================== */
-
   // Handle redirect result (popup blocked case)
-  try {
-    await getRedirectResult(auth);
-  } catch (e) {
-    console.warn('Redirect sign-in error', e);
-  }
+  try { await getRedirectResult(auth); } catch(e){}
 
   onAuthStateChanged(auth, user => {
     if (user) {
@@ -124,78 +124,53 @@
     }
   });
 
-  $('loginBtn').onclick = () => {
+  $('loginBtn').onclick = () =>
     $('loginModal').classList.add('show');
-  };
 
-  $('closeLogin').onclick = () => {
+  $('closeLogin').onclick = () =>
     $('loginModal').classList.remove('show');
-  };
 
   $('googleLoginBtn').onclick = async () => {
     $('loginError').style.display = 'none';
     try {
       await signInWithPopup(auth, provider);
     } catch (e) {
-      if (
-        e.code === 'auth/popup-blocked' ||
-        e.code === 'auth/cancelled-popup-request'
-      ) {
+      if (e.code === 'auth/popup-blocked') {
         await signInWithRedirect(auth, provider);
       } else {
-        $('loginError').textContent = e.message || 'Sign-in failed';
+        $('loginError').textContent = e.message;
         $('loginError').style.display = 'block';
       }
     }
   };
 
-  /* ===============================
-     LOAD PRODUCTS
-     =============================== */
-
+  // Load products
   const grid = $('productGrid');
-  grid.innerHTML = '<div class="text-muted p-16">Loading products…</div>';
-
   const snap = await getDocs(collection(db, 'products'));
+  grid.innerHTML = snap.empty
+    ? '<div class="text-muted p-16">No products</div>'
+    : '';
 
-  grid.innerHTML = '';
-
-  if (snap.empty) {
-    grid.innerHTML =
-      '<div class="text-muted p-16">No products available.</div>';
-    return;
-  }
-
-  snap.forEach(doc => {
-    const p = doc.data();
-    const pid = doc.id;
-    const img = (p.images && p.images[0]) ? p.images[0] : '';
-
+  snap.forEach(d => {
+    const p = d.data();
+    const img = p.images?.[0] || '';
     const card = document.createElement('div');
     card.className = 'card';
-
     card.innerHTML = `
-      <div class="imgwrap">
-        <img src="${img}" alt="">
-      </div>
+      <div class="imgwrap"><img src="${img}"></div>
       <div class="p-12">
         <strong>${p.title}</strong>
         <div class="price mt-8">₹${p.price}</div>
-        <div class="mt-12">
-          <button class="btn btn-full">Buy Now</button>
-        </div>
-      </div>
-    `;
-
+        <button class="btn btn-full mt-12">Buy Now</button>
+      </div>`;
     card.querySelector('button').onclick = () => {
       if (!auth.currentUser) {
-        alert('Please sign in to continue');
+        alert('Please sign in first');
         $('loginModal').classList.add('show');
         return;
       }
-      location.href = `payment.html?pid=${pid}`;
+      location.href = 'payment.html?pid=' + d.id;
     };
-
     grid.appendChild(card);
   });
 
