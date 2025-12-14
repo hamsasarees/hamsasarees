@@ -4,409 +4,235 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Payment — Hamsa Sarees</title>
+
+<meta http-equiv="Content-Security-Policy" content="
+  default-src 'self';
+  script-src 'self' https://www.gstatic.com/firebasejs/ https://apis.google.com https://checkout.razorpay.com;
+  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+  font-src 'self' https://fonts.gstatic.com;
+  connect-src 'self' https://*.firebaseio.com wss://*.firebaseio.com https://www.googleapis.com https://lumberjack-cx.razorpay.com;
+  frame-src https://checkout.razorpay.com;
+  img-src 'self' https: data:;
+  object-src 'none';">
+
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --bg1:#001f3f; --bg2:#00306b; --accent:#00aaff; --accent2:#4dd0e1; --muted:#9fb8d9; --success:#10b981;
-    --card:#071522; --glass:rgba(255,255,255,0.03);
-  }
-  *{box-sizing:border-box}
-  html,body{height:100%;margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:#eaf6ff;-webkit-font-smoothing:antialiased}
-  a{color:inherit;text-decoration:none}
-  .container{max-width:720px;margin:20px auto;padding:0 16px}
-  header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;margin-bottom:20px;background:rgba(255,255,255,0.01);border-radius:12px}
-  .brand{display:flex;gap:12px;align-items:center}
-  .logo{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:800;color:#032033;box-shadow:0 12px 40px rgba(0,170,255,0.12)}
-  .title{font-weight:800;font-size:18px}
-  .small{color:var(--muted);font-size:14px}
-  .btn{cursor:pointer;border-radius:10px;padding:9px 14px;border:none;font-weight:700;background:linear-gradient(90deg,var(--accent),#ff5aa3);color:#fff;box-shadow:0 8px 24px rgba(0,170,255,0.12);transition:transform .15s,filter .15s;width:100%;display:flex;align-items:center;justify-content:center}
-  .btn:active{transform:translateY(1px)}
-  .btn:disabled{opacity:0.6;cursor:not-allowed}
-  .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#fff;padding:8px 12px;border-radius:10px;width:auto;cursor:pointer;font-weight:600}
-  .payment-card{background:linear-gradient(180deg,#071522,#06121a);padding:20px;border-radius:12px;margin-bottom:16px;border:1px solid rgba(255,255,255,0.03)}
-  .payment-card h1{margin-top:0;font-size:24px;margin-bottom:16px}
-  .payment-summary{background:linear-gradient(180deg,#061526,#072234);padding:16px;border-radius:10px;margin-bottom:16px;white-space:pre-line;line-height:1.6;border:1px solid rgba(0,170,255,0.2);font-size:14px}
-  .field{display:flex;flex-direction:column;margin-bottom:16px}
-  .field label{font-weight:600;margin-bottom:8px;color:#eaf6ff;font-size:14px}
-  .field input,.field select{padding:12px;border-radius:10px;border:none;background:rgba(8,18,26,0.8);color:#dbeafe;font-size:14px;border:1px solid rgba(255,255,255,0.06);transition:border-color .2s}
-  .field input:focus,.field select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 8px rgba(0,170,255,0.2)}
-  .status-message{padding:12px;border-radius:10px;margin-bottom:16px;display:none;font-weight:600;border:1px solid transparent;font-size:14px}
-  .status-success{background:rgba(16,185,129,0.1);color:#7ee0b2;border:1px solid rgba(16,185,129,0.2);display:block}
-  .status-error{background:rgba(255,59,59,0.1);color:#ffb4b4;border:1px solid rgba(255,59,59,0.2);display:block}
-  .button-group{display:flex;gap:12px;margin-top:20px}
-  .button-group button{flex:1}
-  .sr-only{position:absolute!important;height:1px;width:1px;overflow:hidden;clip:rect(1px,1px,1px,1px);white-space:nowrap}
-  button:focus{outline:3px solid rgba(0,170,255,0.12);outline-offset:3px}
-  .toast{position:fixed;right:16px;bottom:16px;background:#0b1220;padding:10px 14px;border-radius:10px;color:#d1fae5;border-left:4px solid var(--success);box-shadow:0 8px 30px rgba(2,6,23,0.6);display:none;z-index:2000;font-weight:600}
-  footer{text-align:center;padding:18px;color:#9fb8d9;font-size:12px;margin-top:20px;border-top:1px solid rgba(255,255,255,0.06)}
-  @media (max-width:640px){
-    header{flex-direction:column;align-items:stretch;padding:12px 16px}
-    .button-group{flex-direction:column}
-    .payment-card{padding:16px}
-  }
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-  <div class="container">
-    <header>
-      <div class="brand">
-        <div class="logo" aria-hidden="true">HS</div>
-        <div>
-          <div class="title">Hamsa Sarees</div>
-          <div class="small">Payment</div>
-        </div>
+
+<div class="container-sm">
+
+  <header>
+    <div class="brand">
+      <div class="logo">HS</div>
+      <div>
+        <div class="title">Hamsa Sarees</div>
+        <div class="small">Secure Checkout</div>
       </div>
-    </header>
+    </div>
+  </header>
 
-    <main>
-      <section class="payment-card">
-        <h1 style="margin-top:0">Payment</h1>
-        
-        <div id="paymentSummary" class="payment-summary" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.03)">
-          Loading order summary...
-        </div>
+  <main>
 
-        <div id="paymentStatus" class="status-message"></div>
-        <!-- Razorpay checkout will be used; no external intent flows -->
+    <div class="card payment-card">
+      <h1>Payment</h1>
 
-        <form id="paymentForm">
-          <div class="field">
-            <label for="buyerName">Name</label>
-            <input id="buyerName" type="text" placeholder="Full name" required />
-          </div>
-
-          <div class="field">
-            <label for="buyerPhone">Mobile number</label>
-            <input id="buyerPhone" type="tel" placeholder="10-digit mobile number" required />
-          </div>
-
-          <div class="field">
-            <label for="buyerAddress">Address</label>
-            <input id="buyerAddress" type="text" placeholder="Delivery address" required />
-          </div>
-
-          <div class="field">
-            <label for="paymentMethod">Select Payment Method</label>
-            <select id="paymentMethod" required>
-              <option value="">Choose a payment method</option>
-              <option value="razorpay">Pay with Razorpay (Card/UPI)</option>
-            </select>
-          </div>
-
-          <div class="button-group">
-            <button type="submit" id="payNow" class="btn">Pay Now</button>
-            <a href="index.html" class="btn btn-ghost" style="padding:9px 14px;display:flex;align-items:center;justify-content:center">Cancel</a>
-          </div>
-        </form>
-      </section>
-
-      <div style="text-align:center;margin-top:20px">
-        <p class="small">Your payment is secure and encrypted. Data is not stored.</p>
+      <div id="summary" class="payment-summary">
+        Loading product…
       </div>
 
-      <!-- Desktop UPI helper removed (Razorpay integrated) -->
+      <div id="status" class="status-message"></div>
 
-    </main>
-  </div>
+      <form id="payForm">
 
-  <div id="toast" class="toast" role="status" aria-live="polite">Saved.</div>
+        <div class="field">
+          <label>Name</label>
+          <input id="buyerName" required />
+        </div>
+
+        <div class="field">
+          <label>Phone</label>
+          <input id="buyerPhone" required />
+        </div>
+
+        <div class="field">
+          <label>Address</label>
+          <textarea id="buyerAddress" required></textarea>
+        </div>
+
+        <div class="button-group">
+          <button id="payBtn" class="btn btn-full" type="submit">Pay Now</button>
+          <a href="index.html" class="btn-ghost btn-full">Cancel</a>
+        </div>
+
+      </form>
+    </div>
+
+  </main>
+</div>
+
+<div id="toast" class="toast">Saved</div>
 
 <script type="module">
-(async function(){
-  if(document.readyState === 'loading') await new Promise(r=>document.addEventListener('DOMContentLoaded', r));
+(async () => {
 
-  // ---- CONFIG ----
-  // Google Pay Configuration:
-  // 1. Card/UPI payments redirect to Google Pay
-  // 2. Mobile number: 9994051579
-  // 3. User will be redirected to UPI app on mobile or Google Pay
-  // 4. After payment completion, order will be saved to Firestore
-  // 5. Payments processed via Razorpay checkout
-  
+  /* ===============================
+     BASIC SETUP
+     =============================== */
+
+  const params = new URLSearchParams(location.search);
+  const productId = params.get('pid');
+
+  if (!productId) {
+    alert('Invalid payment link.');
+    location.href = 'index.html';
+    return;
+  }
+
   const firebaseConfig = {
     apiKey: "AIzaSyBozW19Rjc9nj0YabOIE3DlW0qVHtU5XLA",
     authDomain: "hamsasarees-24738.firebaseapp.com",
     projectId: "hamsasarees-24738",
     storageBucket: "hamsasarees-24738.firebasestorage.app",
     messagingSenderId: "16303342424",
-    appId: "1:16303342424:web:d68d26160d45472713db2d",
-    measurementId: "G-1G1HQGJ5XS"
+    appId: "1:16303342424:web:d68d26160d45472713db2d"
   };
 
-  // ---- Firebase imports ----
-  try{
-    const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
-    const authMod = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
-    const fsMod = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+  const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
+  const { getAuth, onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
+  const { getFirestore, doc, getDoc, addDoc, updateDoc, collection, serverTimestamp } =
+    await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
 
-    const { getAuth, onAuthStateChanged } = authMod;
-    const { getFirestore, collection, addDoc, serverTimestamp, doc, getDoc, setDoc } = fsMod;
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+  const $ = id => document.getElementById(id);
+  const summary = $('summary');
+  const statusBox = $('status');
+  const payBtn = $('payBtn');
 
-    // ---- DOM refs ----
-    const $ = id => document.getElementById(id);
-    const paymentSummary = $('paymentSummary');
-    const paymentStatus = $('paymentStatus');
-    const paymentForm = $('paymentForm');
-    const payNowBtn = $('payNow');
-    const paymentMethod = $('paymentMethod');
-    const toastEl = $('toast');
-    const buyerName = $('buyerName');
-    const buyerPhone = $('buyerPhone');
-    const buyerAddress = $('buyerAddress');
-
-    function toast(msg){ if(!toastEl) return; toastEl.innerText = msg; toastEl.style.display = 'block'; setTimeout(()=>toastEl.style.display = 'none', 2200); }
-
-    function showStatus(msg, isError = false){
-      paymentStatus.textContent = msg;
-      paymentStatus.className = 'status-message ' + (isError ? 'status-error' : 'status-success');
-    }
-
-    function hideStatus(){
-      paymentStatus.className = 'status-message';
-    }
-
-    // ---- Get order data from URL params ----
-    const params = new URLSearchParams(window.location.search);
-    const orderData = {
-      product: params.get('product') || '',
-      name: params.get('name') || '',
-      phone: params.get('phone') || '',
-      address: params.get('address') || '',
-      price: parseFloat(params.get('price')) || 0
-    };
-
-    // Display order summary with fixed price
-    if(paymentSummary && (orderData.product || orderData.name)){
-      const summary = `Product: ${orderData.product}\nPrice: ₹${orderData.price}\nName: ${orderData.name}\nPhone: ${orderData.phone}`;
-      paymentSummary.innerText = summary;
-    } else if(paymentSummary){
-      paymentSummary.innerHTML = '<div class="small" style="color:#ffb4b4">No order data found. <a href="index.html" style="color:var(--accent)">Return to shop</a></div>';
-    }
-
-    // Payment method change handler (no COD option)
-    paymentMethod.addEventListener('change', (e) => {
-      // Placeholder for future payment UI toggles
-    });
-
-    // Auto-select Razorpay by default
-    try{ paymentMethod.value = 'razorpay'; }catch(e){}
-
-    // Prefill buyer inputs from URL params
-    try{
-      if(buyerName && orderData.name) buyerName.value = orderData.name;
-      if(buyerPhone && orderData.phone) buyerPhone.value = orderData.phone;
-      if(buyerAddress && orderData.address) buyerAddress.value = orderData.address;
-    }catch(e){/* ignore */}
-
-    // ---- Save order to Firestore ONLY after successful payment ----
-    async function saveOrderAfterPayment(paymentId, paymentMethod) {
-      try {
-        const uid = auth.currentUser ? auth.currentUser.uid : null;
-        const finalOrderData = { 
-          ...orderData, 
-          paymentMethod: paymentMethod,
-          paymentId: paymentId,
-          paymentStatus: 'completed',
-          user: uid, 
-          userEmail: auth.currentUser ? auth.currentUser.email : null, 
-          createdAt: serverTimestamp() 
-        };
-
-        if(uid){
-          await addDoc(collection(db, `users/${uid}/orders`), finalOrderData);
-        }
-        await addDoc(collection(db, 'orders'), finalOrderData);
-        
-        // Send order to Google Sheets
-        await sendOrderToGoogleSheets(finalOrderData);
-        
-        return true;
-      } catch(err) {
-        console.error('Failed to save order to database', err);
-        throw err;
-      }
-    }
-
-    // ---- Send order to Google Sheets (only after payment success) ----
-    async function sendOrderToGoogleSheets(orderData) {
-      try {
-        // Google Form URL for orders
-        const formUrl = 'https://docs.google.com/forms/d/e/qAVVKUKN4HhUXjBM8/formResponse';
-        
-        // Form field mappings (replace with your actual form field IDs)
-        const formData = new FormData();
-        formData.append('entry.2120009411', orderData.name);           // Name field
-        formData.append('entry.6103303', orderData.phone);             // Phone field
-        formData.append('entry.952475985', orderData.product);         // Product field
-        formData.append('entry.2008322116', orderData.address);        // Address field
-        formData.append('entry.135044268', '₹' + orderData.price);     // Price field
-        formData.append('entry.978142408', orderData.paymentMethod);   // Payment method field
-        formData.append('entry.1145290955', orderData.paymentId);      // Payment ID field
-        
-        // Send to Google Forms (no-cors, will not throw error even if it fails silently)
-        await fetch(formUrl, {
-          method: 'POST',
-          body: formData,
-          mode: 'no-cors'
-        });
-        
-        console.log('Order sent to Google Sheets successfully');
-      } catch(err) {
-        // Log but don't fail - order is already saved to Firestore
-        console.warn('Failed to send to Google Sheets (order still saved to Firestore)', err);
-      }
-    }
-
-    // ---- Payment form handler with Razorpay integration ----
-    paymentForm.addEventListener('submit', async (ev) => {
-      ev.preventDefault();
-      
-      if(!paymentMethod.value){
-        showStatus('Please select a payment method', true);
-        return;
-      }
-
-      hideStatus();
-      payNowBtn.disabled = true;
-      showStatus('Processing payment...', false);
-
-      try{
-        const method = paymentMethod.value;
-
-        // Update orderData from editable fields
-        try{
-          if(buyerName) orderData.name = buyerName.value.trim();
-          if(buyerPhone) orderData.phone = buyerPhone.value.trim();
-          if(buyerAddress) orderData.address = buyerAddress.value.trim();
-        }catch(e){/*ignore*/}
-
-        // If logged in, persist profile for future orders
-        try{
-          const user = auth.currentUser;
-          if(user){
-            const profileRef = doc(db, 'users', user.uid, 'profile');
-            await setDoc(profileRef, { name: orderData.name || '', phone: orderData.phone || '', address: orderData.address || '' }, { merge: true });
-          }
-        }catch(e){ console.warn('Failed to save profile', e); }
-
-        // Use Razorpay checkout for payments
-        if(method === 'razorpay'){
-          await startRazorpay(orderData);
-          // Razorpay handler will handle saving the order and redirecting on success
-        } else {
-          showStatus('Unsupported payment method selected', true);
-          payNowBtn.disabled = false;
-        }
-
-      }catch(err){
-        console.error('Payment processing failed', err);
-        showStatus('Payment processing failed. Please try again.', true);
-        payNowBtn.disabled = false;
-      }
-    });
-
-    // ---- COD removed: WhatsApp integration removed ----
-
-    // ---- Razorpay integration ----
-    function loadScript(src){
-      return new Promise((resolve)=>{
-        const s = document.createElement('script'); s.src = src; s.onload = ()=>resolve(true); s.onerror = ()=>resolve(false); document.body.appendChild(s);
-      });
-    }
-
-    async function startRazorpay(orderData){
-      const ok = await loadScript('https://checkout.razorpay.com/v1/checkout.js');
-      if(!ok){ showStatus('Failed to load payment gateway. Try again later.', true); payNowBtn.disabled=false; return; }
-
-      const amountPaise = Math.round((orderData.price || 0) * 100);
-      const options = {
-        key: 'REPLACE_WITH_YOUR_RAZORPAY_KEY', // <-- replace with your Razorpay Key ID
-        amount: amountPaise,
-        currency: 'INR',
-        name: 'Hamsa Sarees',
-        description: orderData.product || 'Order',
-        handler: async function(response){
-          try{
-            // Save order only after successful payment
-            await saveOrderAfterPayment(response.razorpay_payment_id, 'razorpay');
-            showStatus('✓ Payment successful! Order confirmed and saved.', false);
-            toast('Order placed successfully');
-            setTimeout(()=> window.location.href = 'index.html', 1800);
-          }catch(err){
-            console.error('Saving after payment failed', err);
-            showStatus('Payment succeeded but saving failed. Contact support with payment ID.', true);
-          }
-        },
-        prefill: { name: orderData.name || '', contact: orderData.phone || '' },
-        theme: { color: '#00aaff' }
-      };
-
-      const rzp = new Razorpay(options);
-      rzp.on('payment.failed', function(resp){
-        console.error('Payment failed', resp);
-        showStatus('Payment failed. Please try another method or retry.', true);
-        payNowBtn.disabled = false;
-      });
-
-      rzp.open();
-    }
-
-    // ---- Auth state check ----
-    onAuthStateChanged(auth, async (user)=>{
-      try{
-        if(!user){
-          // Allow guest checkout or prompt login if required
-          return;
-        }
-
-        const uid = user.uid;
-        const profileRef = doc(db, 'users', uid, 'profile');
-        const snap = await getDoc(profileRef);
-        if(snap && snap.exists()){
-          const profile = snap.data();
-          if(buyerName && profile.name) buyerName.value = profile.name;
-          if(buyerPhone && profile.phone) buyerPhone.value = profile.phone;
-          if(buyerAddress && profile.address) buyerAddress.value = profile.address;
-
-          // Ensure orderData uses saved profile where URL params were absent
-          if(!orderData.name && profile.name) orderData.name = profile.name;
-          if(!orderData.phone && profile.phone) orderData.phone = profile.phone;
-          if(!orderData.address && profile.address) orderData.address = profile.address;
-        } else {
-          // First-time login: if we have order data from URL, save it as initial profile
-          if(orderData.name || orderData.phone || orderData.address){
-            try{
-              await setDoc(profileRef, { name: orderData.name || '', phone: orderData.phone || '', address: orderData.address || '' }, { merge: true });
-            }catch(e){ console.warn('Failed to save initial profile', e); }
-          }
-        }
-      }catch(e){ console.warn('Profile load failed', e); }
-
-      // No external pending-payments logic required for Razorpay flow
-    });
-
-    // ---- COD removed: no saveCODOrderAfterWhatsApp ----
-
-    // ---- (Razorpay) Order saving is handled in the Razorpay success handler ----
-
-    // Finish panel helpers removed — Razorpay checkout handles payment lifecycle
-
-    // Desktop UPI helper removed (Razorpay is used)
-
-    console.log('Hamsa Sarees Payment page ready');
-  }catch(err){
-    console.error('Init error', err);
-    alert('Initialization failed — check console.');
+  function showStatus(msg, error=false){
+    statusBox.textContent = msg;
+    statusBox.className = error ? 'status-message status-error' : 'status-message status-success';
   }
+
+  function toast(msg){
+    const t = $('toast');
+    t.textContent = msg;
+    t.style.display = 'block';
+    setTimeout(()=>t.style.display='none',2000);
+  }
+
+  /* ===============================
+     AUTH REQUIRED
+     =============================== */
+
+  let currentUser = null;
+
+  await new Promise(resolve => {
+    onAuthStateChanged(auth, u => {
+      if (!u) {
+        alert('Please sign in to continue payment.');
+        location.href = 'index.html';
+      } else {
+        currentUser = u;
+        resolve();
+      }
+    });
+  });
+
+  /* ===============================
+     LOAD PRODUCT FROM FIRESTORE
+     =============================== */
+
+  const productRef = doc(db, 'products', productId);
+  const productSnap = await getDoc(productRef);
+
+  if (!productSnap.exists()) {
+    alert('Product not found.');
+    location.href = 'index.html';
+    return;
+  }
+
+  const product = productSnap.data();
+
+  summary.textContent =
+`Product: ${product.title}
+Price: ₹${product.price}`;
+
+  /* ===============================
+     PAYMENT FLOW
+     =============================== */
+
+  $('payForm').addEventListener('submit', async e => {
+    e.preventDefault();
+
+    const name = $('buyerName').value.trim();
+    const phone = $('buyerPhone').value.trim();
+    const address = $('buyerAddress').value.trim();
+
+    if (!name || !phone || !address) {
+      showStatus('Fill all details', true);
+      return;
+    }
+
+    payBtn.disabled = true;
+
+    // 1. CREATE ORDER (PENDING)
+    const orderRef = await addDoc(collection(db,'orders'), {
+      userId: currentUser.uid,
+      productId,
+      productSnapshot: {
+        title: product.title,
+        price: product.price
+      },
+      buyer: { name, phone, address },
+      payment: {
+        provider: 'razorpay',
+        status: 'pending'
+      },
+      createdAt: serverTimestamp()
+    });
+
+    // 2. LOAD RAZORPAY
+    await new Promise(res => {
+      const s = document.createElement('script');
+      s.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      s.onload = res;
+      document.body.appendChild(s);
+    });
+
+    const rzp = new Razorpay({
+      key: 'rzp_live_Rqulhc8rZRz8Iw',
+      amount: product.price * 100,
+      currency: 'INR',
+      name: 'Hamsa Sarees',
+      description: product.title,
+      handler: async resp => {
+        await updateDoc(orderRef, {
+          payment: {
+            provider: 'razorpay',
+            status: 'paid',
+            paymentId: resp.razorpay_payment_id
+          }
+        });
+        toast('Payment successful');
+        location.href = 'yourorders.html';
+      }
+    });
+
+    rzp.on('payment.failed', () => {
+      showStatus('Payment failed. Try again.', true);
+      payBtn.disabled = false;
+    });
+
+    rzp.open();
+  });
+
 })();
 </script>
-<footer style="text-align:center;padding:18px;color:#9fb8d9;font-size:13px;line-height:1.6;">
-    ©2025 Hamsa Sarees, unauthorized use is strictly prohibited.<br>
-    Website designed, created & published by Terminal Joint.
-</footer>
+
 </body>
 </html>
