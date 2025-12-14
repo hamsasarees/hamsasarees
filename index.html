@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Hamsa Sarees — Single Page (Fixed)</title>
+<title>Hamsa Sarees —</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root{
@@ -182,32 +182,13 @@
         <div class="field"><label class="small" style="font-weight:600">Price (₹) *</label><input id="admin_pPrice" type="number" placeholder="1499" required></div>
         <div class="field"><label class="small" style="font-weight:600">Tag</label><input id="admin_pTag" placeholder="e.g. New, Best"></div>
         <div class="field">
-          <input id="admin_pImg" type="url" placeholder="https://example.com/image.jpg">
-         const imgInput = $('admin_pImg');
-if(imgInput){
-  imgInput.addEventListener('input', ()=>{
-    const url = imgInput.value.trim();
-    const preview = $('admin_imgPreview');
-    const previewImg = $('admin_imgPreviewImg');
-
-    if(url && /^https?:\/\//i.test(url)){
-      preview.style.display='block';
-      previewImg.src = url;
-    }else{
-      preview.style.display='none';
-      previewImg.src = '';
-    }
-  });
-}
-
-
-<div id="admin_imgPreview" style="margin-top:10px;text-align:center;display:none">
-  <img id="admin_imgPreviewImg"
-       style="max-width:200px;max-height:200px;border-radius:8px;border:1px solid rgba(255,255,255,0.1)"
-       alt="Preview" />
-</div>
-
-               <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
+          <label class="small" style="font-weight:600">Image URLs</label>
+          <div id="imageUrlsContainer">
+            <input class="imageUrlInput" type="text" placeholder="Image URL 1" style="margin-bottom: 8px;">
+          </div>
+          <button id="addImageUrl" type="button" class="btn-ghost" style="margin-top:8px;">Add another image</button>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
           <button id="adminSave" class="btn">Add Product</button>
         </div>
       </div>
@@ -312,13 +293,14 @@ if(imgInput){
     const productGrid = $('productGrid');
     const productsColRef = collection(db, 'products');
 
-    // render helper using doc snapshot (safe)
     function renderProductCard(docSnap){
       const id = docSnap.id;
       const data = docSnap.data() || {};
       const title = data.title || 'Untitled';
       const tag = data.tag || '';
-      const img = data.img || 'https://images.unsplash.com/photo-1520975918016-4d0b5b0b2f3d?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder';
+      // Use the 'images' array if it exists, otherwise fall back to 'img'.
+      const images = data.images && data.images.length > 0 ? data.images : [data.img];
+      const primaryImage = images[0] || 'https://images.unsplash.com/photo-1520975918016-4d0b5b0b2f3d?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder';
       const price = data.price || '0';
       const avg = data._avg ? Number(data._avg).toFixed(1) : null;
       const avgDisplay = avg ? `★ ${avg} (${data._count||0})` : 'No ratings';
@@ -327,8 +309,19 @@ if(imgInput){
 
       // build DOM safely (no raw innerHTML from user content)
       if(tag){ const tagEl = document.createElement('div'); tagEl.className = 'tag'; tagEl.textContent = tag; card.appendChild(tagEl); }
+      
       const imgWrap = document.createElement('div'); imgWrap.className = 'imgwrap';
-      const imgEl = document.createElement('img'); imgEl.loading = 'lazy'; imgEl.src = img; imgEl.alt = title; imgWrap.appendChild(imgEl); card.appendChild(imgWrap);
+      const imgEl = document.createElement('img'); imgEl.loading = 'lazy'; imgEl.src = primaryImage; imgEl.alt = title; imgWrap.appendChild(imgEl); 
+      
+      // Add a multi-image indicator if there's more than one image
+      if (images.length > 1) {
+        const multiImgIndicator = document.createElement('div');
+        multiImgIndicator.textContent = '1/' + images.length;
+        multiImgIndicator.style.cssText = 'position:absolute; bottom:8px; right:8px; background:rgba(0,0,0,0.6); color:white; padding:2px 8px; border-radius:10px; font-size:12px; font-weight:500;';
+        imgWrap.appendChild(multiImgIndicator);
+      }
+      
+      card.appendChild(imgWrap);
 
       const h3 = document.createElement('h3'); h3.textContent = title; card.appendChild(h3);
 
@@ -506,40 +499,63 @@ if(imgInput){
       }
     }
 
-    // Image preview on file select
-    const imgInput = $('admin_pImg');
-    if(imgInput){
-      imgInput.addEventListener('change', (e)=>{
-        const file = e.target.files?.[0];
-        if(file){
-          const reader = new FileReader();
-          reader.onload = (ev) => {
-            const preview = $('admin_imgPreview');
-            const previewImg = $('admin_imgPreviewImg');
-            if(preview && previewImg){ preview.style.display='block'; previewImg.src=ev.target.result; }
-          };
-          reader.readAsDataURL(file);
-        }
+    // Logic for adding multiple image URLs
+    const addImageUrlBtn = $('addImageUrl');
+    if (addImageUrlBtn) {
+      addImageUrlBtn.addEventListener('click', () => {
+        const imageUrlsContainer = $('imageUrlsContainer');
+        const inputCount = imageUrlsContainer.querySelectorAll('.imageUrlInput').length;
+        const newInput = document.createElement('input');
+        newInput.type = 'text';
+        newInput.className = 'imageUrlInput';
+        newInput.placeholder = `Image URL ${inputCount + 1}`;
+        newInput.style.marginBottom = '8px';
+        imageUrlsContainer.appendChild(newInput);
       });
     }
 
     $('adminSave').addEventListener('click', async ()=>{
-      const title = $('admin_pTitle').value.trim(); const price = Number($('admin_pPrice').value.trim()); const tag = $('admin_pTag').value.trim();
-const imgUrl = $('admin_pImgUrl').value.trim();
+      const title = $('admin_pTitle').value.trim();
+      const price = Number($('admin_pPrice').value.trim());
+      const tag = $('admin_pTag').value.trim();
+      const imageUrls = [...document.querySelectorAll('#imageUrlsContainer .imageUrlInput')]
+        .map(input => input.value.trim())
+        .filter(url => url);
 
-if(!imgUrl || !/^https?:\/\//i.test(imgUrl)){
-  alert('Please enter a valid image URL');
-  return;
-}
+      if (!title || !price) { alert('Title and price required'); return; }
+      if (imageUrls.length === 0) { alert('Please enter at least one image URL'); return; }
+      if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) { alert('Only admin can add products'); return; }
 
-        const payload = { title, price, tag, img: imgUrl, createdAt: serverTimestamp() };
+      try {
+        const btn = $('adminSave'); btn.disabled = true; btn.innerText = 'Saving...';
+        
+        const payload = {
+          title,
+          price,
+          tag,
+          img: imageUrls[0], // For thumbnail/main image
+          images: imageUrls, // Array of all image URLs
+          createdAt: serverTimestamp()
+        };
+
         await addDoc(collection(db, 'products'), payload);
         toast('Product added');
-        $('admin_pTitle').value=''; $('admin_pPrice').value=''; $('admin_pTag').value=''; fileInput.value='';
-        const preview = $('admin_imgPreview'); if(preview) preview.style.display='none';
-        btn.disabled=false; btn.innerText='Add Product';
+
+        // Reset fields
+        $('admin_pTitle').value = '';
+        $('admin_pPrice').value = '';
+        $('admin_pTag').value = '';
+        const imageUrlsContainer = $('imageUrlsContainer');
+        imageUrlsContainer.innerHTML = '<input class="imageUrlInput" type="text" placeholder="Image URL 1" style="margin-bottom: 8px;">';
+
+        btn.disabled = false; btn.innerText = 'Add Product';
         await loadAdminProductsList();
-      }catch(err){ console.error('add product failed', err); alert('Failed to add product: ' + (err.message || '')); $('adminSave').disabled=false; $('adminSave').innerText='Add Product'; }
+      } catch (err) {
+        console.error('add product failed', err);
+        alert('Failed to add product: ' + (err.message || ''));
+        $('adminSave').disabled = false;
+        $('adminSave').innerText = 'Add Product';
+      }
     });
 
     // ---- Generic modal close (fix for all X buttons) ----
