@@ -300,7 +300,14 @@
     });
     document.addEventListener('keydown', (ev)=>{ if(ev.key === 'Escape'){ document.querySelectorAll('.modal.show').forEach(m=>closeModal(m)); } });
 
-    try{ const rr = await getRedirectResult(auth); if(rr && rr.user) console.log('redirect sign-in OK', rr.user.uid); }catch(e){ console.warn('redirect result', e && e.code); }
+    try {
+  const rr = await getRedirectResult(auth);
+  if (rr && rr.user) {
+    console.log('redirect sign-in OK', rr.user.uid);
+  }
+} catch (e) {
+  console.warn('redirect result', e && e.code);
+}
 
     async function signInPopup(){
       showLoginError('');
