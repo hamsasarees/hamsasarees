@@ -1,235 +1,229 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>My Orders — Hamsa Sarees</title>
-<link rel="stylesheet" href="style.css">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders - Hamsa Sarees</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-  <div class="container">
-    <header>
-      <div class="brand">
-        <div class="logo" aria-hidden="true">HS</div>
-        <div>
-          <div class="title">Hamsa Sarees<br> ! This Site Is Under Construction !</div>
-          <div class="small">Handpicked • Ethnic • Quality</div>
-        </div>
-      </div>
-
-      <div class="actions">
-        <div id="userBadge" style="display:none;background:rgba(255,255,255,0.03);padding:8px 10px;border-radius:10px;color:#fff;font-weight:700"></div>
-        <button id="signOutBtn" class="btn-ghost" style="display:none">Sign out</button>
-        <button id="loginShowBtn" class="btn">Sign in</button>
-        <a href="index.html" class="btn-ghost">Back to Shop</a>
-      </div>
-    </header>
-
-    <main>
-      <section>
-        <p class="small">View and manage your saved orders. Sign in to see your orders.</p>
-        
-        <div id="ordersContainer" style="margin-top:16px">
-          <div class="small" style="text-align:center;color:var(--muted);padding:32px">
-            Please sign in to view your orders
-          </div>
-        </div>
-      </section>
-    </main>
-  </div>
-
-  <!-- Order Detail Modal -->
-  <div class="modal" id="orderDetailModal" aria-hidden="true">
-    <div class="modal-box" role="dialog" aria-modal="true">
-      <button class="close-x" id="closeOrderDetail" title="Close">✕</button>
-      <h2>Order Details</h2>
-      <div id="orderDetailContent" class="small" style="white-space:pre-line;margin-top:8px"></div>
-      <div style="display:flex;gap:10px;margin-top:12px;justify-content:flex-end"><button id="closeDetailBtn" class="btn-ghost">Close</button></div>
-    </div>
-  </div>
-
-  <div id="toast" class="toast" role="status" aria-live="polite">Saved.</div>
-
-<script type="module">
-(async function(){
-  if(document.readyState === 'loading') await new Promise(r=>document.addEventListener('DOMContentLoaded', r));
-
-  // ---- CONFIG ----
-  const firebaseConfig = {
-    apiKey: "AIzaSyBozW19Rjc9nj0YabOIE3DlW0qVHtU5XLA",
-    authDomain: "hamsasarees-24738.firebaseapp.com",
-    projectId: "hamsasarees-24738",
-    storageBucket: "hamsasarees-24738.firebasestorage.app",
-    messagingSenderId: "16303342424",
-    appId: "1:16303342424:web:d68d26160d45472713db2d",
-    measurementId: "G-1G1HQGJ5XS"
-  };
-
-  // ---- helper: escape text for safe insertion ----
-  function escapeHtml(s){ return String(s===undefined||s===null?'':s).replace(/[&<>\"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-
-  // ---- Firebase imports (modular) ----
-  try{
-    const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
-    const authMod = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
-    const fsMod = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
-
-    const { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } = authMod;
-    const { getFirestore, collection, deleteDoc, serverTimestamp, query, orderBy, getDocs, doc } = fsMod;
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const googleProvider = new GoogleAuthProvider();
-
-    // ---- DOM refs ----
-    const $ = id => document.getElementById(id);
-    const userBadge = $('userBadge');
-    const signOutBtn = $('signOutBtn');
-    const loginShowBtn = $('loginShowBtn');
-    const ordersContainer = $('ordersContainer');
-    const toastEl = $('toast');
-    const orderDetailModal = $('orderDetailModal');
-    const orderDetailContent = $('orderDetailContent');
-
-    function toast(msg){ if(!toastEl) return; toastEl.innerText = msg; toastEl.style.display = 'block'; setTimeout(()=>toastEl.style.display = 'none', 2200); }
-
-    function openModal(modal){ if(!modal) return; modal.classList.add('show'); modal.removeAttribute('aria-hidden'); document.body.style.overflow = 'hidden'; }
-    function closeModal(modal){ if(!modal) return; modal.classList.remove('show'); modal.setAttribute('aria-hidden','true'); document.body.style.overflow = ''; }
-
-    // backdrop click and Esc
-    document.addEventListener('click', (ev)=>{
-      const m = ev.target.closest('.modal');
-      if(m && !ev.target.closest('.modal-box')){
-        closeModal(m);
-      }
-    });
-    document.addEventListener('keydown', (ev)=>{ if(ev.key === 'Escape'){ document.querySelectorAll('.modal.show').forEach(m=>closeModal(m)); } });
-
-    try{ const rr = await getRedirectResult(auth); if(rr && rr.user) console.log('redirect sign-in OK', rr.user.uid); }catch(e){ console.warn('redirect result', e && e.code); }
-
-    async function signInPopup(){
-      try{ await signInWithPopup(auth, googleProvider); toast('Signed in'); }catch(e){
-        console.error('sign-in error', e && e.code, e && e.message);
-        const popupErrors = ['auth/popup-blocked','auth/popup-closed-by-user','auth/cancelled-popup-request'];
-        if(e && popupErrors.includes(e.code)){
-          try{ await signInWithRedirect(auth, googleProvider); return; }catch(err){ alert('Popup blocked and redirect failed. Allow popups or try another browser.'); return; }
-        }
-        if(e && e.code === 'auth/unauthorized-domain'){
-          alert('Domain not authorized. Add your hosting domain in Firebase console → Authentication → Authorized domains.');
-        } else alert(e && e.message ? e.message : 'Sign-in failed');
-      }
-    }
-
-    loginShowBtn && loginShowBtn.addEventListener('click', ()=>signInPopup());
-
-    signOutBtn && signOutBtn.addEventListener('click', async () => { try{ await signOut(auth); toast('Signed out'); }catch(e){ console.error('signout failed', e); } });
-
-    // ---- Load and display user orders ----
-    async function loadUserOrders(){
-      if(!auth.currentUser){
-        ordersContainer.innerHTML = '<div class="small" style="text-align:center;color:var(--muted);padding:32px">Please sign in to view your orders</div>';
-        return;
-      }
-      ordersContainer.innerHTML = '<div class="small" style="text-align:center;padding:16px">Loading orders...</div>';
-      try{
-        const uid = auth.currentUser.uid;
-        const q = query(collection(db, `users/${uid}/orders`), orderBy('createdAt','desc'));
-        const snap = await getDocs(q);
-        if(snap.empty){
-          ordersContainer.innerHTML = '<div class="small" style="text-align:center;color:var(--muted);padding:32px">No orders yet. <a href="index.html" style="color:var(--accent)">Start shopping</a></div>';
-          return;
-        }
-        ordersContainer.innerHTML = '';
-        snap.forEach(docSnap=>{
-          const o = docSnap.data(); const id = docSnap.id;
-          const dt = (o.createdAt && o.createdAt.toDate) ? o.createdAt.toDate().toLocaleString() : '';
-          
-          const card = document.createElement('div');
-          card.className = 'order-card';
-          card.innerHTML = `
-            <div class="order-card-header">
-              <div class="order-info">
-                <strong>${escapeHtml(o.product||'')}</strong>
-                <div class="small">${escapeHtml(o.name||'')}</div>
-                <div class="small">${escapeHtml(o.phone||'')}</div>
-                <div class="small" style="color:var(--muted);margin-top:6px">${escapeHtml(dt)}</div>
-              </div>
-              <div class="order-actions">
-                <button class="btn-ghost viewOrderBtn" data-id="${id}" type="button">View Details</button>
-                <button class="btn deleteOrderBtn" data-id="${id}" type="button" style="background:linear-gradient(90deg,#ff3b3b,#ff5252)">Delete Order</button>
-              </div>
+    <div class="page-container">
+        <header class="header">
+            <div class="logo-container">
+                <a href="index.html" class="logo-link">
+                    <span class="logo-text">Hamsa Sarees</span>
+                    <span class="tagline">Handpicked • Ethnic • Quality</span>
+                </a>
             </div>
-          `;
-          ordersContainer.appendChild(card);
-        });
+            <nav class="navigation">
+                <a href="index.html" class="nav-link">Shop</a>
+                <a href="yourorders.html" class="nav-link active">My Orders</a>
+            </nav>
+            <div class="user-actions">
+                <div id="user-info" class="user-info" style="display: none;">
+                    <i class="fas fa-user-circle"></i>
+                    <span id="user-name"></span>
+                </div>
+                <button id="auth-btn" class="btn primary-btn"></button>
+            </div>
+        </header>
 
-        ordersContainer.querySelectorAll('.deleteOrderBtn').forEach(b=>{
-          b.addEventListener('click', async ev=>{
-            const id = ev.currentTarget.getAttribute('data-id'); if(!id) return;
-            const ok = confirm('Delete this order permanently from your account? This cannot be undone.');
-            if(!ok) return;
-            try{
-              const uid = auth.currentUser.uid;
-              await deleteDoc(doc(db, 'users', uid, 'orders', id));
-              toast('Order deleted');
-              await loadUserOrders();
-            }catch(err){ console.error('delete failed', err); alert('Failed to delete order. See console.'); }
-          });
-        });
+        <main class="main-content">
+            <div class="orders-header">
+                <h1>Your Orders</h1>
+                <p>View and manage your saved orders. Please sign in to see your orders.</p>
+            </div>
+            <div id="orders-container" class="orders-container">
+                <!-- Orders will be loaded here -->
+            </div>
+        </main>
 
-        ordersContainer.querySelectorAll('.viewOrderBtn').forEach(b=>{
-          b.addEventListener('click', ev=>{
-            const btn = ev.currentTarget;
-            const card = btn.closest('.order-card');
-            const p = card.querySelector('strong').textContent || '';
-            const n = Array.from(card.querySelectorAll('.small'))[0]?.textContent || '';
-            const ph = Array.from(card.querySelectorAll('.small'))[1]?.textContent || '';
-            const addressParts = [];
-            // Try to extract address from data attributes if available
-            orderDetailContent.innerText = `Product: ${p}\nName: ${n}\nPhone: ${ph}\n\nFull order details loaded from your account.`;
-            openModal(orderDetailModal);
-          });
-        });
+        <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
-      }catch(e){ console.error('fetch orders failed', e); ordersContainer.innerHTML = '<div class="small" style="text-align:center;color:#ffb4b4;padding:32px">Failed to load orders. Try signing in again.</div>'; }
-    }
+        <div id="order-detail-modal" class="modal" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-header">
+                    <h2>Order Details</h2>
+                    <button id="close-modal-btn" class="close-btn">&times;</button>
+                </div>
+                <div id="order-detail-content" class="modal-body">
+                    <!-- Order details will be shown here -->
+                </div>
+            </div>
+        </div>
 
-    // ---- Auth state changes: UI toggle ----
-    onAuthStateChanged(auth, user=>{
-      if(user){
-        if(userBadge){ userBadge.style.display='inline-block'; userBadge.innerText = user.displayName || user.email; }
-        if(signOutBtn) signOutBtn.style.display='inline-block';
-        if(loginShowBtn) loginShowBtn.style.display='none';
-        loadUserOrders();
-      }else{
-        if(userBadge) userBadge.style.display='none';
-        if(signOutBtn) signOutBtn.style.display='none';
-        if(loginShowBtn) loginShowBtn.style.display='inline-block';
-        ordersContainer.innerHTML = '<div class="small" style="text-align:center;color:var(--muted);padding:32px">Please sign in to view your orders</div>';
-      }
-    });
+        <footer class="footer">
+            © 2025 Hamsa Sarees. All Rights Reserved. Designed by Terminal Joint.
+        </footer>
+    </div>
 
-    // ---- Modal close handlers ----
-    document.querySelectorAll('.close-x').forEach(btn=>{ btn.addEventListener('click', ()=>{ const modal = btn.closest('.modal'); closeModal(modal); }); });
-    $('closeDetailBtn')?.addEventListener('click', ()=>{ closeModal(orderDetailModal); });
-    $('closeOrderDetail')?.addEventListener('click', ()=>{ closeModal(orderDetailModal); });
+    <script type="module">
+        (async function() {
+            if (document.readyState === 'loading') {
+                await new Promise(r => document.addEventListener('DOMContentLoaded', r));
+            }
 
-    console.log('Hamsa Sarees My Orders page ready');
-  }catch(err){
-    console.error('Init error', err);
-    alert('Initialization failed — check console.');
-  }
-})();
-</script>
+            const firebaseConfig = {
+                apiKey: "AIzaSyBozW19Rjc9nj0YabOIE3DlW0qVHtU5XLA",
+                authDomain: "hamsasarees-24738.firebaseapp.com",
+                projectId: "hamsasarees-24738",
+                storageBucket: "hamsasarees-24738.firebasestorage.app",
+                messagingSenderId: "16303342424",
+                appId: "1:16303342424:web:d68d26160d45472713db2d",
+                measurementId: "G-1G1HQGJ5XS"
+            };
 
+            function escapeHtml(s) {
+                return String(s === undefined || s === null ? '' : s).replace(/[&<>"']/g, c => ({
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#39;'
+                } [c]));
+            }
 
-<footer style="text-align:center;padding:18px;color:#9fb8d9;font-size:13px">
-  © 2025 Hamsa Sarees , unauthorised use is strictly prohibited  ;  WebSite Designed , Created & Published by Terminal Joint
-</footer>
+            try {
+                const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
+                const { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
+                const { getFirestore, collection, query, orderBy, getDocs, doc, deleteDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
 
+                const app = initializeApp(firebaseConfig);
+                const auth = getAuth(app);
+                const db = getFirestore(app);
+                const googleProvider = new GoogleAuthProvider();
+
+                const $ = id => document.getElementById(id);
+                const userInfo = $('user-info');
+                const userName = $('user-name');
+                const authBtn = $('auth-btn');
+                const ordersContainer = $('orders-container');
+                const toastEl = $('toast');
+                const orderDetailModal = $('order-detail-modal');
+                const orderDetailContent = $('order-detail-content');
+                const closeModalBtn = $('close-modal-btn');
+
+                function showToast(msg, isError = false) {
+                    toastEl.textContent = msg;
+                    toastEl.className = `toast show ${isError ? 'error' : ''}`;
+                    setTimeout(() => {
+                        toastEl.className = 'toast';
+                    }, 3000);
+                }
+
+                function showModal() {
+                    orderDetailModal.classList.add('show');
+                    orderDetailModal.setAttribute('aria-hidden', 'false');
+                }
+
+                function closeModal() {
+                    orderDetailModal.classList.remove('show');
+                    orderDetailModal.setAttribute('aria-hidden', 'true');
+                }
+
+                closeModalBtn.addEventListener('click', closeModal);
+                orderDetailModal.addEventListener('click', (e) => {
+                    if (e.target === orderDetailModal) {
+                        closeModal();
+                    }
+                });
+
+                authBtn.addEventListener('click', () => {
+                    if (auth.currentUser) {
+                        signOut(auth).catch(e => showToast(`Sign-out failed: ${e.message}`, true));
+                    } else {
+                        signInWithPopup(auth, googleProvider).catch(e => showToast(`Sign-in failed: ${e.message}`, true));
+                    }
+                });
+
+                onAuthStateChanged(auth, user => {
+                    if (user) {
+                        userInfo.style.display = 'flex';
+                        userName.textContent = user.displayName || user.email;
+                        authBtn.textContent = 'Sign Out';
+                        authBtn.classList.remove('primary-btn');
+                        authBtn.classList.add('secondary-btn');
+                        loadUserOrders();
+                    } else {
+                        userInfo.style.display = 'none';
+                        authBtn.textContent = 'Sign In';
+                        authBtn.classList.remove('secondary-btn');
+                        authBtn.classList.add('primary-btn');
+                        ordersContainer.innerHTML = '<p class="placeholder-text">Please sign in to view your orders.</p>';
+                    }
+                });
+
+                async function loadUserOrders() {
+                    if (!auth.currentUser) return;
+                    ordersContainer.innerHTML = '<div class="loader"></div>';
+
+                    try {
+                        const q = query(collection(db, `users/${auth.currentUser.uid}/orders`), orderBy('createdAt', 'desc'));
+                        const snap = await getDocs(q);
+
+                        if (snap.empty) {
+                            ordersContainer.innerHTML = '<p class="placeholder-text">No orders yet. <a href="index.html">Start shopping!</a></p>';
+                            return;
+                        }
+
+                        ordersContainer.innerHTML = '';
+                        snap.forEach(docSnap => {
+                            const order = docSnap.data();
+                            const orderId = docSnap.id;
+                            const orderDate = order.createdAt?.toDate().toLocaleDateString() || 'N/A';
+
+                            const card = document.createElement('div');
+                            card.className = 'order-card';
+                            card.innerHTML = `
+                                <div class="order-card-body">
+                                    <div class="order-details">
+                                        <h4>${escapeHtml(order.product || 'Unnamed Product')}</h4>
+                                        <p><strong>Order ID:</strong> ${escapeHtml(orderId)}</p>
+                                        <p><strong>Date:</strong> ${escapeHtml(orderDate)}</p>
+                                    </div>
+                                    <div class="order-actions">
+                                        <button class="btn view-btn" data-id="${orderId}">Details</button>
+                                        <button class="btn delete-btn" data-id="${orderId}"><i class="fas fa-trash-alt"></i></button>
+                                    </div>
+                                </div>
+                            `;
+                            ordersContainer.appendChild(card);
+
+                            card.querySelector('.view-btn').addEventListener('click', () => {
+                                orderDetailContent.innerHTML = `
+                                    <p><strong>Product:</strong> ${escapeHtml(order.product)}</p>
+                                    <p><strong>Name:</strong> ${escapeHtml(order.name)}</p>
+                                    <p><strong>Phone:</strong> ${escapeHtml(order.phone)}</p>
+                                    <p><strong>Address:</strong> ${escapeHtml(order.address)}</p>
+                                    <p><strong>Order Date:</strong> ${orderDate}</p>
+                                `;
+                                showModal();
+                            });
+
+                            card.querySelector('.delete-btn').addEventListener('click', async () => {
+                                if (confirm('Are you sure you want to delete this order?')) {
+                                    try {
+                                        await deleteDoc(doc(db, 'users', auth.currentUser.uid, 'orders', orderId));
+                                        showToast('Order deleted successfully.');
+                                        loadUserOrders();
+                                    } catch (e) {
+                                        showToast('Failed to delete order.', true);
+                                    }
+                                }
+                            });
+                        });
+                    } catch (e) {
+                        ordersContainer.innerHTML = '<p class="placeholder-text error">Failed to load orders. Please try again.</p>';
+                        showToast(`Error: ${e.message}`, true);
+                    }
+                }
+
+            } catch (err) {
+                console.error('Initialization error', err);
+                document.body.innerHTML = `<div style="text-align: center; padding: 50px; font-family: sans-serif; color: #d9534f;"><h1>Initialization Failed</h1><p>Could not load necessary components. Please check your internet connection and try again.</p></div>`;
+            }
+        })();
+    </script>
 </body>
 </html>
