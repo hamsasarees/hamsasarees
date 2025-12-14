@@ -464,13 +464,13 @@ function attachRatingListenersToGrid(){
       if(!/^[6-9]\d{9}$/.test(phone)){ alert('Enter a valid 10-digit Indian mobile number'); return; }
       closeModal(orderModal);
       // Redirect to payment page with order details as URL parameters
-     const tempOrder = {
+    const tempOrder = {
   product,
   name,
   address,
   phone,
   price,
-  ts: Date.now()
+  createdAt: Date.now()
 };
 
 sessionStorage.setItem('pendingOrder', JSON.stringify(tempOrder));
