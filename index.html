@@ -262,6 +262,33 @@
 
     // backdrop click and Esc
     document.addEventListener('click', (ev)=>{
+      $('placeOrder').addEventListener('click', ev=>{
+  ev.preventDefault();
+
+  const name = $('custName').value.trim();
+  const address = $('custAddress').value.trim();
+  const phone = $('custPhone').value.trim();
+  const product = $('productField').value;
+  const price = $('productField').dataset.price;
+
+  if(!name || !address || !phone){
+    alert('Fill all fields');
+    return;
+  }
+
+  const tempOrder = {
+    product,
+    name,
+    address,
+    phone,
+    price,
+    createdAt: Date.now()
+  };
+
+  sessionStorage.setItem('pendingOrder', JSON.stringify(tempOrder));
+  window.location.href = 'payments.html';
+});
+
       const m = ev.target.closest('.modal');
       if(m && !ev.target.closest('.modal-box')){
         closeModal(m);
