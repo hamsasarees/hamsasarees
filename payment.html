@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Secure Payment</title>
 
-  <!-- Strict but workable CSP -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://checkout.razorpay.com; connect-src 'self' https://api.razorpay.com https://docs.google.com; img-src 'self' data:; style-src 'self' 'unsafe-inline'; frame-src https://api.razorpay.com https://checkout.razorpay.com;" />
+  <!-- FIXED CSP: Razorpay checkout was blocked earlier -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://checkout.razorpay.com https://*.razorpay.com; connect-src 'self' https://api.razorpay.com https://*.razorpay.com https://docs.google.com; img-src 'self' data: https://*.razorpay.com; style-src 'self' 'unsafe-inline'; frame-src https://checkout.razorpay.com https://*.razorpay.com;" />
 
   <style>
     body{font-family:system-ui,Arial,sans-serif;background:#0b1220;color:#eaf1ff;display:flex;align-items:center;justify-content:center;height:100vh;margin:0}
@@ -27,7 +27,7 @@
     <p>Payments powered by Razorpay</p>
 
     <label>Amount (INR)</label>
-    <input id="amount" type="number" min="1" value="499" readonly />
+    <input id="amount" type="number" readonly />
 
     <label>Name</label>
     <input id="name" type="text" placeholder="Customer name" />
@@ -50,51 +50,49 @@
     const contactInput = document.getElementById('contact');
     const emailInput = document.getElementById('email');
 
-    // --- Read data from URL safely ---
+    // -------- STRICT PRICE SYNC FROM MAIN PAGE --------
     const params = new URLSearchParams(window.location.search);
+
+    // Expecting price in RUPEES from main page
+    const priceFromMain = Number(params.get('price'));
+
+    if (isNaN(priceFromMain) || priceFromMain <= 0) {
+      alert('Invalid or missing price. Please go back and retry.');
+      payBtn.disabled = true;
+    } else {
+      amountInput.value = priceFromMain; // exact same value as main page
+    }
+
     const orderData = {
       product: params.get('product') || '',
       name: params.get('name') || '',
       phone: params.get('phone') || '',
       address: params.get('address') || '',
-      price: Number(params.get('price'))
+      price: priceFromMain
     };
 
-    // --- Prefill fields ---
-    if (!isNaN(orderData.price) && orderData.price > 0) {
-      amountInput.value = orderData.price;
-    }
     if (orderData.name) nameInput.value = orderData.name;
     if (orderData.phone) contactInput.value = orderData.phone;
 
-    // --- Send order to Google Forms (after payment only) ---
+    // -------- SEND TO GOOGLE FORMS AFTER PAYMENT --------
     async function sendOrderToGoogleSheets(data, paymentId) {
       const formUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSfREKvTld9R59UADJQK6jxQIbM64tt1iP0M-XiPq4ykOOwe5w/formResponse';
-
       const formData = new FormData();
+
       formData.append('entry.1128392407', data.name || '');
       formData.append('entry.654904844', data.address || '');
       formData.append('entry.1644126654', data.phone || '');
       formData.append('entry.1866699911', data.product || '');
-      // Optional extra fields can be added here
 
-      try{
-        await fetch(formUrl, { method:'POST', body:formData, mode:'no-cors' });
-        console.log('Order stored in Google Sheets');
-      }catch(e){
-        console.warn('Google Sheets submit failed', e);
-      }
+      await fetch(formUrl, { method:'POST', body:formData, mode:'no-cors' });
     }
 
-    payBtn.onclick = function(){
-      payBtn.disabled = true; // prevent double click
+    payBtn.onclick = function () {
+      payBtn.disabled = true;
 
-      orderData.name = nameInput.value.trim();
-      orderData.phone = contactInput.value.trim();
-      const email = emailInput.value.trim();
+      const amountPaise = Math.round(Number(amountInput.value) * 100); // Razorpay needs paise
 
-      const amount = Math.round(Number(amountInput.value) * 100);
-      if (!amount || amount < 100){
+      if (!amountPaise || amountPaise < 100) {
         alert('Invalid amount');
         payBtn.disabled = false;
         return;
@@ -102,32 +100,30 @@
 
       const options = {
         key: 'rzp_live_Rqulhc8rZRz8Iw',
-        amount: amount,
+        amount: amountPaise,
         currency: 'INR',
         name: 'Hamsa Sarees',
         description: orderData.product || 'Order Payment',
         handler: async function (response) {
           alert('Payment successful: ' + response.razorpay_payment_id);
           await sendOrderToGoogleSheets(orderData, response.razorpay_payment_id);
-          // window.location.href = 'thankyou.html';
         },
         prefill: {
-          name: orderData.name,
-          email: email,
-          contact: orderData.phone
+          name: nameInput.value.trim(),
+          email: emailInput.value.trim(),
+          contact: contactInput.value.trim()
         },
         notes: {
-          source: 'payment.html',
-          product: orderData.product
+          product: orderData.product,
+          source: 'payment.html'
         },
-        theme: { color:'#3b82f6' }
+        theme: { color: '#3b82f6' }
       };
 
       const rzp = new Razorpay(options);
 
       rzp.on('payment.failed', function (response) {
         alert('Payment failed: ' + response.error.description);
-        console.error(response.error);
         payBtn.disabled = false;
       });
 
