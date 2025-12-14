@@ -110,7 +110,21 @@
         name: 'Hamsa Sarees',
         description: product || 'Order Payment',
         handler: function (response) {
-          alert('Payment successful!\nPayment ID: ' + response.razorpay_payment_id);
+          alert('Payment successful!
+Payment ID: ' + response.razorpay_payment_id);
+
+          // ---- SEND ORDER TO GOOGLE FORM AFTER PAYMENT ----
+          const formUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSfREKvTld9R59UADJQK6jxQIbM64tt1iP0M-XiPq4ykOOwe5w/formResponse';
+          const fd = new FormData();
+
+          fd.append('entry.1128392407', nameEl.value || '');      // Name
+          fd.append('entry.654904844', params.get('address') || ''); // Address
+          fd.append('entry.1644126654', phoneEl.value || '');     // Phone
+          fd.append('entry.1866699911', product || '');           // Product
+
+          fetch(formUrl, { method: 'POST', body: fd, mode: 'no-cors' })
+            .then(() => console.log('Order sent to Google Sheet'))
+            .catch(err => console.error('Sheet error', err));
         },
         prefill: {
           name: nameEl.value,
