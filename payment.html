@@ -71,9 +71,14 @@
 
   <script>
     // ---------- READ URL PARAMS ----------
-    const params = new URLSearchParams(window.location.search);
-    const product = params.get('product') || '';
-    const price = Number(params.get('price'));
+   const rawOrder = sessionStorage.getItem('pendingOrder');
+
+if (!rawOrder) {
+  alert('Invalid access. Please place order again.');
+  window.location.href = 'index.html';
+}
+
+const order = JSON.parse(rawOrder);
 
     const productEl = document.getElementById('product');
     const priceText = document.getElementById('priceText');
@@ -89,11 +94,38 @@
       priceText.innerText = '₹' + price;
     }
 
-    productEl.value = product;
-    nameEl.value = params.get('name') || '';
-    phoneEl.value = params.get('phone') || '';
+productEl.value = order.product;
+priceText.innerText = '₹' + order.price;
+nameEl.value = order.name;
+phoneEl.value = order.phone;
 
     // ---------- RAZORPAY ----------
+    <script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBozW19Rjc9nj0YabOIE3DlW0qVHtU5XLA",
+  authDomain: "hamsasarees-24738.firebaseapp.com",
+  projectId: "hamsasarees-24738"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let currentUser = null;
+
+onAuthStateChanged(auth, user => {
+  if (!user) {
+    alert('Please sign in first');
+    window.location.href = 'index.html';
+  }
+  currentUser = user;
+});
+</script>
+
     payBtn.addEventListener('click', function(){
       if (typeof Razorpay === 'undefined') {
         alert('Razorpay SDK not loaded. Open via HTTPS / Live Server.');
@@ -109,8 +141,27 @@
         currency: 'INR',
         name: 'Hamsa Sarees',
         description: product || 'Order Payment',
-        handler: function (response) {
-          alert('Payment successful! Payment ID: ' + response.razorpay_payment_id);
+        handler: async function (response) {
+  const orderId = crypto.randomUUID();
+
+  await setDoc(
+    doc(db, 'users', currentUser.uid, 'orders', orderId),
+    {
+      product: order.product,
+      price: order.price,
+      name: order.name,
+      phone: order.phone,
+      address: order.address,
+      paymentId: response.razorpay_payment_id,
+      status: 'PAID',
+      createdAt: serverTimestamp()
+    }
+  );
+
+  sessionStorage.removeItem('pendingOrder');
+  alert('Payment successful!');
+  window.location.href = 'yourorders.html';
+}
 
           // ---- SEND TO GOOGLE FORM AFTER PAYMENT ----
           const formUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSfREKvTld9R59UADJQK6jxQIbM64tt1iP0M-XiPq4ykOOwe5w/formResponse';
