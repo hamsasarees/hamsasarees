@@ -2,110 +2,70 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<meta http-equiv="Content-Security-Policy" content="
-  default-src 'self';
-  script-src 'self' https://www.gstatic.com/firebasejs/ https://apis.google.com https://checkout.razorpay.com;
-  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-  font-src 'self' https://fonts.gstatic.com;
-  connect-src 'self' https://*.firebaseio.com wss://*.firebaseio.com https://www.googleapis.com https://lumberjack-cx.razorpay.com;
-  frame-src 'self' https://api.razorpay.com;
-  img-src 'self' https: data:;
-  object-src 'none';">
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Payment — Hamsa Sarees</title>
+<title>Hamsa Sarees — Single Page (Fixed)</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --bg1: #0d1117;
-    --bg2: #010409;
-    --accent: #238636;
-    --accent-glow: rgba(35, 134, 54, 0.6);
-    --accent-hover: #2ea043;
-    --text-primary: #e6edf3;
-    --text-secondary: #7d8590;
-    --border-color: rgba(255, 255, 255, 0.1);
-    --card-bg: #161b22;
-    --input-bg: #0d1117;
-    --error: #f85149;
-    --error-bg: rgba(248, 81, 73, 0.1);
-  }
-  *{box-sizing:border-box}
-  html,body{
-    height:100%; margin:0; font-family:Inter,system-ui,Arial,sans-serif;
-    background:var(--bg2); color:var(--text-primary); -webkit-font-smoothing:antialiased;
-  }
-  a{color:inherit;text-decoration:none}
-  .container{max-width:540px;margin:20px auto;padding:0 16px}
-  header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;margin-bottom:24px;}
-  .brand{display:flex;gap:14px;align-items:center}
-  .logo{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg, #f9ce34, #ee2a7b, #6228d7);display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:20px;box-shadow:0 8px 30px rgba(0,0,0,0.3);}
-  .title{font-weight:700;font-size:20px}
-  .small{color:var(--text-secondary);font-size:14px}
-  .btn{
-    cursor:pointer; border-radius:8px; padding:12px 18px; border:1px solid var(--accent); font-weight:700;
-    background:var(--accent); color:#fff; box-shadow:0 1px 0 rgba(255,255,255,0.1) inset, 0 4px 12px rgba(0,0,0,0.4);
-    transition: all .2s ease; width:100%; display:flex; align-items:center; justify-content:center; gap: 8px;
-  }
-  .btn:hover:not(:disabled){background:var(--accent-hover); border-color:var(--accent-hover);}
-  .btn:active:not(:disabled){transform:translateY(1px); box-shadow:0 1px 0 rgba(255,255,255,0.1) inset, 0 2px 6px rgba(0,0,0,0.4);}
-  .btn:disabled{opacity:0.7;cursor:not-allowed}
-  .btn-ghost{
-    background:transparent; border:1px solid var(--border-color); color:var(--text-secondary);
-    box-shadow:none; font-weight:600;
-  }
-  .btn-ghost:hover{background:var(--card-bg); color:var(--text-primary); border-color:var(--text-secondary);}
-  .payment-card{
-    background:var(--card-bg); padding:24px; border-radius:12px; margin-bottom:16px;
-    border:1px solid var(--border-color); box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-  }
-  .payment-card h1{margin-top:0;font-size:28px;margin-bottom:24px; letter-spacing:-0.5px;}
-  .payment-summary{
-    background:var(--input-bg); padding:16px; border-radius:8px; margin-bottom:24px;
-    border:1px solid var(--border-color); font-size:14px;
-  }
-  .summary-list{list-style:none; padding:0; margin:0; line-height:1.8;}
-  .summary-list li{display:flex; justify-content:space-between; color:var(--text-secondary);}
-  .summary-list li strong{color:var(--text-primary); font-weight:600;}
-  .field{display:flex;flex-direction:column;margin-bottom:16px}
-  .field label{font-weight:600;margin-bottom:8px;color:var(--text-secondary);font-size:13px}
-  .field input,.field select{
-    padding:12px; border-radius:8px; border:1px solid var(--border-color);
-    background:var(--input-bg); color:var(--text-primary); font-size:15px;
-    transition:all .2s;
-  }
-  .field input:focus,.field select:focus{
-    outline:none; border-color:var(--accent);
-    box-shadow:0 0 0 3px var(--accent-glow);
-  }
-  .status-message{padding:12px 16px;border-radius:8px;margin-bottom:16px;display:none;font-weight:600;border:1px solid transparent;font-size:14px}
-  .status-success{background:rgba(35,134,54,0.15);color:#3fb950;border-color:rgba(35,134,54,0.3);display:block}
-  .status-error{background:var(--error-bg);color:var(--error);border-color:rgba(248,81,73,0.3);display:block}
-  .button-group{display:flex;gap:12px;margin-top:24px}
-  .button-group button{flex:1}
-  .sr-only{position:absolute!important;height:1px;width:1px;overflow:hidden;clip:rect(1px,1px,1px,1px);white-space:nowrap}
-  button:focus-visible, a:focus-visible{outline:3px solid var(--accent-glow); outline-offset:2px; border-radius: 8px;}
-  .toast{
-    position:fixed; right:16px; bottom:16px; background:#1f2937; padding:12px 18px;
-    border-radius:8px; color:var(--text-primary); border-left:4px solid var(--accent);
-    box-shadow:0 10px 40px rgba(0,0,0,0.5); display:none; z-index:2000; font-weight:600;
-    animation:toast-in .3s ease;
-  }
-  @keyframes toast-in { from { transform: translateY(20px); opacity: 0; } }
-  footer{text-align:center;padding:24px;color:var(--text-secondary);font-size:12px;margin-top:20px;border-top:1px solid var(--border-color)}
-  @media (max-width:640px){
-    .container{margin-top:0;}
-    header{padding:16px 0; margin-bottom:16px;}
-    .button-group{flex-direction:column}
-    .payment-card{padding:20px; border-radius:0; border-left:0; border-right:0;}
-  }
-  .loader {
-    width: 16px; height: 16px; border: 2px solid #FFF;
-    border-bottom-color: transparent; border-radius: 50%;
-    display: inline-block; box-sizing: border-box;
-    animation: rotation 1s linear infinite;
-  }
-  @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-</style>
+  <style>
+    :root{
+      --bg1:#001f3f; --bg2:#00306b; --accent:#00aaff; --accent2:#4dd0e1; --muted:#9fb8d9; --success:#10b981;
+      --card:#071522; --glass:rgba(255,255,255,0.03); --danger:#ff3b3b;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:#eaf6ff;-webkit-font-smoothing:antialiased}
+    a{color:inherit;text-decoration:none}
+    .container{max-width:1100px;margin:20px auto;padding:0 16px}
+    header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;margin-bottom:20px;background:rgba(255,255,255,0.01);border-radius:12px}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:800;color:#032033;box-shadow:0 12px 40px rgba(0,170,255,0.12)}
+    .title{font-weight:800;font-size:18px;line-height:1.2}
+    .small{color:var(--muted);font-size:14px}
+    .search{flex:1;display:flex;align-items:center;gap:8px;padding:10px 12px;background:rgba(255,255,255,0.03);border-radius:10px;border:1px solid rgba(255,255,255,0.06)}
+    .search input{flex:1;background:transparent;border:none;color:#dbeafe;outline:none;font-size:14px}
+    .search input::placeholder{color:var(--muted)}
+    .actions{display:flex;gap:8px;align-items:center}
+    .btn{cursor:pointer;border-radius:10px;padding:9px 14px;border:none;font-weight:700;background:linear-gradient(90deg,var(--accent),#ff5aa3);color:#fff;box-shadow:0 8px 24px rgba(0,170,255,0.12);transition:transform .15s,filter .15s;display:inline-flex;align-items:center;justify-content:center}
+    .btn:active{transform:translateY(1px)}
+    .btn:disabled{opacity:0.6;cursor:not-allowed}
+    .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#fff;padding:8px 12px;border-radius:10px;cursor:pointer;font-weight:600;transition:background .2s}
+    .btn-ghost:hover{background:rgba(255,255,255,0.05)}
+    .hero{gap:16px;display:flex;flex-direction:column}
+    .hero-card{background:linear-gradient(180deg,#071522,#06121a);padding:20px;border-radius:12px;border:1px solid rgba(255,255,255,0.03)}
+    .hero-card h1{margin:0 0 8px 0;font-size:28px;line-height:1.3}
+    .hero-card p{margin:0 0 14px 0}
+    .promo{background:linear-gradient(180deg,rgba(0,170,255,0.1),rgba(77,208,225,0.05));padding:16px;border-radius:10px;border:1px solid rgba(0,170,255,0.2);text-align:center}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-top:16px}
+    .card{background:linear-gradient(180deg,#071522,#06121a);border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.03);transition:transform .2s,box-shadow .2s}
+    .card:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(0,170,255,0.15)}
+    .tag{position:absolute;top:8px;right:8px;background:linear-gradient(90deg,var(--accent),#ff5aa3);padding:4px 10px;border-radius:6px;font-size:12px;font-weight:700;color:#fff;z-index:10}
+    .imgwrap{position:relative;overflow:hidden;padding-bottom:100%;background:rgba(255,255,255,0.02)}
+    .imgwrap img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+    .card h3{margin:12px;font-size:16px;line-height:1.3}
+    .price{font-weight:800;color:var(--accent2);font-size:16px}
+    .product-rating{font-size:13px;color:var(--success)}
+    .rating-ui{display:flex;gap:4px}
+    .rateBtn{padding:4px 6px;font-size:12px;border-radius:6px;border:none;cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.1);color:var(--muted);transition:all .2s}
+    .rateBtn:hover{background:rgba(0,170,255,0.2);color:var(--accent)}
+    .field{display:flex;flex-direction:column;margin-bottom:16px}
+    .field label{font-weight:600;margin-bottom:8px;color:#eaf6ff;font-size:14px}
+    .field input,.field select,.field textarea{padding:12px;border-radius:10px;border:none;background:rgba(8,18,26,0.8);color:#dbeafe;font-size:14px;border:1px solid rgba(255,255,255,0.06);transition:border-color .2s}
+    .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 8px rgba(0,170,255,0.2)}
+    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(3,8,20,0.6),rgba(2,8,18,0.85));z-index:1200;padding:12px}
+    .modal.show{display:flex}
+    .modal-box{max-width:720px;width:100%;background:linear-gradient(180deg,#071522,#06121a);border-radius:12px;padding:20px;color:#eaf6ff;position:relative;box-shadow:0 30px 80px rgba(2,6,23,0.6);border:1px solid rgba(255,255,255,0.03);max-height:90vh;overflow-y:auto}
+    .modal-box h2{margin-top:0;margin-bottom:12px;font-size:22px}
+    .close-x{position:absolute;top:12px;right:12px;background:none;border:none;color:#ff5aa3;font-weight:800;font-size:18px;cursor:pointer;transition:transform .2s}
+    .close-x:hover{transform:scale(1.2)}
+    .sr-only{position:absolute!important;height:1px;width:1px;overflow:hidden;clip:rect(1px,1px,1px,1px);white-space:nowrap}
+    button:focus,input:focus,select:focus,textarea:focus{outline:3px solid rgba(0,170,255,0.12);outline-offset:2px}
+    .toast{position:fixed;right:16px;bottom:16px;background:#0b1220;padding:12px 16px;border-radius:10px;color:#d1fae5;border-left:4px solid var(--success);box-shadow:0 8px 30px rgba(2,6,23,0.6);display:none;z-index:2000;font-weight:600}
+    @media (max-width:640px){
+      header{flex-direction:column;align-items:stretch;padding:12px 16px}
+      .actions{flex-wrap:wrap}
+      .grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
+      .card h3{font-size:14px;margin:10px}
+      .hero-card h1{font-size:24px}
+    }
+  </style>
 </head>
 <body>
   <div class="container">
@@ -113,85 +73,150 @@
       <div class="brand">
         <div class="logo" aria-hidden="true">HS</div>
         <div>
-          <div class="title">Hamsa Sarees</div>
-          <div class="small">Payment</div>
+          <div class="title">Hamsa Sarees<br> ! This Site Is Under Construction !</div>
+          <div class="small">Handpicked • Ethnic • Quality</div>
         </div>
+      </div>
+
+      <div style="flex:1;display:flex;justify-content:center">
+        <div class="search" role="search" aria-label="Search products">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 21l-4.35-4.35" stroke="#9fb6c9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <input id="searchBox" placeholder="Search sarees, cotton, silk..." aria-label="Search products" />
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="adminBtn" class="btn-ghost" style="display:none" aria-hidden="true">Admin</button>
+        <div id="userBadge" style="display:none;background:rgba(255,255,255,0.03);padding:8px 10px;border-radius:10px;color:#fff;font-weight:700"></div>
+        <a id="myOrdersBtn" href="yourorders.html" class="btn-ghost" style="display:none">My Orders</a>
+        <button id="signOutBtn" class="btn-ghost" style="display:none">Sign out</button>
+        <button id="loginShowBtn" class="btn">Sign in</button>
       </div>
     </header>
 
     <main>
-      <section class="payment-card">
-        <h1>Secure Checkout</h1>
-        <div id="paymentSummary" class="payment-summary">Loading order summary...</div>
-
-        <div id="paymentStatus" class="status-message"></div>
-        <!-- Razorpay checkout will be used; no external intent flows -->
-
-        <form id="paymentForm">
-          <div class="field">
-            <label for="buyerName">Name</label>
-            <input id="buyerName" type="text" placeholder="Full name" required />
+      <section class="hero" style="gap:16px">
+        <div class="hero-card">
+          <h1>Real sarees. Real people. Real style.</h1>
+          <p class="small">Curated collection, saved orders for your account, and a smooth checkout. Mobile-first.</p>
+          <div style="margin-top:14px;display:flex;gap:10px">
+            <button id="shopNow" class="btn">Shop Now</button>
+            <button id="exploreBtn" class="btn-ghost">Collections</button>
           </div>
+        </div>
 
-          <div class="field">
-            <label for="buyerPhone">Mobile number</label>
-            <input id="buyerPhone" type="tel" placeholder="10-digit mobile number" required />
-          </div>
-
-          <div class="field">
-            <label for="buyerAddress">Address</label>
-            <input id="buyerAddress" type="text" placeholder="Delivery address" required />
-          </div>
-
-          <div class="field">
-            <label for="paymentMethod">Select Payment Method</label>
-            <select id="paymentMethod" required>
-              <option value="">Choose a payment method</option>
-              <option value="razorpay">Pay with Razorpay (Card/UPI)</option>
-            </select>
-          </div>
-
-          <div class="button-group">
-            <button type="submit" id="payNow" class="btn">Pay Now</button>
-            <a href="index.html" class="btn btn-ghost">Cancel</a>
-          </div>
-        </form>
+        <aside class="promo" aria-hidden="true">
+          <strong>Limited Offer</strong>
+          <div class="small" style="margin-top:8px">Free shipping on orders above ₹3000</div>
+          <div style="margin-top:12px;font-weight:800;color:#7ee0b2">Best Seller: Elegant Cotton — ₹1499</div>
+        </aside>
       </section>
 
-      <div style="text-align:center;margin-top:20px">
-        <p class="small">Your payment is secure and encrypted. Data is not stored.</p>
-      </div>
-
-      <!-- Desktop UPI helper removed (Razorpay integrated) -->
-
+      <section style="margin-top:12px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <h2 style="margin:0">Products</h2>
+          <div class="small">Sign in to place orders; orders saved to your account</div>
+        </div>
+        <div class="grid" id="productGrid" aria-live="polite">
+          <div class="card" style="grid-column:1/-1;text-align:center;color:var(--muted);padding:32px;background:transparent">
+            <strong style="color:#eaf6ff">No products yet</strong>
+            <div class="small" style="margin-top:8px">As admin, open Admin → Add Product to upload items. The product grid updates live for users.</div>
+            <div style="margin-top:12px"><button id="openAdminFromEmpty" class="btn-ghost">Open Admin</button></div>
+          </div>
+        </div>
+      </section>
     </main>
   </div>
-  <footer style="line-height:1.8;">
-    <div class="policy-links" style="margin-bottom: 16px; display: flex; justify-content: center; gap: 8px 16px; flex-wrap: wrap;">
-      <a href="https://merchant.razorpay.com/policy/RqTr3sOZEqSD8V/privacy" target="_blank" style="color: var(--text-secondary); text-decoration: underline;">Privacy Policy</a>
-      <a href="https://merchant.razorpay.com/policy/RqTr3sOZEqSD8V/terms" target="_blank" style="color: var(--text-secondary); text-decoration: underline;">Terms & Conditions</a>
-      <a href="https://merchant.razorpay.com/policy/RqTr3sOZEqSD8V/shipping" target="_blank" style="color: var(--text-secondary); text-decoration: underline;">Shipping</a>
-      <a href="https://merchant.razorpay.com/policy/RqTr3sOZEqSD8V/refund" target="_blank" style="color: var(--text-secondary); text-decoration: underline;">Cancellation & Refunds</a>
-      <a href="https://merchant.razorpay.com/policy/RqTr3sOZEqSD8V/contact_us" target="_blank" style="color: var(--text-secondary); text-decoration: underline;">Contact Us</a>
-    </div>
-    ©2025 Hamsa Sarees, unauthorized use is strictly prohibited.<br>
-    Website designed, created & published by Terminal Joint.
-  </footer>
 
+  <!-- Modals (Order, Login, Payment, My Orders, Admin, Detail) -->
+  <div class="modal" id="orderModal" aria-hidden="true">
+    <div class="modal-box" role="dialog" aria-modal="true">
+      <button class="close-x" id="closeOrderModal" title="Close">✕</button>
+      <h2 id="orderModalTitle">Confirm Your Order</h2>
+      <p class="small" id="selectedProduct"></p>
+      <form id="orderForm" method="POST" target="hiddenFrame" action="https://docs.google.com/forms/d/e/1FAIpQLSfREKvTld9R59UADJQK6jxQIbM64tt1iP0M-XiPq4ykOOwe5w/formResponse">
+        <div class="field"><label class="sr-only" for="custName">Your name</label><input id="custName" name="entry.1128392407" placeholder="Your Name" required></div>
+        <div class="field"><label class="sr-only" for="custAddress">Address</label><textarea id="custAddress" name="entry.654904844" placeholder="Address" required></textarea></div>
+        <div class="field"><label class="sr-only" for="custPhone">Mobile number</label><input id="custPhone" name="entry.1644126654" placeholder="Mobile Number" required></div>
+        <div class="field"><input id="productField" name="entry.1866699911" readonly aria-readonly="true"></div>
+        <div class="modal-footer" style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
+          <button class="btn" id="placeOrder">Place Order</button>
+          <button type="button" class="btn-ghost" id="cancelOrder">Cancel</button>
+        </div>
+      </form>
+      <div id="orderStatus" class="small" style="margin-top:10px;color:var(--success);display:none">Order placed. Thank you!</div>
+    </div>
+  </div>
+
+  <div class="modal" id="loginModal" aria-hidden="true">
+    <div class="modal-box" role="dialog" aria-modal="true">
+      <button class="close-x" id="closeLogin" title="Close">✕</button>
+      <h2>Sign in with Google</h2>
+      <p class="small">No typing required — uses Google auth.</p>
+      <div style="display:flex;justify-content:center;margin-top:12px">
+        <button id="googleBtnLarge" class="btn">Sign in with Google</button>
+      </div>
+      <p id="loginErr" class="small" style="margin-top:12px;color:#ffb4b4;display:none"></p>
+    </div>
+  </div>
+
+  <div class="modal" id="orderDetailModal" aria-hidden="true">
+    <div class="modal-box" role="dialog" aria-modal="true">
+      <button class="close-x" id="closeOrderDetail" title="Close">✕</button>
+      <h2>Order Details</h2>
+      <div id="orderDetailContent" class="small" style="white-space:pre-line;margin-top:8px"></div>
+      <div style="display:flex;gap:10px;margin-top:12px;justify-content:flex-end"><button id="closeDetailBtn" class="btn-ghost">Close</button></div>
+    </div>
+  </div>
+
+  <div class="modal" id="adminModal" aria-hidden="true">
+    <div class="modal-box" role="dialog" aria-modal="true" style="max-height:90vh;overflow-y:auto">
+      <button class="close-x" id="closeAdmin" title="Close">✕</button>
+      <h2>Admin Panel</h2>
+      
+      <!-- Add Product Section -->
+      <div style="border-bottom:1px solid rgba(255,255,255,0.06);padding-bottom:16px;margin-bottom:16px;background:rgba(255,255,255,0.01);padding:16px;border-radius:10px">
+        <h3 style="margin-top:0;color:#eaf6ff">Add Product</h3>
+        <p class="small">Products added here are saved to Firestore (admin-only).</p>
+        <div class="field"><label class="small" style="font-weight:600">Title *</label><input id="admin_pTitle" placeholder="Product title" required></div>
+        <div class="field"><label class="small" style="font-weight:600">Price (₹) *</label><input id="admin_pPrice" type="number" placeholder="1499" required></div>
+        <div class="field"><label class="small" style="font-weight:600">Tag</label><input id="admin_pTag" placeholder="e.g. New, Best"></div>
+        <div class="field">
+          <label class="small" style="font-weight:600">Image URLs</label>
+          <div id="imageUrlsContainer">
+            <input class="imageUrlInput" type="text" placeholder="Image URL 1" style="margin-bottom: 8px;">
+          </div>
+          <button id="addImageUrl" type="button" class="btn-ghost" style="margin-top:8px;">Add another image</button>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
+          <button id="adminSave" class="btn">Add Product</button>
+        </div>
+      </div>
+
+      <!-- Remove Product Section -->
+      <div>
+        <h3 style="margin-top:0;color:#eaf6ff">Remove Product</h3>
+        <p class="small">Click the delete button next to a product to remove it.</p>
+        <div id="adminProductsList" style="border:1px solid rgba(255,255,255,0.06);border-radius:10px;max-height:400px;overflow-y:auto;background:rgba(255,255,255,0.01)">
+          <div class="small" style="padding:12px;text-align:center;color:var(--muted)">Loading products...</div>
+        </div>
+      </div>
+
+      <div style="margin-top:16px;display:flex;gap:8px;justify-content:flex-end">
+        <button id="adminCancel" class="btn-ghost">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <iframe name="hiddenFrame" style="display:none"></iframe>
   <div id="toast" class="toast" role="status" aria-live="polite">Saved.</div>
 
-<script type="module" id="main-script">
+<script type="module">
 (async function(){
   if(document.readyState === 'loading') await new Promise(r=>document.addEventListener('DOMContentLoaded', r));
 
   // ---- CONFIG ----
-  // Google Pay Configuration:
-  // 1. Card/UPI payments redirect to Google Pay
-  // 2. Mobile number: 9994051579
-  // 3. User will be redirected to UPI app on mobile or Google Pay
-  // 4. After payment completion, order will be saved to Firestore
-  // 5. Payments processed via Razorpay checkout
-  
+  const ADMIN_UID = 'EenXHJIvZpavhkGTCI8EZyFAfH93'; // UI-only sentinel; enforce admin in Firestore rules / backend
   const firebaseConfig = {
     apiKey: "AIzaSyBozW19Rjc9nj0YabOIE3DlW0qVHtU5XLA",
     authDomain: "hamsasarees-24738.firebaseapp.com",
@@ -202,312 +227,445 @@
     measurementId: "G-1G1HQGJ5XS"
   };
 
-  // ---- Firebase imports ----
+  // ---- helper: escape text for safe insertion ----
+  function escapeHtml(s){ return String(s===undefined||s===null?'':s).replace(/[&<>\"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+  // ---- Firebase imports (modular) ----
   try{
     const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
     const authMod = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
     const fsMod = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+    const storageMod = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js');
 
-    const { getAuth, onAuthStateChanged } = authMod;
-    const { getFirestore, collection, addDoc, serverTimestamp, doc, getDoc, setDoc } = fsMod;
+    const { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } = authMod;
+    const { getFirestore, collection, addDoc, setDoc, doc, deleteDoc, serverTimestamp, query, orderBy, getDocs, onSnapshot } = fsMod;
+    const { getStorage, ref, uploadBytes, getDownloadURL } = storageMod;
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
+    const storage = getStorage(app);
+    const googleProvider = new GoogleAuthProvider();
 
     // ---- DOM refs ----
     const $ = id => document.getElementById(id);
-    const paymentSummary = $('paymentSummary');
-    const paymentStatus = $('paymentStatus');
-    const paymentForm = $('paymentForm');
-    const payNowBtn = $('payNow');
-    const paymentMethod = $('paymentMethod');
-    const toastEl = $('toast');
-    const buyerName = $('buyerName');
-    const buyerPhone = $('buyerPhone');
-    const buyerAddress = $('buyerAddress');
+    const loginModal = $('loginModal'), orderModal = $('orderModal'), adminModal = $('adminModal');
+    const loginErr = $('loginErr'), userBadge = $('userBadge'), signOutBtn = $('signOutBtn'), loginShowBtn = $('loginShowBtn'), googleBtnLarge = $('googleBtnLarge');
+    const myOrdersBtn = $('myOrdersBtn');
+    const adminBtn = $('adminBtn');
 
     function toast(msg){ if(!toastEl) return; toastEl.innerText = msg; toastEl.style.display = 'block'; setTimeout(()=>toastEl.style.display = 'none', 2200); }
+    function showLoginError(msg){ if(!loginErr) return; loginErr.innerText = msg; loginErr.style.display = msg ? 'block' : 'none'; }
 
-    function showStatus(msg, isError = false){
-      paymentStatus.textContent = msg;
-      paymentStatus.className = 'status-message ' + (isError ? 'status-error' : 'status-success');
-    }
+    function openModal(modal){ if(!modal) return; modal.classList.add('show'); modal.removeAttribute('aria-hidden'); document.body.style.overflow = 'hidden'; }
+    function closeModal(modal){ if(!modal) return; modal.classList.remove('show'); modal.setAttribute('aria-hidden','true'); document.body.style.overflow = ''; }
 
-    function hideStatus(){
-      paymentStatus.className = 'status-message';
-    }
-
-    // ---- Get order data from URL params ----
-    const params = new URLSearchParams(window.location.search);
-    const orderData = {
-      product: params.get('product') || '',
-      name: params.get('name') || '',
-      phone: params.get('phone') || '',
-      address: params.get('address') || '',
-      price: parseFloat(params.get('price')) || 0
-    };
-
-    // Display order summary with fixed price
-    if(paymentSummary && orderData.product && orderData.price > 0){
-      paymentSummary.innerHTML = `
-        <ul class="summary-list">
-          <li><span>Product</span> <strong>${orderData.product}</strong></li>
-          <li><span>Price</span> <strong id="summaryPrice">₹${orderData.price}</strong></li>
-        </ul>
-      `;
-    } else if(paymentSummary){
-      paymentSummary.innerHTML = '<div class="small" style="color:var(--error)">No order data found. <a href="index.html" style="color:var(--accent-hover)">Return to shop</a></div>';
-      payNowBtn.disabled = true;
-    }
-
-    // Payment method change handler (no COD option)
-    paymentMethod.addEventListener('change', (e) => {
-      // Placeholder for future payment UI toggles
+    // backdrop click and Esc
+    document.addEventListener('click', (ev)=>{
+      const m = ev.target.closest('.modal');
+      if(m && !ev.target.closest('.modal-box')){
+        closeModal(m);
+      }
     });
+    document.addEventListener('keydown', (ev)=>{ if(ev.key === 'Escape'){ document.querySelectorAll('.modal.show').forEach(m=>closeModal(m)); } });
 
-    // Auto-select Razorpay by default
-    try{ paymentMethod.value = 'razorpay'; }catch(e){}
+    try{ const rr = await getRedirectResult(auth); if(rr && rr.user) console.log('redirect sign-in OK', rr.user.uid); }catch(e){ console.warn('redirect result', e && e.code); }
 
-    // Prefill buyer inputs from URL params
+    async function signInPopup(){
+      showLoginError('');
+      try{ await signInWithPopup(auth, googleProvider); toast('Signed in'); }catch(e){
+        console.error('sign-in error', e && e.code, e && e.message);
+        const popupErrors = ['auth/popup-blocked','auth/popup-closed-by-user','auth/cancelled-popup-request'];
+        if(e && popupErrors.includes(e.code)){
+          try{ await signInWithRedirect(auth, googleProvider); return; }catch(err){ showLoginError('Popup blocked and redirect failed. Allow popups or try another browser.'); return; }
+        }
+        if(e && e.code === 'auth/unauthorized-domain'){
+          showLoginError('Domain not authorized. Add your hosting domain in Firebase console → Authentication → Authorized domains.');
+        } else showLoginError(e && e.message ? e.message : 'Sign-in failed');
+      }
+    }
+    googleBtnLarge && googleBtnLarge.addEventListener('click', ()=>signInPopup());
+    loginShowBtn && loginShowBtn.addEventListener('click', ()=>{ openModal(loginModal); });
+
+    signOutBtn && signOutBtn.addEventListener('click', async () => { try{ await signOut(auth); toast('Signed out'); }catch(e){ console.error('signout failed', e); } });
+
+    // ---- PRODUCTS: load from Firestore (live) ----
+    const productGrid = $('productGrid');
+    const productsColRef = collection(db, 'products');
+
+    function renderProductCard(docSnap){
+      const id = docSnap.id;
+      const data = docSnap.data() || {};
+      const title = data.title || 'Untitled';
+      const tag = data.tag || '';
+      // Use the 'images' array if it exists, otherwise fall back to 'img'.
+      const images = data.images && data.images.length > 0 ? data.images : [data.img];
+      const primaryImage = images[0] || 'https://images.unsplash.com/photo-1520975918016-4d0b5b0b2f3d?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder';
+      const price = data.price || '0';
+      const avg = data._avg ? Number(data._avg).toFixed(1) : null;
+      const avgDisplay = avg ? `★ ${avg} (${data._count||0})` : 'No ratings';
+
+      const card = document.createElement('div'); card.className = 'card'; card.dataset.pid = id;
+
+      // build DOM safely (no raw innerHTML from user content)
+      if(tag){ const tagEl = document.createElement('div'); tagEl.className = 'tag'; tagEl.textContent = tag; card.appendChild(tagEl); }
+      
+      const imgWrap = document.createElement('div'); imgWrap.className = 'imgwrap';
+      const imgEl = document.createElement('img'); imgEl.loading = 'lazy'; imgEl.src = primaryImage; imgEl.alt = title; imgWrap.appendChild(imgEl); 
+      
+      // Add a multi-image indicator if there's more than one image
+      if (images.length > 1) {
+        const multiImgIndicator = document.createElement('div');
+        multiImgIndicator.textContent = '1/' + images.length;
+        multiImgIndicator.style.cssText = 'position:absolute; bottom:8px; right:8px; background:rgba(0,0,0,0.6); color:white; padding:2px 8px; border-radius:10px; font-size:12px; font-weight:500;';
+        imgWrap.appendChild(multiImgIndicator);
+      }
+      
+      card.appendChild(imgWrap);
+
+      const h3 = document.createElement('h3'); h3.textContent = title; card.appendChild(h3);
+
+      const row = document.createElement('div'); row.style.display = 'flex'; row.style.justifyContent = 'space-between'; row.style.alignItems = 'center';
+      const priceEl = document.createElement('div'); priceEl.className = 'price'; priceEl.textContent = `₹${price}`;
+      const ratingWrap = document.createElement('div'); ratingWrap.style.display='flex'; ratingWrap.style.alignItems='center';
+      const rEl = document.createElement('div'); rEl.className = 'product-rating small'; rEl.dataset.pid = id; rEl.textContent = avgDisplay;
+      ratingWrap.appendChild(rEl);
+      row.appendChild(priceEl); row.appendChild(ratingWrap);
+      card.appendChild(row);
+
+      const ratingUI = document.createElement('div'); ratingUI.className = 'rating-ui'; ratingUI.style.marginTop='8px';
+      for(let i=1;i<=5;i++){ const b = document.createElement('button'); b.className='rateBtn btn-ghost'; b.dataset.rating = String(i); b.type='button'; b.textContent = String(i); ratingUI.appendChild(b); }
+      card.appendChild(ratingUI);
+
+      const orderWrap = document.createElement('div'); orderWrap.style.marginTop='8px';
+      const orderBtn = document.createElement('button'); orderBtn.className='orderBtn btn'; orderBtn.type='button'; orderBtn.dataset.product = title; orderBtn.dataset.price = price; orderBtn.textContent='Order Now'; orderWrap.appendChild(orderBtn);
+      card.appendChild(orderWrap);
+
+      return card;
+    }
+
+    let productsUnsub = null;
     try{
-      if(buyerName && orderData.name) buyerName.value = orderData.name;
-      if(buyerPhone && orderData.phone) buyerPhone.value = orderData.phone;
-      if(buyerAddress && orderData.address) buyerAddress.value = orderData.address;
-    }catch(e){/* ignore */}
-
-    // ---- Save order to Firestore ONLY after successful payment ----
-    async function saveOrderAfterPayment(paymentId, paymentMethod) {
-      try {
-        const uid = auth.currentUser ? auth.currentUser.uid : null;
-        const finalOrderData = { 
-          ...orderData, 
-          paymentMethod: paymentMethod,
-          paymentId: paymentId,
-          paymentStatus: 'completed',
-          user: uid, 
-          userEmail: auth.currentUser ? auth.currentUser.email : null, 
-          createdAt: serverTimestamp() 
-        };
-
-        if(uid){
-          await addDoc(collection(db, `users/${uid}/orders`), finalOrderData);
-        }
-        await addDoc(collection(db, 'orders'), finalOrderData);
-        
-        return true;
-      } catch(err) {
-        console.error('Failed to save order to database', err);
-      }
-    }
-
-    // ---- Send order to Google Sheets (only after payment success) ----
-    async function sendOrderToGoogleSheets(orderData, paymentId) {
-      try {
-        // This is the URL of the Google Form you are submitting to.
-        const formUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSfREKvTld9R59UADJQK6jxQIbM64tt1iP0M-XiPq4ykOOwe5w/formResponse';
-        
-        // These entry IDs must match the fields in your Google Form.
-        const formData = new FormData();
-        formData.append('entry.1128392407', orderData.name || '');      // Name
-        formData.append('entry.654904844', orderData.address || '');   // Address
-        formData.append('entry.1644126654', orderData.phone || '');     // Phone
-        formData.append('entry.1866699911', orderData.product || '');   // Product
-        // You can add more fields to your Google Form and map them here.
-        // For example, to add price and payment ID, you would need their 'entry' IDs.
-        
-        // We send the data using 'no-cors' mode. This means the code sends the data
-        // but doesn't wait to see if it was successful. This prevents browser errors
-        // and ensures the user experience is not interrupted, even if the Google Sheet part fails.
-        await fetch(formUrl, {
-          method: 'POST',
-          body: formData,
-          mode: 'no-cors'
-        });
-        
-        console.log('Order data sent to Google Sheets.');
-      } catch(err) {
-        console.warn('Failed to send order to Google Sheets. The order is still saved in Firebase.', err);
-      }
-    }
-
-    // ---- Payment form handler with Razorpay integration ----
-    paymentForm.addEventListener('submit', async (ev) => {
-      ev.preventDefault();
-
-      if(!paymentMethod.value){
-        showStatus('Please select a payment method', true);
-        return;
-      }
-
-      // Validate form fields before proceeding
-      if (!buyerName.value.trim() || !buyerPhone.value.trim() || !buyerAddress.value.trim()) {
-        showStatus('Please fill in your name, phone, and address.', true);
-        return;
-      }
-      if (!/^[6-9]\d{9}$/.test(buyerPhone.value.trim())) {
-        showStatus('Please enter a valid 10-digit Indian mobile number.', true);
-        return;
-      }
-
-      hideStatus();
-      payNowBtn.disabled = true;
-      // Add loader to button
-      const originalButtonText = payNowBtn.innerHTML;
-      payNowBtn.innerHTML = `<span class="loader"></span> Processing...`;
-
-      // showStatus('Processing payment...', false); // This is now handled by the button state
-
-      try{
-        const method = paymentMethod.value;
-
-        // Update orderData from editable fields
-        orderData.name = buyerName.value.trim();
-        orderData.phone = buyerPhone.value.trim();
-        orderData.address = buyerAddress.value.trim();
-
-        // If logged in, persist profile for future orders
-        try{
-          const user = auth.currentUser;
-          if(user){
-            const profileRef = doc(db, 'users', user.uid, 'profile', 'main');
-            await setDoc(profileRef, { name: orderData.name, phone: orderData.phone, address: orderData.address }, { merge: true });
-          }
-        }catch(e){ console.warn('Failed to save profile', e); }
-
-        // Use Razorpay checkout for payments
-        if(method === 'razorpay'){
-          await startRazorpay(orderData);
-          // Razorpay handler will handle saving the order and redirecting on success
-        } else {
-          showStatus('Unsupported payment method selected', true);
-          payNowBtn.innerHTML = originalButtonText;
-          payNowBtn.disabled = false;
-        }
-
-      }catch(err){
-        console.error('Payment processing failed', err);
-        showStatus('Payment processing failed. Please try again.', true);
-        payNowBtn.innerHTML = originalButtonText;
-        payNowBtn.disabled = false;
-      }
-    });
-
-    // ---- COD removed: WhatsApp integration removed ----
-
-    // ---- Razorpay integration ----
-    function loadScript(src){
-      return new Promise((resolve)=>{
-        const s = document.createElement('script'); s.src = src; s.onload = ()=>resolve(true); s.onerror = ()=>resolve(false); document.body.appendChild(s);
-      });
-    }
-
-    async function startRazorpay(orderData){
-      const ok = await loadScript('https://checkout.razorpay.com/v1/checkout.js');
-      if(!ok){
-        showStatus('Failed to load payment gateway. Try again later.', true);
-        payNowBtn.innerHTML = 'Pay Now'; // Restore button text
-        payNowBtn.disabled=false;
-        return;
-      }
-
-      const amountPaise = Math.round((orderData.price || 0) * 100);
-      const options = {
-        key: 'rzp_live_Rqulhc8rZRz8Iw', // Your Live Razorpay Key ID
-        amount: amountPaise,
-        currency: 'INR',
-        name: 'Hamsa Sarees',
-        description: orderData.product || 'Order',
-        handler: async function(response){
-          try{
-            // Save order only after successful payment
-            const paymentId = response.razorpay_payment_id;
-            await saveOrderAfterPayment(paymentId, 'razorpay');
-
-            // Now, send the confirmed order details to Google Sheets
-            await sendOrderToGoogleSheets(orderData, paymentId);
-
-            showStatus('✓ Payment successful! Order confirmed and saved.', false);
-            payNowBtn.innerHTML = '✓ Success';
-            toast('Order placed successfully');
-            window.location.href = 'yourorders.html'; // Immediate redirect to order history
-          }catch(err){
-            console.error('Saving after payment failed', err);
-            showStatus('Payment succeeded but saving failed. Contact support with payment ID.', true);
-            payNowBtn.innerHTML = 'Pay Now'; // Restore button text
-            payNowBtn.disabled = false; // Allow retry
-          }
-        },
-        prefill: { name: orderData.name || '', contact: orderData.phone || '' },
-        theme: { color: '#2ea043' }
-      };
-
-      const originalButtonText = payNowBtn.innerHTML;
-      const rzp = new Razorpay(options);
-      rzp.on('payment.failed', function(resp){
-        console.error('Payment failed', resp);
-        showStatus('Payment failed. Please try another method or retry.', true);
-        payNowBtn.innerHTML = 'Pay Now';
-        payNowBtn.disabled = false;
-      });
-
-      // Restore button if user closes Razorpay modal
-      rzp.on('modal.hidden', function(){
-          if(!payNowBtn.innerText.includes('Success')) payNowBtn.innerHTML = 'Pay Now';
-      });
-
-      rzp.open();
-    }
-
-    // ---- Auth state check ----
-    onAuthStateChanged(auth, async (user)=>{
-      try{
-        if(!user){
-          // Allow guest checkout or prompt login if required
+      productsUnsub = onSnapshot(productsColRef, snap=>{
+        // render from DB
+        productGrid.innerHTML = '';
+        if(snap.empty){
+          const fallback = document.createElement('div'); fallback.className='card'; fallback.style.gridColumn='1/-1'; fallback.style.textAlign='center'; fallback.style.color='var(--muted)'; fallback.style.padding='32px';
+          fallback.innerHTML = '<strong style="color:#eaf6ff">No products yet</strong><div class="small" style="margin-top:8px">As admin, open Admin → Add Product to upload items. The product grid updates live for users.</div><div style="margin-top:12px"><button id="openAdminFromEmptyInner" class="btn-ghost">Open Admin</button></div>';
+          productGrid.appendChild(fallback);
+          // attach handler to that button
+          setTimeout(()=>{ document.getElementById('openAdminFromEmptyInner')?.addEventListener('click', ()=>{ if(!auth.currentUser){ openModal(loginModal); showLoginError('Sign in as admin to add products'); return; } if(auth.currentUser.uid !== ADMIN_UID){ alert('You are not admin'); return; } openModal(adminModal); }); },50);
           return;
         }
 
-        const uid = user.uid;
-        const profileRef = doc(db, 'users', uid, 'profile', 'main');
-        const snap = await getDoc(profileRef);
-        if(snap && snap.exists()){
-          const profile = snap.data();
-          if(buyerName && !buyerName.value) buyerName.value = profile.name || '';
-          if(buyerPhone && !buyerPhone.value) buyerPhone.value = profile.phone || '';
-          if(buyerAddress && !buyerAddress.value) buyerAddress.value = profile.address || '';
+        snap.forEach(d => {
+          const card = renderProductCard(d);
+          productGrid.appendChild(card);
+        });
+        attachRatingListenersToGrid();
+      }, err => { console.error('products snapshot error', err); });
+    }catch(e){ console.warn('products onSnapshot not available', e); }
 
-          // Ensure orderData uses saved profile where URL params were absent
-          if(!orderData.name && profile.name) orderData.name = profile.name;
-          if(!orderData.phone && profile.phone) orderData.phone = profile.phone;
-          if(!orderData.address && profile.address) orderData.address = profile.address;
-        } else if (orderData.name || orderData.phone || orderData.address) {
-          // First-time login: if we have order data from URL, save it as initial profile
-          if(orderData.name || orderData.phone || orderData.address){
-            try{
-              await setDoc(profileRef, { name: orderData.name || '', phone: orderData.phone || '', address: orderData.address || '' }, { merge: true });
-            }catch(e){ console.warn('Failed to save initial profile', e); }
-          }
-        }
-      }catch(e){ console.warn('Profile load failed', e); }
-
-      // No external pending-payments logic required for Razorpay flow
+    // delegate order button via productGrid click
+    productGrid.addEventListener('click', ev=>{
+      const btn = ev.target.closest('.orderBtn');
+      if(!btn) return;
+      const prod = btn.getAttribute('data-product') || '';
+      const price = btn.getAttribute('data-price') || '0';
+      if(!auth.currentUser){ openModal(loginModal); showLoginError('Please sign in with Google to place orders'); return; }
+      const sel = $('selectedProduct'); if(sel) sel.innerText = `${prod} (₹${price})`;
+      const pf = $('productField'); if(pf) {
+        pf.value = prod;
+        pf.dataset.price = price;
+      }
+      openModal(orderModal);
     });
 
-    // ---- COD removed: no saveCODOrderAfterWhatsApp ----
+    // ---- Rating listeners and live averages per product ----
+    function attachRatingListenersToGrid(){
+      document.querySelectorAll('#productGrid .card').forEach(card=>{
+        const pid = card.dataset.pid;
+        if(!pid) return;
 
-    // ---- (Razorpay) Order saving is handled in the Razorpay success handler ----
+        // bind click for rating buttons
+        card.querySelectorAll('.rateBtn').forEach(btn=>{
+          if(btn._bound) return; btn._bound = true;
+          btn.addEventListener('click', async (ev)=>{
+            if(!auth.currentUser){ alert('Sign in to rate products'); return; }
+            const uid = auth.currentUser.uid; const rating = Number(ev.currentTarget.dataset.rating);
+            try{
+              const ratingRef = doc(db, 'products', pid, 'ratings', uid);
+              await setDoc(ratingRef, { rating: rating, createdAt: serverTimestamp() });
+              toast('Thanks for rating');
+            }catch(err){ console.error('rating save failed', err); alert('Failed to save rating'); }
+          });
+        });
 
-    // Finish panel helpers removed — Razorpay checkout handles payment lifecycle
+        // attach subcollection listener if not already
+        if(card._ratingsUnsub) return;
+        try{
+          const ratingsColRef = collection(db, 'products', pid, 'ratings');
+          card._ratingsUnsub = onSnapshot(ratingsColRef, snap=>{
+            let sum = 0, cnt = 0;
+            snap.forEach(s => { const d = s.data(); if(d && typeof d.rating === 'number'){ sum += d.rating; cnt++; }});
+            const avg = cnt ? (sum / cnt) : null;
+            const rEl = card.querySelector(`.product-rating[data-pid="${pid}"]`);
+            if(rEl) rEl.innerText = avg ? `★ ${avg.toFixed(1)} (${cnt})` : 'No ratings';
+          }, err => { console.error('ratings snapshot failed', err); });
+        }catch(e){ console.warn('ratings onSnapshot error', e); }
+      });
+    }
 
-    // Desktop UPI helper removed (Razorpay is used)
+    attachRatingListenersToGrid();
 
-    console.log('Hamsa Sarees Payment page ready');
+    // ---- Orders: place & redirect to payment page ----
+    $('placeOrder').addEventListener('click', ev=>{
+      ev.preventDefault();
+      const name = $('custName').value.trim(), address = $('custAddress').value.trim(), phone = $('custPhone').value.trim();
+      const product = $('productField').value || '';
+      const price = $('productField').dataset.price || '0';
+      if(!name || !address || !phone){ alert('Fill all fields'); return; }
+      if(!/^[6-9]\d{9}$/.test(phone)){ alert('Enter a valid 10-digit Indian mobile number'); return; }
+      closeModal(orderModal);
+      // Redirect to payment page with order details as URL parameters
+      const params = new URLSearchParams({ product, name, address, phone, price });
+      window.location.href = `payment.html?${params.toString()}`;
+    });
+
+    // Load user orders (persistent) and allow delete + view
+    // Moved to yourorders.html as a separate page
+
+
+    // ---- Admin UI: persist product to Firestore (must be guarded by rules) ----
+    adminBtn && adminBtn.addEventListener('click', ()=>{
+      if(!auth.currentUser){ alert('Sign in as admin'); return; }
+      if(auth.currentUser.uid !== ADMIN_UID){ alert('You are not admin'); return; }
+      loadAdminProductsList();
+      openModal(adminModal);
+    });
+    $('adminCancel').addEventListener('click', ()=>{ closeModal(adminModal); });
+
+    // Load and render products list for admin
+    async function loadAdminProductsList(){
+      const listContainer = $('adminProductsList');
+      if(!listContainer) return;
+      listContainer.innerHTML = '<div class="small" style="padding:12px;text-align:center;color:var(--muted)">Loading products...</div>';
+      
+      try{
+        const snap = await getDocs(productsColRef);
+        if(snap.empty){
+          listContainer.innerHTML = '<div class="small" style="padding:12px;text-align:center;color:var(--muted)">No products to remove</div>';
+          return;
+        }
+        listContainer.innerHTML = '';
+        snap.forEach(docSnap=>{
+          const id = docSnap.id;
+          const data = docSnap.data() || {};
+          const title = data.title || 'Untitled';
+          const price = data.price || '0';
+          
+          const row = document.createElement('div');
+          row.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:12px;border-bottom:1px solid rgba(255,255,255,0.03)';
+          row.innerHTML = `
+            <div style="flex:1">
+              <strong style="color:#eaf6ff">${escapeHtml(title)}</strong>
+              <div class="small" style="color:var(--muted)">₹${escapeHtml(price)}</div>
+            </div>
+            <button class="deleteProductBtn btn" data-id="${id}" style="background:linear-gradient(90deg,#ff3b3b,#ff5252);white-space:nowrap" type="button">Delete</button>
+          `;
+          listContainer.appendChild(row);
+        });
+        
+        // Attach delete handlers
+        listContainer.querySelectorAll('.deleteProductBtn').forEach(btn=>{
+          btn.addEventListener('click', async (ev)=>{
+            const id = ev.currentTarget.getAttribute('data-id');
+            if(!id) return;
+            const ok = confirm('Are you sure you want to delete this product? This cannot be undone.');
+            if(!ok) return;
+            try{
+              await deleteDoc(doc(db, 'products', id));
+              toast('Product deleted');
+              await loadAdminProductsList();
+            }catch(err){
+              console.error('delete product failed', err);
+              alert('Failed to delete product. See console.');
+            }
+          });
+        });
+      }catch(err){
+        console.error('load admin products failed', err);
+        listContainer.innerHTML = '<div class="small" style="padding:12px;color:#ffb4b4">Failed to load products</div>';
+      }
+    }
+
+    // Logic for adding multiple image URLs
+    const addImageUrlBtn = $('addImageUrl');
+    if (addImageUrlBtn) {
+      addImageUrlBtn.addEventListener('click', () => {
+        const imageUrlsContainer = $('imageUrlsContainer');
+        const inputCount = imageUrlsContainer.querySelectorAll('.imageUrlInput').length;
+        const newInput = document.createElement('input');
+        newInput.type = 'text';
+        newInput.className = 'imageUrlInput';
+        newInput.placeholder = `Image URL ${inputCount + 1}`;
+        newInput.style.marginBottom = '8px';
+        imageUrlsContainer.appendChild(newInput);
+      });
+    }
+
+    $('adminSave').addEventListener('click', async ()=>{
+      const title = $('admin_pTitle').value.trim();
+      const price = Number($('admin_pPrice').value.trim());
+      const tag = $('admin_pTag').value.trim();
+      const imageUrls = [...document.querySelectorAll('#imageUrlsContainer .imageUrlInput')]
+        .map(input => input.value.trim())
+        .filter(url => url);
+
+      if (!title || !price) { alert('Title and price required'); return; }
+      if (imageUrls.length === 0) { alert('Please enter at least one image URL'); return; }
+      if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) { alert('Only admin can add products'); return; }
+
+      try {
+        const btn = $('adminSave'); btn.disabled = true; btn.innerText = 'Saving...';
+        
+        const payload = {
+          title,
+          price,
+          tag,
+          img: imageUrls[0], // For thumbnail/main image
+          images: imageUrls, // Array of all image URLs
+          createdAt: serverTimestamp()
+        };
+
+        await addDoc(collection(db, 'products'), payload);
+        toast('Product added');
+
+        // Reset fields
+        $('admin_pTitle').value = '';
+        $('admin_pPrice').value = '';
+        $('admin_pTag').value = '';
+        const imageUrlsContainer = $('imageUrlsContainer');
+        imageUrlsContainer.innerHTML = '<input class="imageUrlInput" type="text" placeholder="Image URL 1" style="margin-bottom: 8px;">';
+
+        btn.disabled = false; btn.innerText = 'Add Product';
+        await loadAdminProductsList();
+      } catch (err) {
+        console.error('add product failed', err);
+        alert('Failed to add product: ' + (err.message || ''));
+        $('adminSave').disabled = false;
+        $('adminSave').innerText = 'Add Product';
+      }
+    });
+
+    // ---- Generic modal close (fix for all X buttons) ----
+    document.querySelectorAll('.close-x').forEach(btn=>{ btn.addEventListener('click', ()=>{ const modal = btn.closest('.modal'); closeModal(modal); }); });
+    $('cancelOrder')?.addEventListener('click', ()=>{ closeModal(orderModal); });
+    $('closeOrderDetail')?.addEventListener('click', ()=>{ closeModal(orderDetailModal); });
+    $('closeDetailBtn')?.addEventListener('click', ()=>{ closeModal(orderDetailModal); });
+
+    // ---- Auth state changes: UI toggle ----
+    onAuthStateChanged(auth, user=>{
+      if(user){
+        closeModal(loginModal);
+        if(userBadge){ userBadge.style.display='inline-block'; userBadge.innerText = user.displayName || user.email; }
+        if(signOutBtn) signOutBtn.style.display='inline-block';
+        if(myOrdersBtn) myOrdersBtn.style.display='inline-block';
+        if(loginShowBtn) loginShowBtn.style.display='none';
+        if(adminBtn) adminBtn.style.display = (user.uid === ADMIN_UID) ? 'inline-block' : 'none';
+      }else{
+        closeModal(loginModal);
+        if(userBadge) userBadge.style.display='none';
+        if(signOutBtn) signOutBtn.style.display='none';
+        if(myOrdersBtn) myOrdersBtn.style.display='none';
+        if(loginShowBtn) loginShowBtn.style.display='inline-block';
+        if(adminBtn) adminBtn.style.display='none';
+      }
+    });
+
+    // ---- Search and shopNow (debounced) ----
+    const searchBox = $('searchBox');
+    if(searchBox){
+      let searchTimer = null;
+      searchBox.addEventListener('input', e=>{
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(()=>{
+          const v = e.target.value.toLowerCase();
+          document.querySelectorAll('#productGrid .card').forEach(card=>{
+            const t = (card.querySelector('h3')||{innerText:''}).innerText.toLowerCase();
+            const tag = (card.querySelector('.tag')||{innerText:''}).innerText.toLowerCase();
+            const show = !v || t.includes(v) || tag.includes(v);
+            card.style.display = show ? '' : 'none';
+          });
+        }, 180);
+      });
+    }
+    const shopNow = $('shopNow'); if(shopNow) shopNow.addEventListener('click', ()=>{ const grid=document.getElementById('productGrid'); if(grid) grid.scrollIntoView({behavior:'smooth'}); });
+
+    // initial UI ready
+    document.getElementById('openAdminFromEmpty')?.addEventListener('click', ()=>{
+      if(!auth.currentUser){ openModal(loginModal); showLoginError('Sign in as admin to add products'); return; }
+      if(auth.currentUser.uid !== ADMIN_UID){ alert('You are not admin'); return; }
+      openModal(adminModal);
+    });
+    console.log('Hamsa Sarees SPA ready — fixed');
   }catch(err){
     console.error('Init error', err);
-    document.body.innerHTML = `<div style="color:white; padding:40px;">Initialization failed. Check the developer console for errors. It might be a Firebase configuration or network issue.</div>`;
+    alert('Initialization failed — check console.');
   }
 })();
 </script>
 
-</body>
-</html>
+  <!-- Image zoom modal (added) -->
+  <div class="modal zoom-modal" id="zoomModal" aria-hidden="true">
+    <div class="modal-box" role="dialog" aria-modal="true">
+      <button class="close-x" id="closeZoom" title="Close">✕</button>
+      <img id="zoomImg" src="" alt="Product zoom" />
+    </div>
+  </div>
+
+  <script>
+    // Lightweight zoom handlers (no dependencies)
+    document.addEventListener('click', function(ev){
+      try{
+        var target = ev.target;
+        var imgEl = (target && target.closest) ? target.closest('.imgwrap img') : null;
+        if(imgEl){
+          var src = imgEl.getAttribute('src');
+          if(!src) return;
+          var zoomImg = document.getElementById('zoomImg');
+          if(zoomImg) zoomImg.src = src;
+          var modal = document.getElementById('zoomModal');
+          if(modal) modal.classList.add('show'), modal.removeAttribute('aria-hidden'), document.body.style.overflow = 'hidden';
+        }
+      }catch(e){ console.error('zoom click handler failed', e); }
+    });
+
+    var closeZoomBtn = document.getElementById && document.getElementById('closeZoom');
+    if(closeZoomBtn){
+      closeZoomBtn.addEventListener('click', function(){
+        var zoomImg = document.getElementById('zoomImg'); if(zoomImg) zoomImg.src = '';
+        var modal = document.getElementById('zoomModal'); if(modal) modal.classList.remove('show'), modal.setAttribute('aria-hidden','true'), document.body.style.overflow = '';
+      });
+    }
+
+    document.addEventListener('keydown', function(e){
+      if(e.key === 'Escape'){
+        var modal = document.getElementById('zoomModal');
+        if(modal && modal.classList.contains('show')){
+          modal.classList.remove('show');
+          modal.setAttribute('aria-hidden','true');
+          document.body.style.overflow = '';
+          var zoomImg = document.getElementById('zoomImg'); if(zoomImg) zoomImg.src = '';
+        }
+      }
+    });
+  </script>
+
+  <footer style="text-align:center;padding:18px;color:#9fb8d9;font-size:13px;line-height:1.6;">
+    ©2025 Hamsa Sarees, unauthorized use is strictly prohibited.<br>
+    Website designed, created & published by Terminal Joint.
+  </footer>
+
+  </body>
+  </html>
