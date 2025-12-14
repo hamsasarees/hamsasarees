@@ -4,7 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Secure Payment</title>
+
+  <!-- Strict but workable CSP -->
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://checkout.razorpay.com; connect-src 'self' https://api.razorpay.com https://docs.google.com; img-src 'self' data:; style-src 'self' 'unsafe-inline'; frame-src https://api.razorpay.com https://checkout.razorpay.com;" />
+
   <style>
     body{font-family:system-ui,Arial,sans-serif;background:#0b1220;color:#eaf1ff;display:flex;align-items:center;justify-content:center;height:100vh;margin:0}
     .card{background:#121a2b;border-radius:14px;padding:24px;max-width:420px;width:100%;box-shadow:0 10px 30px rgba(0,0,0,.35)}
@@ -12,8 +15,9 @@
     p{color:#9fb2ff;margin:0 0 18px}
     label{display:block;margin:12px 0 6px}
     input{width:100%;padding:10px 12px;border-radius:10px;border:1px solid #243055;background:#0b1220;color:#fff}
-    input:read-only { background:#0d1117; opacity: 0.7; cursor: not-allowed; }
+    input:read-only{background:#0d1117;opacity:.7;cursor:not-allowed}
     button{margin-top:18px;width:100%;padding:12px 14px;border-radius:12px;border:0;background:#3b82f6;color:#fff;font-weight:600;cursor:pointer}
+    button:disabled{opacity:.6;cursor:not-allowed}
     .small{font-size:12px;color:#8aa0ff;margin-top:10px}
   </style>
 </head>
@@ -35,99 +39,77 @@
     <input id="contact" type="tel" placeholder="10-digit number" />
 
     <button id="payBtn">Pay Now</button>
-
     <div class="small">Do not refresh during payment</div>
   </div>
 
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script>
     const payBtn = document.getElementById('payBtn');
-
-    // Get order data from URL params
-    const params = new URLSearchParams(window.location.search);
-    const orderData = {
-      product: params.get('product') || '',
-      name: params.get('name') || '',
-      phone: params.get('phone') || '',
-      address: params.get('address') || '', // Assuming address might be in URL
-      price: parseFloat(params.get('price')) || 0
-    };
-
-    // DOM Refs
     const amountInput = document.getElementById('amount');
     const nameInput = document.getElementById('name');
     const contactInput = document.getElementById('contact');
     const emailInput = document.getElementById('email');
 
-    // Pre-fill form
-    if (orderData.price > 0) {
+    // --- Read data from URL safely ---
+    const params = new URLSearchParams(window.location.search);
+    const orderData = {
+      product: params.get('product') || '',
+      name: params.get('name') || '',
+      phone: params.get('phone') || '',
+      address: params.get('address') || '',
+      price: Number(params.get('price'))
+    };
+
+    // --- Prefill fields ---
+    if (!isNaN(orderData.price) && orderData.price > 0) {
       amountInput.value = orderData.price;
     }
-    if (orderData.name) {
-      nameInput.value = orderData.name;
-    }
-    if (orderData.phone) {
-      contactInput.value = orderData.phone;
-    }
+    if (orderData.name) nameInput.value = orderData.name;
+    if (orderData.phone) contactInput.value = orderData.phone;
 
-    // ---- Send order to Google Sheets (only after payment success) ----
-    async function sendOrderToGoogleSheets(orderData, paymentId) {
-      try {
-        const formUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSfREKvTld9R59UADJQK6jxQIbM64tt1iP0M-XiPq4ykOOwe5w/formResponse';
-        
-        const formData = new FormData();
-        formData.append('entry.1128392407', orderData.name || '');      // Name
-        formData.append('entry.654904844', orderData.address || '');   // Address
-        formData.append('entry.1644126654', orderData.phone || '');     // Phone
-        formData.append('entry.1866699911', orderData.product || '');   // Product
-        // You could add fields for Price and Payment ID in your Google Sheet/Form
-        // and then append them here. For example:
-        // formData.append('entry.YOUR_PRICE_ID', orderData.price);
-        // formData.append('entry.YOUR_PAYMENT_ID', paymentId);
+    // --- Send order to Google Forms (after payment only) ---
+    async function sendOrderToGoogleSheets(data, paymentId) {
+      const formUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSfREKvTld9R59UADJQK6jxQIbM64tt1iP0M-XiPq4ykOOwe5w/formResponse';
 
-        await fetch(formUrl, {
-          method: 'POST',
-          body: formData,
-          mode: 'no-cors' // 'no-cors' is important for Google Forms to prevent CORS errors in the browser
-        });
-        
-        console.log('Order data sent to Google Sheets.');
-      } catch(err) {
-        console.warn('Failed to send order to Google Sheets.', err);
+      const formData = new FormData();
+      formData.append('entry.1128392407', data.name || '');
+      formData.append('entry.654904844', data.address || '');
+      formData.append('entry.1644126654', data.phone || '');
+      formData.append('entry.1866699911', data.product || '');
+      // Optional extra fields can be added here
+
+      try{
+        await fetch(formUrl, { method:'POST', body:formData, mode:'no-cors' });
+        console.log('Order stored in Google Sheets');
+      }catch(e){
+        console.warn('Google Sheets submit failed', e);
       }
     }
 
+    payBtn.onclick = function(){
+      payBtn.disabled = true; // prevent double click
 
-    payBtn.onclick = async function () {
-      // Update orderData with final values from form
-      orderData.name = nameInput.value;
-      orderData.phone = contactInput.value;
-      const email = emailInput.value;
+      orderData.name = nameInput.value.trim();
+      orderData.phone = contactInput.value.trim();
+      const email = emailInput.value.trim();
 
       const amount = Math.round(Number(amountInput.value) * 100);
-      if (!amount || amount < 100) {
-        alert('Invalid amount. Price must be at least ₹1.');
+      if (!amount || amount < 100){
+        alert('Invalid amount');
+        payBtn.disabled = false;
         return;
       }
 
       const options = {
-        key: 'rzp_live_Rqulhc8rZRz8Iw', // Using live key as in original code
+        key: 'rzp_live_Rqulhc8rZRz8Iw',
         amount: amount,
         currency: 'INR',
         name: 'Hamsa Sarees',
         description: orderData.product || 'Order Payment',
         handler: async function (response) {
-          const paymentId = response.razorpay_payment_id;
-          alert('Payment successful: ' + paymentId);
-          
-          // Send data to Google Sheets after successful payment
-          await sendOrderToGoogleSheets(orderData, paymentId);
-          
-          // You should also have a backend to verify the payment signature
-          console.log('Next step: Verify payment signature on your backend.');
-          
-          // Optionally, redirect to a thank you page
-          // window.location.href = 'yourorders.html';
+          alert('Payment successful: ' + response.razorpay_payment_id);
+          await sendOrderToGoogleSheets(orderData, response.razorpay_payment_id);
+          // window.location.href = 'thankyou.html';
         },
         prefill: {
           name: orderData.name,
@@ -138,9 +120,7 @@
           source: 'payment.html',
           product: orderData.product
         },
-        theme: {
-          color: '#3b82f6'
-        }
+        theme: { color:'#3b82f6' }
       };
 
       const rzp = new Razorpay(options);
@@ -148,6 +128,7 @@
       rzp.on('payment.failed', function (response) {
         alert('Payment failed: ' + response.error.description);
         console.error(response.error);
+        payBtn.disabled = false;
       });
 
       rzp.open();
