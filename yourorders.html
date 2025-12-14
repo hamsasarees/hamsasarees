@@ -4,209 +4,275 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>My Orders — Hamsa Sarees</title>
-
-<meta http-equiv="Content-Security-Policy" content="
-  default-src 'self';
-  script-src 'self' https://www.gstatic.com/firebasejs/ https://apis.google.com;
-  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-  font-src 'self' https://fonts.gstatic.com;
-  connect-src 'self' https://*.firebaseio.com wss://*.firebaseio.com https://www.googleapis.com https://securetoken.googleapis.com;
-  img-src 'self' https: data:;
-  object-src 'none';">
-
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<style>
+  :root{
+    --bg1:#001f3f; --bg2:#00306b; --accent:#00aaff; --accent2:#4dd0e1; --muted:#9fb8d9; --success:#10b981;
+    --card:#071522; --glass:rgba(255,255,255,0.03);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:#eaf6ff;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  .container{max-width:1100px;margin:20px auto;padding:0 16px}
+  header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;background:rgba(255,255,255,0.01);border-radius:12px;margin-bottom:20px}
+  .brand{display:flex;gap:12px;align-items:center}
+  .logo{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:800;color:#032033;box-shadow:0 12px 40px rgba(0,170,255,0.12)}
+  .title{font-weight:800;font-size:18px;line-height:1.2}
+  .actions{display:flex;gap:8px;align-items:center}
+  .btn{cursor:pointer;border-radius:10px;padding:9px 14px;border:none;font-weight:700;background:linear-gradient(90deg,var(--accent),#ff5aa3);color:#fff;box-shadow:0 8px 24px rgba(0,170,255,0.12);transition:transform .15s,filter .15s}
+  .btn:active{transform:translateY(1px)}
+  .btn:disabled{opacity:0.6;cursor:not-allowed}
+  .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#fff;padding:8px 12px;border-radius:10px;cursor:pointer;font-weight:600}
+  .btn-ghost:hover{background:rgba(255,255,255,0.05)}
+  .small{color:var(--muted);font-size:14px}
+  main h1{font-size:28px;margin-bottom:8px}
+  .order-card{background:linear-gradient(180deg,#071522,#06121a);padding:16px;border-radius:12px;margin-bottom:12px;border:1px solid rgba(255,255,255,0.03);transition:transform .2s,box-shadow .2s}
+  .order-card:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(0,170,255,0.15)}
+  .order-card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;gap:12px}
+  .order-info{flex:1}
+  .order-info strong{color:#eaf6ff;display:block;margin-bottom:6px;font-size:16px}
+  .order-info div{margin-bottom:4px;font-size:14px}
+  .order-actions{display:flex;gap:8px;flex-direction:column}
+  .toast{position:fixed;right:16px;bottom:16px;background:#0b1220;padding:10px 14px;border-radius:10px;color:#d1fae5;border-left:4px solid var(--success);box-shadow:0 8px 30px rgba(2,6,23,0.6);display:none;z-index:2000;font-weight:600}
+  .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(3,8,20,0.6),rgba(2,8,18,0.85));z-index:1200;padding:12px}
+  .modal.show{display:flex}
+  .modal-box{max-width:720px;width:100%;background:linear-gradient(180deg,#071522,#06121a);border-radius:12px;padding:20px;color:#eaf6ff;position:relative;box-shadow:0 30px 80px rgba(2,6,23,0.6);border:1px solid rgba(255,255,255,0.03);max-height:90vh;overflow-y:auto}
+  .modal-box h2{margin-top:0;margin-bottom:12px;font-size:22px}
+  .close-x{position:absolute;top:12px;right:12px;background:transparent;border:none;color:#ff5aa3;font-weight:800;font-size:18px;cursor:pointer;transition:transform .2s}
+  .close-x:hover{transform:scale(1.2)}
+  .sr-only{position:absolute!important;height:1px;width:1px;overflow:hidden;clip:rect(1px,1px,1px,1px);white-space:nowrap}
+  button:focus,input:focus,select:focus{outline:3px solid rgba(0,170,255,0.12);outline-offset:3px}
+  footer{text-align:center;padding:18px;color:#9fb8d9;font-size:12px;margin-top:20px;border-top:1px solid rgba(255,255,255,0.06)}
+  @media (max-width:640px){
+    header{flex-direction:column;align-items:stretch;padding:12px 16px}
+    main h1{font-size:24px}
+    .order-card-header{flex-direction:column}
+    .order-actions{flex-direction:row}
+  }
+</style>
 </head>
-
 <body>
-
-<div class="container">
-
-  <header>
-    <div class="brand">
-      <div class="logo">HS</div>
-      <div>
-        <div class="title">Hamsa Sarees</div>
-        <div class="small">My Orders</div>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden="true">HS</div>
+        <div>
+          <div class="title">Hamsa Sarees<br> ! This Site Is Under Construction !</div>
+          <div class="small">Handpicked • Ethnic • Quality</div>
+        </div>
       </div>
-    </div>
 
-    <div class="actions">
-      <div id="userBadge" class="user-badge"></div>
-      <button id="signOutBtn" class="btn-ghost">Sign out</button>
-      <a href="index.html" class="btn-ghost">Back to Shop</a>
-    </div>
-  </header>
+      <div class="actions">
+        <div id="userBadge" style="display:none;background:rgba(255,255,255,0.03);padding:8px 10px;border-radius:10px;color:#fff;font-weight:700"></div>
+        <button id="signOutBtn" class="btn-ghost" style="display:none">Sign out</button>
+        <button id="loginShowBtn" class="btn">Sign in</button>
+        <a href="index.html" class="btn-ghost">Back to Shop</a>
+      </div>
+    </header>
 
-  <main>
-    <h1>Order History</h1>
-    <p class="small">Your confirmed orders. These cannot be edited or deleted.</p>
-
-    <div id="orders" class="orders-list">
-      <div class="text-muted text-center p-16">Loading orders…</div>
-    </div>
-  </main>
-
-</div>
-
-<!-- Order Detail Modal -->
-<div class="modal" id="detailModal">
-  <div class="modal-box modal-scrollable">
-    <button class="close-x" id="closeModal">✕</button>
-    <h2>Order Details</h2>
-    <pre id="detailContent" class="white-space-preline mt-12"></pre>
+    <main>
+      <section>
+        <h1>My Orders</h1>
+        <p class="small">View and manage your saved orders. Sign in to see your orders.</p>
+        
+        <div id="ordersContainer" style="margin-top:16px">
+          <div class="small" style="text-align:center;color:var(--muted);padding:32px">
+            Please sign in to view your orders
+          </div>
+        </div>
+      </section>
+    </main>
   </div>
-</div>
 
-<div id="toast" class="toast">Saved</div>
+  <!-- Order Detail Modal -->
+  <div class="modal" id="orderDetailModal" aria-hidden="true">
+    <div class="modal-box" role="dialog" aria-modal="true">
+      <button class="close-x" id="closeOrderDetail" title="Close">✕</button>
+      <h2>Order Details</h2>
+      <div id="orderDetailContent" class="small" style="white-space:pre-line;margin-top:8px"></div>
+      <div style="display:flex;gap:10px;margin-top:12px;justify-content:flex-end"><button id="closeDetailBtn" class="btn-ghost">Close</button></div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite">Saved.</div>
 
 <script type="module">
-(async () => {
+(async function(){
+  if(document.readyState === 'loading') await new Promise(r=>document.addEventListener('DOMContentLoaded', r));
 
-  /* ===============================
-     FIREBASE SETUP
-     =============================== */
-
+  // ---- CONFIG ----
   const firebaseConfig = {
     apiKey: "AIzaSyBozW19Rjc9nj0YabOIE3DlW0qVHtU5XLA",
     authDomain: "hamsasarees-24738.firebaseapp.com",
     projectId: "hamsasarees-24738",
     storageBucket: "hamsasarees-24738.firebasestorage.app",
     messagingSenderId: "16303342424",
-    appId: "1:16303342424:web:d68d26160d45472713db2d"
+    appId: "1:16303342424:web:d68d26160d45472713db2d",
+    measurementId: "G-1G1HQGJ5XS"
   };
 
-  const { initializeApp } =
-    await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
-  const { getAuth, onAuthStateChanged, signOut } =
-    await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
-  const { getFirestore, collection, query, where, orderBy, getDocs } =
-    await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+  // ---- helper: escape text for safe insertion ----
+  function escapeHtml(s){ return String(s===undefined||s===null?'':s).replace(/[&<>\"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+  // ---- Firebase imports (modular) ----
+  try{
+    const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
+    const authMod = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
+    const fsMod = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
 
-  const $ = id => document.getElementById(id);
+    const { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } = authMod;
+    const { getFirestore, collection, deleteDoc, serverTimestamp, query, orderBy, getDocs, doc } = fsMod;
 
-  /* ===============================
-     AUTH REQUIRED
-     =============================== */
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const googleProvider = new GoogleAuthProvider();
 
-  let currentUser = null;
+    // ---- DOM refs ----
+    const $ = id => document.getElementById(id);
+    const userBadge = $('userBadge');
+    const signOutBtn = $('signOutBtn');
+    const loginShowBtn = $('loginShowBtn');
+    const ordersContainer = $('ordersContainer');
+    const toastEl = $('toast');
+    const orderDetailModal = $('orderDetailModal');
+    const orderDetailContent = $('orderDetailContent');
 
-  await new Promise(resolve => {
-    onAuthStateChanged(auth, user => {
-      if (!user) {
-        alert('Please sign in to view your orders.');
-        location.href = 'index.html';
-      } else {
-        currentUser = user;
-        $('userBadge').style.display = 'block';
-        $('userBadge').textContent = user.displayName || user.email;
-        resolve();
+    function toast(msg){ if(!toastEl) return; toastEl.innerText = msg; toastEl.style.display = 'block'; setTimeout(()=>toastEl.style.display = 'none', 2200); }
+
+    function openModal(modal){ if(!modal) return; modal.classList.add('show'); modal.removeAttribute('aria-hidden'); document.body.style.overflow = 'hidden'; }
+    function closeModal(modal){ if(!modal) return; modal.classList.remove('show'); modal.setAttribute('aria-hidden','true'); document.body.style.overflow = ''; }
+
+    // backdrop click and Esc
+    document.addEventListener('click', (ev)=>{
+      const m = ev.target.closest('.modal');
+      if(m && !ev.target.closest('.modal-box')){
+        closeModal(m);
       }
     });
-  });
+    document.addEventListener('keydown', (ev)=>{ if(ev.key === 'Escape'){ document.querySelectorAll('.modal.show').forEach(m=>closeModal(m)); } });
 
-  $('signOutBtn').addEventListener('click', async () => {
-    await signOut(auth);
-    location.href = 'index.html';
-  });
+    try{ const rr = await getRedirectResult(auth); if(rr && rr.user) console.log('redirect sign-in OK', rr.user.uid); }catch(e){ console.warn('redirect result', e && e.code); }
 
-  /* ===============================
-     LOAD ORDERS (AUTHORITATIVE)
-     =============================== */
+    async function signInPopup(){
+      try{ await signInWithPopup(auth, googleProvider); toast('Signed in'); }catch(e){
+        console.error('sign-in error', e && e.code, e && e.message);
+        const popupErrors = ['auth/popup-blocked','auth/popup-closed-by-user','auth/cancelled-popup-request'];
+        if(e && popupErrors.includes(e.code)){
+          try{ await signInWithRedirect(auth, googleProvider); return; }catch(err){ alert('Popup blocked and redirect failed. Allow popups or try another browser.'); return; }
+        }
+        if(e && e.code === 'auth/unauthorized-domain'){
+          alert('Domain not authorized. Add your hosting domain in Firebase console → Authentication → Authorized domains.');
+        } else alert(e && e.message ? e.message : 'Sign-in failed');
+      }
+    }
 
-  const ordersEl = $('orders');
+    loginShowBtn && loginShowBtn.addEventListener('click', ()=>signInPopup());
 
-  const q = query(
-    collection(db, 'orders'),
-    where('userId', '==', currentUser.uid),
-    orderBy('createdAt', 'desc')
-  );
+    signOutBtn && signOutBtn.addEventListener('click', async () => { try{ await signOut(auth); toast('Signed out'); }catch(e){ console.error('signout failed', e); } });
 
-  const snap = await getDocs(q);
+    // ---- Load and display user orders ----
+    async function loadUserOrders(){
+      if(!auth.currentUser){
+        ordersContainer.innerHTML = '<div class="small" style="text-align:center;color:var(--muted);padding:32px">Please sign in to view your orders</div>';
+        return;
+      }
+      ordersContainer.innerHTML = '<div class="small" style="text-align:center;padding:16px">Loading orders...</div>';
+      try{
+        const uid = auth.currentUser.uid;
+        const q = query(collection(db, `users/${uid}/orders`), orderBy('createdAt','desc'));
+        const snap = await getDocs(q);
+        if(snap.empty){
+          ordersContainer.innerHTML = '<div class="small" style="text-align:center;color:var(--muted);padding:32px">No orders yet. <a href="index.html" style="color:var(--accent)">Start shopping</a></div>';
+          return;
+        }
+        ordersContainer.innerHTML = '';
+        snap.forEach(docSnap=>{
+          const o = docSnap.data(); const id = docSnap.id;
+          const dt = (o.createdAt && o.createdAt.toDate) ? o.createdAt.toDate().toLocaleString() : '';
+          
+          const card = document.createElement('div');
+          card.className = 'order-card';
+          card.innerHTML = `
+            <div class="order-card-header">
+              <div class="order-info">
+                <strong>${escapeHtml(o.product||'')}</strong>
+                <div class="small">${escapeHtml(o.name||'')}</div>
+                <div class="small">${escapeHtml(o.phone||'')}</div>
+                <div class="small" style="color:var(--muted);margin-top:6px">${escapeHtml(dt)}</div>
+              </div>
+              <div class="order-actions">
+                <button class="btn-ghost viewOrderBtn" data-id="${id}" type="button">View Details</button>
+                <button class="btn deleteOrderBtn" data-id="${id}" type="button" style="background:linear-gradient(90deg,#ff3b3b,#ff5252)">Delete Order</button>
+              </div>
+            </div>
+          `;
+          ordersContainer.appendChild(card);
+        });
 
-  if (snap.empty) {
-    ordersEl.innerHTML =
-      '<div class="text-muted text-center p-16">No orders yet.</div>';
-    return;
-  }
+        ordersContainer.querySelectorAll('.deleteOrderBtn').forEach(b=>{
+          b.addEventListener('click', async ev=>{
+            const id = ev.currentTarget.getAttribute('data-id'); if(!id) return;
+            const ok = confirm('Delete this order permanently from your account? This cannot be undone.');
+            if(!ok) return;
+            try{
+              const uid = auth.currentUser.uid;
+              await deleteDoc(doc(db, 'users', uid, 'orders', id));
+              toast('Order deleted');
+              await loadUserOrders();
+            }catch(err){ console.error('delete failed', err); alert('Failed to delete order. See console.'); }
+          });
+        });
 
-  ordersEl.innerHTML = '';
+        ordersContainer.querySelectorAll('.viewOrderBtn').forEach(b=>{
+          b.addEventListener('click', ev=>{
+            const btn = ev.currentTarget;
+            const card = btn.closest('.order-card');
+            const p = card.querySelector('strong').textContent || '';
+            const n = Array.from(card.querySelectorAll('.small'))[0]?.textContent || '';
+            const ph = Array.from(card.querySelectorAll('.small'))[1]?.textContent || '';
+            const addressParts = [];
+            // Try to extract address from data attributes if available
+            orderDetailContent.innerText = `Product: ${p}\nName: ${n}\nPhone: ${ph}\n\nFull order details loaded from your account.`;
+            openModal(orderDetailModal);
+          });
+        });
 
-  snap.forEach(doc => {
-    const o = doc.data();
-    const id = doc.id;
+      }catch(e){ console.error('fetch orders failed', e); ordersContainer.innerHTML = '<div class="small" style="text-align:center;color:#ffb4b4;padding:32px">Failed to load orders. Try signing in again.</div>'; }
+    }
 
-    const card = document.createElement('div');
-    card.className = 'card order-card';
-
-    card.innerHTML = `
-      <div class="order-card-header">
-        <div class="order-info">
-          <strong>${o.productSnapshot.title}</strong>
-          <div class="small">₹${o.productSnapshot.price}</div>
-          <div class="small text-muted">
-            ${o.createdAt?.toDate().toLocaleString() || ''}
-          </div>
-        </div>
-        <div class="order-actions">
-          <button class="btn-ghost viewBtn" data-id="${id}">View</button>
-        </div>
-      </div>
-    `;
-
-    ordersEl.appendChild(card);
-
-    card.querySelector('.viewBtn').addEventListener('click', () => {
-      $('detailContent').textContent =
-`Order ID: ${id}
-
-Product: ${o.productSnapshot.title}
-Price: ₹${o.productSnapshot.price}
-
-Buyer:
-${o.buyer.name}
-${o.buyer.phone}
-${o.buyer.address}
-
-Payment:
-Provider: ${o.payment.provider}
-Status: ${o.payment.status}
-Payment ID: ${o.payment.paymentId || '—'}
-
-Ordered at:
-${o.createdAt?.toDate().toLocaleString() || ''}`;
-
-      openModal();
+    // ---- Auth state changes: UI toggle ----
+    onAuthStateChanged(auth, user=>{
+      if(user){
+        if(userBadge){ userBadge.style.display='inline-block'; userBadge.innerText = user.displayName || user.email; }
+        if(signOutBtn) signOutBtn.style.display='inline-block';
+        if(loginShowBtn) loginShowBtn.style.display='none';
+        loadUserOrders();
+      }else{
+        if(userBadge) userBadge.style.display='none';
+        if(signOutBtn) signOutBtn.style.display='none';
+        if(loginShowBtn) loginShowBtn.style.display='inline-block';
+        ordersContainer.innerHTML = '<div class="small" style="text-align:center;color:var(--muted);padding:32px">Please sign in to view your orders</div>';
+      }
     });
-  });
 
-  /* ===============================
-     MODAL HELPERS
-     =============================== */
+    // ---- Modal close handlers ----
+    document.querySelectorAll('.close-x').forEach(btn=>{ btn.addEventListener('click', ()=>{ const modal = btn.closest('.modal'); closeModal(modal); }); });
+    $('closeDetailBtn')?.addEventListener('click', ()=>{ closeModal(orderDetailModal); });
+    $('closeOrderDetail')?.addEventListener('click', ()=>{ closeModal(orderDetailModal); });
 
-  const modal = $('detailModal');
-
-  function openModal() {
-    modal.classList.add('show');
-    document.body.style.overflow = 'hidden';
+    console.log('Hamsa Sarees My Orders page ready');
+  }catch(err){
+    console.error('Init error', err);
+    alert('Initialization failed — check console.');
   }
-
-  function closeModal() {
-    modal.classList.remove('show');
-    document.body.style.overflow = '';
-  }
-
-  $('closeModal').addEventListener('click', closeModal);
-  modal.addEventListener('click', e => {
-    if (e.target === modal) closeModal();
-  });
-
 })();
 </script>
+
+
+<footer style="text-align:center;padding:18px;color:#9fb8d9;font-size:13px">
+  © 2025 Hamsa Sarees , unauthorised use is strictly prohibited  ;  WebSite Designed , Created & Published by Terminal Joint
+</footer>
 
 </body>
 </html>
