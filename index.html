@@ -289,6 +289,10 @@
   window.location.href = 'payments.html';
 });
 
+  sessionStorage.setItem('pendingOrder', JSON.stringify(tempOrder));
+  window.location.href = 'payments.html';
+});
+
       const m = ev.target.closest('.modal');
       if(m && !ev.target.closest('.modal-box')){
         closeModal(m);
