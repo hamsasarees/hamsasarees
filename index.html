@@ -181,9 +181,22 @@
         <div class="field"><label class="small" style="font-weight:600">Title *</label><input id="admin_pTitle" placeholder="Product title" required></div>
         <div class="field"><label class="small" style="font-weight:600">Price (₹) *</label><input id="admin_pPrice" type="number" placeholder="1499" required></div>
         <div class="field"><label class="small" style="font-weight:600">Tag</label><input id="admin_pTag" placeholder="e.g. New, Best"></div>
-        <div class="field"><label class="small" style="font-weight:600">Upload Image</label><input id="admin_pImg" type="file" accept="image/*" placeholder="Select image"></div>
-        <div id="admin_imgPreview" style="display:none;margin-top:10px;text-align:center"><img id="admin_imgPreviewImg" style="max-width:200px;max-height:200px;border-radius:8px;border:1px solid rgba(255,255,255,0.1)" alt="Preview" /></div>
-        <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
+        <div class="field">
+  <label class="small" style="font-weight:600">Image URL *</label>
+  <input id="admin_pImgUrl"
+         type="url"
+         placeholder="https://example.com/image.jpg"
+         required>
+</div>
+        
+
+<div id="admin_imgPreview" style="margin-top:10px;text-align:center;display:none">
+  <img id="admin_imgPreviewImg"
+       style="max-width:200px;max-height:200px;border-radius:8px;border:1px solid rgba(255,255,255,0.1)"
+       alt="Preview" />
+</div>
+
+               <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
           <button id="adminSave" class="btn">Add Product</button>
         </div>
       </div>
@@ -501,17 +514,13 @@
 
     $('adminSave').addEventListener('click', async ()=>{
       const title = $('admin_pTitle').value.trim(); const price = Number($('admin_pPrice').value.trim()); const tag = $('admin_pTag').value.trim();
-      const fileInput = $('admin_pImg');
-      const file = fileInput?.files?.[0];
-      if(!title || !price){ alert('Title and price required'); return; }
-      if(!file){ alert('Please select an image'); return; }
-      if(!auth.currentUser || auth.currentUser.uid !== ADMIN_UID){ alert('Only admin can add products'); return; }
-      try{
-        const btn = $('adminSave'); btn.disabled=true; btn.innerText='Uploading...';
-        const fileName = `products/${Date.now()}_${file.name}`;
-        const storageRef = ref(storage, fileName);
-        await uploadBytes(storageRef, file);
-        const imgUrl = await getDownloadURL(storageRef);
+const imgUrl = $('admin_pImgUrl').value.trim();
+
+if(!imgUrl || !/^https?:\/\//i.test(imgUrl)){
+  alert('Please enter a valid image URL');
+  return;
+}
+
         const payload = { title, price, tag, img: imgUrl, createdAt: serverTimestamp() };
         await addDoc(collection(db, 'products'), payload);
         toast('Product added');
