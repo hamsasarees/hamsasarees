@@ -248,8 +248,14 @@
 
         } catch (err) {
             console.error('Initialization error', err);
+            let errorMsg = '<p>Could not load necessary components. Please check your internet connection and try again.</p>';
+            if (typeof firebase === 'undefined') {
+                errorMsg = '<p>Failed to load the Firebase library. Please ensure you are connected to the internet and that nothing is blocking gstatic.com.</p>';
+            } else if (typeof window.firebaseConfig === 'undefined') {
+                errorMsg = '<p>Firebase configuration is missing. Please ensure <code>firebase-config.js</code> is present and correct.</p>';
+            }
             document.body.innerHTML = 
-`<div style="text-align: center; padding: 50px; font-family: sans-serif; color: #d9534f;"><h1>Initialization Failed</h1><p>Could not load necessary components. Please check your internet connection and try again.</p></div>
+`<div style="text-align: center; padding: 50px; font-family: sans-serif; color: #d9534f;"><h1>Initialization Failed</h1>${errorMsg}</div>
 `;
         }
     })();
