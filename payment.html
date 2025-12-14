@@ -5,9 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Hamsa Sarees — Payment</title>
 
-  <!-- IMPORTANT: Razorpay works only on http/https, never file:// -->
-  <!-- Minimal CSP that DEFINITELY works with Razorpay -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob:; script-src 'self' https://checkout.razorpay.com; frame-src https://checkout.razorpay.com; connect-src https://api.razorpay.com https://checkout.razorpay.com; style-src 'self' 'unsafe-inline';" />
+  <!-- ✅ WORKING CSP FOR RAZORPAY + GOOGLE FONTS + INLINE SCRIPT -->
+  <!-- Razorpay REQUIRES inline JS + api.razorpay.com iframe -->
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self' https: data: blob:;
+    script-src 'self' 'unsafe-inline' https://checkout.razorpay.com;
+    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+    font-src 'self' https://fonts.gstatic.com data:;
+    frame-src https://checkout.razorpay.com https://api.razorpay.com;
+    connect-src https://api.razorpay.com https://checkout.razorpay.com;
+    img-src 'self' data: https:;
+  " />
 
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 
@@ -64,10 +72,10 @@
 
   <!-- Razorpay checkout -->
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-  <script>
-    // --------- READ DATA FROM MAIN PAGE ---------
-    const params = new URLSearchParams(window.location.search);
 
+  <script>
+    // ---- READ DATA FROM MAIN PAGE ----
+    const params = new URLSearchParams(window.location.search);
     const product = params.get('product') || '';
     const price = Number(params.get('price'));
     const nameParam = params.get('name') || '';
@@ -80,7 +88,6 @@
     const emailEl = document.getElementById('email');
     const payBtn = document.getElementById('payBtn');
 
-    // HARD BLOCK if price missing
     if (!price || isNaN(price) || price <= 0) {
       alert('Invalid payment link. Please place order again.');
       payBtn.disabled = true;
@@ -92,7 +99,6 @@
     nameEl.value = nameParam;
     phoneEl.value = phoneParam;
 
-    // --------- RAZORPAY ---------
     payBtn.onclick = function () {
       const amountPaise = Math.round(price * 100);
       payBtn.disabled = true;
@@ -105,7 +111,6 @@
         description: product || 'Order Payment',
         handler: function (response) {
           alert('Payment successful!\nPayment ID: ' + response.razorpay_payment_id);
-          // redirect or store payment id later
         },
         prefill: {
           name: nameEl.value,
@@ -115,18 +120,12 @@
         theme: { color: '#00aaff' }
       };
 
-      try {
-        const rzp = new Razorpay(options);
-        rzp.on('payment.failed', function (resp) {
-          alert('Payment failed: ' + resp.error.description);
-          payBtn.disabled = false;
-        });
-        rzp.open();
-      } catch (e) {
-        console.error(e);
-        alert('Razorpay failed to load. Use HTTPS or Live Server.');
+      const rzp = new Razorpay(options);
+      rzp.on('payment.failed', function (resp) {
+        alert('Payment failed: ' + resp.error.description);
         payBtn.disabled = false;
-      }
+      });
+      rzp.open();
     };
   </script>
 </body>
