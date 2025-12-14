@@ -382,24 +382,73 @@
     });
 
     // ---- Rating listeners and live averages per product ----
-    function attachRatingListenersToGrid(){
-      document.querySelectorAll('#productGrid .card').forEach(card=>{
-        const pid = card.dataset.pid;
-        if(!pid) return;
+    // ---- Rating listeners and live averages (FIXED) ----
+function attachRatingListenersToGrid(){
+  document.querySelectorAll('#productGrid .card').forEach(card=>{
+    const pid = card.dataset.pid;
+    if(!pid) return;
 
-        // bind click for rating buttons
-        card.querySelectorAll('.rateBtn').forEach(btn=>{
-          if(btn._bound) return; btn._bound = true;
-          btn.addEventListener('click', async (ev)=>{
-            if(!auth.currentUser){ alert('Sign in to rate products'); return; }
-            const uid = auth.currentUser.uid; const rating = Number(ev.currentTarget.dataset.rating);
-            try{
-              const ratingRef = doc(db, 'products', pid, 'ratings', uid);
-              await setDoc(ratingRef, { rating: rating, createdAt: serverTimestamp() });
-              toast('Thanks for rating');
-            }catch(err){ console.error('rating save failed', err); alert('Failed to save rating'); }
-          });
+    // ⭐ RATE BUTTON CLICK
+    card.querySelectorAll('.rateBtn').forEach(btn=>{
+      if(btn._bound) return;
+      btn._bound = true;
+
+      btn.addEventListener('click', async (ev)=>{
+        if(!auth.currentUser){
+          alert('Sign in to rate products');
+          return;
+        }
+
+        const rating = Number(ev.currentTarget.dataset.rating);
+        const uid = auth.currentUser.uid;
+
+        try{
+          await setDoc(
+            doc(db, 'products', pid, 'reviews', uid),
+            {
+              rating: rating,
+              createdAt: serverTimestamp()
+            }
+          );
+          toast('Thanks for rating!');
+        }catch(err){
+          console.error('rating save failed', err);
+          alert('Failed to save rating');
+        }
+      });
+    });
+
+    // ⭐ LIVE AVERAGE RATING
+    if(card._reviewsUnsub) return;
+
+    try{
+      const reviewsRef = collection(db, 'products', pid, 'reviews');
+      card._reviewsUnsub = onSnapshot(reviewsRef, snap=>{
+        let sum = 0;
+        let count = 0;
+
+        snap.forEach(docSnap=>{
+          const d = docSnap.data();
+          if(typeof d.rating === 'number'){
+            sum += d.rating;
+            count++;
+          }
         });
+
+        const avg = count ? (sum / count).toFixed(1) : null;
+        const ratingEl = card.querySelector('.product-rating');
+
+        if(ratingEl){
+          ratingEl.innerText = avg
+            ? `★ ${avg} (${count})`
+            : 'No ratings';
+        }
+      });
+    }catch(e){
+      console.warn('ratings listener failed', e);
+    }
+  });
+}
 
         // attach subcollection listener if not already
         if(card._ratingsUnsub) return;
