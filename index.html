@@ -450,20 +450,7 @@ function attachRatingListenersToGrid(){
   });
 }
 
-        // attach subcollection listener if not already
-        if(card._ratingsUnsub) return;
-        try{
-          const ratingsColRef = collection(db, 'products', pid, 'ratings');
-          card._ratingsUnsub = onSnapshot(ratingsColRef, snap=>{
-            let sum = 0, cnt = 0;
-            snap.forEach(s => { const d = s.data(); if(d && typeof d.rating === 'number'){ sum += d.rating; cnt++; }});
-            const avg = cnt ? (sum / cnt) : null;
-            const rEl = card.querySelector(`.product-rating[data-pid="${pid}"]`);
-            if(rEl) rEl.innerText = avg ? `★ ${avg.toFixed(1)} (${cnt})` : 'No ratings';
-          }, err => { console.error('ratings snapshot failed', err); });
-        }catch(e){ console.warn('ratings onSnapshot error', e); }
-      });
-    }
+      
 
     attachRatingListenersToGrid();
 
