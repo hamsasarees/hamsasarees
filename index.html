@@ -261,8 +261,7 @@
     function closeModal(modal){ if(!modal) return; modal.classList.remove('show'); modal.setAttribute('aria-hidden','true'); document.body.style.overflow = ''; }
 
     // backdrop click and Esc
-    document.addEventListener('click', (ev)=>{
-      $('placeOrder').addEventListener('click', ev=>{
+    $('placeOrder').addEventListener('click', function (ev) {
   ev.preventDefault();
 
   const name = $('custName').value.trim();
@@ -271,8 +270,13 @@
   const product = $('productField').value;
   const price = $('productField').dataset.price;
 
-  if(!name || !address || !phone){
+  if (!name || !address || !phone) {
     alert('Fill all fields');
+    return;
+  }
+
+  if (!/^[6-9]\d{9}$/.test(phone)) {
+    alert('Enter a valid 10-digit Indian mobile number');
     return;
   }
 
@@ -286,12 +290,10 @@
   };
 
   sessionStorage.setItem('pendingOrder', JSON.stringify(tempOrder));
+  closeModal(orderModal);
   window.location.href = 'payments.html';
 });
 
-  sessionStorage.setItem('pendingOrder', JSON.stringify(tempOrder));
-  window.location.href = 'payments.html';
-});
 
       const m = ev.target.closest('.modal');
       if(m && !ev.target.closest('.modal-box')){
