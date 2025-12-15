@@ -261,7 +261,7 @@
     function closeModal(modal){ if(!modal) return; modal.classList.remove('show'); modal.setAttribute('aria-hidden','true'); document.body.style.overflow = ''; }
 
     // backdrop click and Esc
-    $('placeOrder').addEventListener('click', function (ev) {
+   $('placeOrder').addEventListener('click', function (ev) {
   ev.preventDefault();
 
   const name = $('custName').value.trim();
@@ -293,14 +293,6 @@
   closeModal(orderModal);
   window.location.href = 'payments.html';
 });
-
-
-      const m = ev.target.closest('.modal');
-      if(m && !ev.target.closest('.modal-box')){
-        closeModal(m);
-      }
-    });
-    document.addEventListener('keydown', (ev)=>{ if(ev.key === 'Escape'){ document.querySelectorAll('.modal.show').forEach(m=>closeModal(m)); } });
 
     try {
   const rr = await getRedirectResult(auth);
