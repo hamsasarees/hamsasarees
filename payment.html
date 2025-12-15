@@ -13,7 +13,13 @@
     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
     font-src https://fonts.gstatic.com data:;
     frame-src https://checkout.razorpay.com https://api.razorpay.com;
-    connect-src https://api.razorpay.com https://checkout.razorpay.com https://docs.google.com;
+    connect-src
+  https://api.razorpay.com
+  https://checkout.razorpay.com
+  https://docs.google.com
+  https://firestore.googleapis.com
+  https://identitytoolkit.googleapis.com;
+
     img-src 'self' data: https:;
   " />
 
@@ -93,6 +99,8 @@ const order = JSON.parse(rawOrder);
     } else {
       priceText.innerText = '₹' + price;
     }
+const price = Number(order.price);
+const product = order.product;
 
 productEl.value = order.product;
 priceText.innerText = '₹' + order.price;
@@ -125,68 +133,77 @@ onAuthStateChanged(auth, user => {
   currentUser = user;
 });
 </script>
+<script>
+payBtn.addEventListener('click', function () {
+  if (typeof Razorpay === 'undefined') {
+    alert('Razorpay SDK not loaded. Open via HTTPS / Live Server.');
+    return;
+  }
 
-    payBtn.addEventListener('click', function(){
-      if (typeof Razorpay === 'undefined') {
-        alert('Razorpay SDK not loaded. Open via HTTPS / Live Server.');
-        return;
-      }
+  payBtn.disabled = true;
+  const amountPaise = Math.round(price * 100);
 
-      payBtn.disabled = true;
-      const amountPaise = Math.round(price * 100);
+  const options = {
+    key: 'rzp_live_Rqulhc8rZRz8Iw',
+    amount: amountPaise,
+    currency: 'INR',
+    name: 'Hamsa Sarees',
+    description: product || 'Order Payment',
 
-      const options = {
-        key: 'rzp_live_Rqulhc8rZRz8Iw',
-        amount: amountPaise,
-        currency: 'INR',
-        name: 'Hamsa Sarees',
-        description: product || 'Order Payment',
-        handler: async function (response) {
-  const orderId = crypto.randomUUID();
+    handler: async function (response) {
+      const orderId = crypto.randomUUID();
 
-  await setDoc(
-    doc(db, 'users', currentUser.uid, 'orders', orderId),
-    {
-      product: order.product,
-      price: order.price,
-      name: order.name,
-      phone: order.phone,
-      address: order.address,
-      paymentId: response.razorpay_payment_id,
-      status: 'PAID',
-      createdAt: serverTimestamp()
-    }
-  );
+      // 🔹 SAVE TO FIRESTORE
+      await setDoc(
+        doc(db, 'users', currentUser.uid, 'orders', orderId),
+        {
+          product: order.product,
+          price: order.price,
+          name: order.name,
+          phone: order.phone,
+          address: order.address,
+          paymentId: response.razorpay_payment_id,
+          status: 'PAID',
+          createdAt: serverTimestamp()
+        }
+      );
 
-  sessionStorage.removeItem('pendingOrder');
-  alert('Payment successful!');
-  window.location.href = 'yourorders.html';
-}
+      // 🔹 SEND TO GOOGLE FORM
+      const formUrl =
+        'https://docs.google.com/forms/d/e/1FAIpQLSfREKvTld9R59UADJQK6jxQIbM64tt1iP0M-XiPq4ykOOwe5w/formResponse';
 
-          // ---- SEND TO GOOGLE FORM AFTER PAYMENT ----
-          const formUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSfREKvTld9R59UADJQK6jxQIbM64tt1iP0M-XiPq4ykOOwe5w/formResponse';
-          const fd = new FormData();
-          fd.append('entry.1128392407', nameEl.value || '');
-          fd.append('entry.654904844', params.get('address') || '');
-          fd.append('entry.1644126654', phoneEl.value || '');
-          fd.append('entry.1866699911', product || '');
-          fetch(formUrl, { method: 'POST', body: fd, mode: 'no-cors' });
-        },
-        prefill: {
-          name: nameEl.value,
-          email: emailEl.value,
-          contact: phoneEl.value
-        },
-        theme: { color: '#00aaff' }
-      };
+      const fd = new FormData();
+      fd.append('entry.1128392407', order.name);
+      fd.append('entry.654904844', order.address);
+      fd.append('entry.1644126654', order.phone);
+      fd.append('entry.1866699911', order.product);
 
-      const rzp = new Razorpay(options);
-      rzp.on('payment.failed', function (resp) {
-        alert('Payment failed: ' + resp.error.description);
-        payBtn.disabled = false;
-      });
-      rzp.open();
-    });
+      fetch(formUrl, { method: 'POST', body: fd, mode: 'no-cors' });
+
+      sessionStorage.removeItem('pendingOrder');
+      alert('Payment successful!');
+      window.location.href = 'yourorders.html';
+    },
+
+    prefill: {
+      name: nameEl.value,
+      email: emailEl.value,
+      contact: phoneEl.value
+    },
+
+    theme: { color: '#00aaff' }
+  };
+
+  const rzp = new Razorpay(options);
+
+  rzp.on('payment.failed', function (resp) {
+    alert('Payment failed: ' + resp.error.description);
+    payBtn.disabled = false;
+  });
+
+  rzp.open();
+});
+  
   </script>
 </body>
 </html>
