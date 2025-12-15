@@ -261,39 +261,7 @@
     function closeModal(modal){ if(!modal) return; modal.classList.remove('show'); modal.setAttribute('aria-hidden','true'); document.body.style.overflow = ''; }
 
     // backdrop click and Esc
-   $('placeOrder').addEventListener('click', function (ev) {
-  ev.preventDefault();
-
-  const name = $('custName').value.trim();
-  const address = $('custAddress').value.trim();
-  const phone = $('custPhone').value.trim();
-  const product = $('productField').value;
-  const price = $('productField').dataset.price;
-
-  if (!name || !address || !phone) {
-    alert('Fill all fields');
-    return;
-  }
-
-  if (!/^[6-9]\d{9}$/.test(phone)) {
-    alert('Enter a valid 10-digit Indian mobile number');
-    return;
-  }
-
-  const tempOrder = {
-    product,
-    name,
-    address,
-    phone,
-    price,
-    createdAt: Date.now()
-  };
-
-  sessionStorage.setItem('pendingOrder', JSON.stringify(tempOrder));
-  closeModal(orderModal);
-  window.location.href = 'payments.html';
-});
-
+   
     try {
   const rr = await getRedirectResult(auth);
   if (rr && rr.user) {
