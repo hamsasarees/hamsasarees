@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Hamsa Sarees — Single Page (Fixed)</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  const toastEl = $('toast');
+
   <style>
     :root{
       --bg1:#001f3f; --bg2:#00306b; --accent:#00aaff; --accent2:#4dd0e1; --muted:#9fb8d9; --success:#10b981;
@@ -474,7 +476,8 @@ function attachRatingListenersToGrid(){
 };
 
 sessionStorage.setItem('pendingOrder', JSON.stringify(tempOrder));
-window.location.href = 'payments.html';
+window.location.href = 'payments.html';});
+
 
 
     // Load user orders (persistent) and allow delete + view
