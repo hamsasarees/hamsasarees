@@ -101,14 +101,14 @@
     const priceText = document.getElementById('priceText');
     const nameEl = document.getElementById('name');
     const phoneEl = document.getElementById('phone');
-    const productImg = document.getElementById('productImg');
+    const productImg = document.getElementById('imgSrc');
 
 if (order.image) {
   productImg.src = order.image;
   productImg.style.display = 'block';
 }
 
-    const emailEl = document.getElementById('email');
+    
     const payBtn = document.getElementById('payBtn');
 
     if (!price || isNaN(price) || price <= 0) {
@@ -190,7 +190,6 @@ if (order.image) {
                 price: price,
                 name: nameEl.value,
                 phone: phoneEl.value,
-                email: emailEl.value,
                 address: order.address,
                 paymentId: response.razorpay_payment_id,
                 status: 'PAID',
@@ -219,7 +218,6 @@ if (order.image) {
 
         prefill: {
           name: nameEl.value,
-          email: emailEl.value,
           contact: phoneEl.value
         },
 
