@@ -216,13 +216,19 @@ button,a{
   position:absolute;
   top:10px;
   left:10px;
+  z-index:5;
+
   padding:4px 12px;
   background:linear-gradient(90deg,var(--gold),#f3d48c);
   color:#3b2b08;
   font-size:12px;
   font-weight:800;
   border-radius:999px;
+
+  pointer-events:none;
+  transform:translateZ(0);
 }
+
 
 /* TEXT */
 .card h3{
