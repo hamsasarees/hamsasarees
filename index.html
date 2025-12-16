@@ -1060,17 +1060,21 @@ function attachRatingListenersToGrid(){
       if(!/^[6-9]\d{9}$/.test(phone)){ alert('Enter a valid 10-digit Indian mobile number'); return; }
       closeModal(orderModal);
       // Redirect to payment page with order details as URL parameters
-const imgSrc = card.querySelector('.imgwrap img')?.src || '';
+const imgSrc = btn.dataset.image || '';
 
 const tempOrder = {
-  product,
+  product: prod,
+  price: price,
+  image: imgSrc, // ⭐ NOW SAFE
   name,
   address,
   phone,
-  price,
-  image: imgSrc,   // ⭐ ADD THIS
   createdAt: Date.now()
 };
+
+sessionStorage.setItem('pendingOrder', JSON.stringify(tempOrder));
+window.location.href = 'payment.html';
+
 
 sessionStorage.setItem('pendingOrder', JSON.stringify(tempOrder));
 window.location.href = 'payment.html';});
