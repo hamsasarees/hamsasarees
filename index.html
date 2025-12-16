@@ -320,6 +320,26 @@ header{
     grid-template-columns:1fr;
   }
 }
+  .reviews-list{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  margin-top:10px;
+}
+.review-item{
+  padding:10px;
+  border-radius:12px;
+  background:rgba(255,255,255,0.05);
+}
+.review-item .stars{
+  color:var(--accent);
+  font-weight:700;
+}
+.review-item .text{
+  margin-top:4px;
+  color:var(--muted);
+}
+
 </style>
 
 </head>
@@ -511,25 +531,48 @@ let selectedRating = 0;
     const googleProvider = new GoogleAuthProvider();
     function loadProductReviews(pid){
   const pdRating = $('pdRating');
-  if(!pdRating) return;
+  const reviewsList = $('reviewsList');
+  if(!pdRating || !reviewsList) return;
 
   pdRating.innerText = 'Loading reviews...';
+  reviewsList.innerHTML = 'Loading comments...';
 
   const reviewsRef = collection(db, 'products', pid, 'reviews');
+
   onSnapshot(reviewsRef, snap => {
     let sum = 0;
     let count = 0;
 
+    reviewsList.innerHTML = '';
+
+    if (snap.empty) {
+      pdRating.innerText = 'No reviews yet';
+      reviewsList.innerHTML = '<div class="small">No comments yet.</div>';
+      return;
+    }
+
     snap.forEach(d => {
-      if(typeof d.data().rating === 'number'){
-        sum += d.data().rating;
+      const r = d.data();
+      if(typeof r.rating === 'number'){
+        sum += r.rating;
         count++;
       }
+
+      // render comment
+      const div = document.createElement('div');
+      div.className = 'review-item';
+
+      const stars = '★'.repeat(r.rating || 0);
+
+      div.innerHTML = `
+        <div class="stars">${stars}</div>
+        ${r.text ? `<div class="text">${escapeHtml(r.text)}</div>` : ''}
+      `;
+
+      reviewsList.appendChild(div);
     });
 
-    pdRating.innerText = count
-      ? `★ ${(sum / count).toFixed(1)} (${count} reviews)`
-      : 'No reviews yet';
+    pdRating.innerText = `★ ${(sum/count).toFixed(1)} (${count} reviews)`;
   });
 }
 
@@ -1081,6 +1124,11 @@ window.location.href = 'payment.html';});
         <!-- Write Review -->
         <h3>Write a Review</h3>
         <div class="review-write">
+          <hr>
+
+<h3>User Reviews</h3>
+<div id="reviewsList" class="reviews-list small"></div>
+
           <div class="review-stars" id="reviewStars">
             <span data-val="1">★</span>
             <span data-val="2">★</span>
