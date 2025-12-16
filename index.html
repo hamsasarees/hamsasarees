@@ -918,16 +918,6 @@ if (discount > 0) {
 
 
 
-      const ratingWrap = document.createElement('div'); ratingWrap.style.display='flex'; ratingWrap.style.alignItems='center';
-      const rEl = document.createElement('div'); rEl.className = 'product-rating small'; rEl.dataset.pid = id; rEl.textContent = avgDisplay;
-      ratingWrap.appendChild(rEl);
-       row.appendChild(priceWrap);
-row.appendChild(ratingWrap);
-      card.appendChild(row);
-
-      const ratingUI = document.createElement('div'); ratingUI.className = 'rating-ui'; ratingUI.style.marginTop='8px';
-      for(let i=1;i<=5;i++){ const b = document.createElement('button'); b.className='rateBtn btn-ghost'; b.dataset.rating = String(i); b.type='button'; b.textContent = String(i); ratingUI.appendChild(b); }
-      card.appendChild(ratingUI);
 
       const orderWrap = document.createElement('div'); orderWrap.style.marginTop='8px';
       const orderBtn = document.createElement('button'); orderBtn.className='orderBtn btn'; orderBtn.type='button'; orderBtn.dataset.product = title; orderBtn.dataset.price = price; orderBtn.textContent='Order Now'; orderWrap.appendChild(orderBtn);
