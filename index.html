@@ -1217,6 +1217,7 @@ const payload = {
       });
     }
     const shopNow = $('shopNow'); if(shopNow) shopNow.addEventListener('click', ()=>{ const grid=document.getElementById('productGrid'); if(grid) grid.scrollIntoView({behavior:'smooth'}); });
+$('adminClose')?.addEventListener('click', ()=>closeModal(adminModal));
 
     // initial UI ready
     document.getElementById('openAdminFromEmpty')?.addEventListener('click', ()=>{
