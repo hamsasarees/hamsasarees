@@ -137,7 +137,7 @@
     const toastEl = $('toast');
     const orderDetailModal = $('orderDetailModal');
     const orderDetailContent = $('orderDetailContent');
-    const productImg = document.getElementById('imgSrc');
+    
     
     function toast(msg){ if(!toastEl) return; toastEl.innerText = msg; toastEl.style.display = 'block'; setTimeout(()=>toastEl.style.display = 'none', 2200); }
 
@@ -194,20 +194,25 @@
           
           const card = document.createElement('div');
           card.className = 'order-card';
-          card.innerHTML = `
-            <div class="order-card-header">
-              <div class="order-info">
-                <strong>${escapeHtml(o.product||'')}</strong>
-                <div class="small">${escapeHtml(o.name||'')}</div>
-                <div class="small">${escapeHtml(o.phone||'')}</div>
-                <div class="small" style="color:var(--muted);margin-top:6px">${escapeHtml(dt)}</div>
-              </div>
-              <div class="order-actions">
-                <button class="btn-ghost viewOrderBtn" data-id="${id}" type="button">View Details</button>
-                <button class="btn deleteOrderBtn" data-id="${id}" type="button" style="background:linear-gradient(90deg,#ff3b3b,#ff5252)">Delete Order</button>
-              </div>
-            </div>
-          `;
+card.innerHTML = `
+  <div class="order-card-header">
+    <div style="display:flex;gap:12px;align-items:flex-start">
+      ${imgHtml}
+      <div class="order-info">
+        <strong>${escapeHtml(o.product||'')}</strong>
+        <div class="small">${escapeHtml(o.name||'')}</div>
+        <div class="small">${escapeHtml(o.phone||'')}</div>
+        <div class="small">₹${escapeHtml(o.price||'')}</div>
+        <div class="small" style="color:var(--muted);margin-top:6px">${escapeHtml(dt)}</div>
+      </div>
+    </div>
+    <div class="order-actions">
+      <button class="btn-ghost viewOrderBtn" data-id="${id}">View Details</button>
+      <button class="btn deleteOrderBtn" data-id="${id}" style="background:linear-gradient(90deg,#ff3b3b,#ff5252)">Delete</button>
+    </div>
+  </div>
+`;
+
           ordersContainer.appendChild(card);
         });
 
@@ -225,19 +230,48 @@
           });
         });
 
-        ordersContainer.querySelectorAll('.viewOrderBtn').forEach(b=>{
-          b.addEventListener('click', ev=>{
-            const btn = ev.currentTarget;
-            const card = btn.closest('.order-card');
-            const p = card.querySelector('strong').textContent || '';
-            const n = Array.from(card.querySelectorAll('.small'))[0]?.textContent || '';
-            const ph = Array.from(card.querySelectorAll('.small'))[1]?.textContent || '';
-            const addressParts = [];
-            // Try to extract address from data attributes if available
-            orderDetailContent.innerText = `Product: ${p}\nName: ${n}\nPhone: ${ph}\n\nFull order details loaded from your account.`;
-            openModal(orderDetailModal);
-          });
-        });
+ordersContainer.querySelectorAll('.viewOrderBtn').forEach(b=>{
+  b.addEventListener('click', async ev=>{
+    const id = ev.currentTarget.dataset.id;
+    const uid = auth.currentUser.uid;
+
+    try {
+      const snap = await getDocs(
+        query(collection(db, `users/${uid}/orders`))
+      );
+
+      let order = null;
+      snap.forEach(d=>{
+        if(d.id === id) order = d.data();
+      });
+
+      if(!order){
+        alert('Order not found');
+        return;
+      }
+
+      orderDetailContent.innerText =
+`Product: ${order.product}
+Price: ₹${order.price}
+Name: ${order.name}
+Phone: ${order.phone}
+Email: ${order.email || ''}
+Address:
+${order.address}
+
+Payment ID:
+${order.paymentId}
+
+Status: ${order.status}`;
+
+      openModal(orderDetailModal);
+    } catch(e){
+      console.error(e);
+      alert('Failed to load order details');
+    }
+  });
+});
+
 
       }catch(e){ console.error('fetch orders failed', e); ordersContainer.innerHTML = '<div class="small" style="text-align:center;color:#ffb4b4;padding:32px">Failed to load orders. Try signing in again.</div>'; }
     }
