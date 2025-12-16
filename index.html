@@ -850,10 +850,18 @@ productGrid.addEventListener('click', e => {
       const card = document.createElement('div'); card.className = 'card'; card.dataset.pid = id;
       
       // build DOM safely (no raw innerHTML from user content)
-      if(tag){ const tagEl = document.createElement('div'); tagEl.className = 'tag'; tagEl.textContent = tag; card.appendChild(tagEl); }
-      
+      let tagEl = null;
+if(tag){
+  tagEl = document.createElement('div');
+  tagEl.className = 'tag';
+  tagEl.textContent = tag;
+}
+
       const imgWrap = document.createElement('div');
 imgWrap.className = 'imgwrap';
+      if(tagEl){
+  imgWrap.appendChild(tagEl); // ✅ CORRECT PLACE
+}
 imgWrap.dataset.images = JSON.stringify(images); // ⭐ STORE ALL IMAGES
 
 const imgEl = document.createElement('img');
