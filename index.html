@@ -244,6 +244,88 @@ header{
     align-items:stretch;
   }
 }
+  /* PRODUCT DETAIL UI */
+.product-detail-box{
+  max-width:900px;
+}
+
+.pd-layout{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:24px;
+}
+
+.pd-images{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+.pd-main-img{
+  width:100%;
+  border-radius:16px;
+  aspect-ratio:3/4;
+  object-fit:cover;
+}
+
+.pd-thumbs{
+  display:flex;
+  gap:8px;
+}
+
+.pd-thumbs img{
+  width:60px;
+  height:80px;
+  object-fit:cover;
+  border-radius:10px;
+  cursor:pointer;
+  opacity:.7;
+  border:2px solid transparent;
+}
+
+.pd-thumbs img.active{
+  opacity:1;
+  border-color:var(--accent);
+}
+
+.pd-info h2{
+  margin:0;
+  font-size:22px;
+}
+
+.pd-price{
+  font-size:20px;
+  font-weight:800;
+  color:var(--accent2);
+  margin:8px 0;
+}
+
+.review-write textarea{
+  width:100%;
+  margin-top:8px;
+  padding:10px;
+  border-radius:10px;
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.1);
+  color:#fff;
+}
+
+.review-stars span{
+  font-size:22px;
+  cursor:pointer;
+  color:#555;
+}
+
+.review-stars span.active{
+  color:gold;
+}
+
+@media(max-width:768px){
+  .pd-layout{
+    grid-template-columns:1fr;
+  }
+}
+
 </style>
 
 </head>
@@ -841,6 +923,45 @@ window.location.href = 'payment.html';});
   }
 })();
 </script>
+<script type="module">
+import { doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const auth = getAuth();
+const db = getFirestore();
+
+document.querySelectorAll('#reviewStars span').forEach(s=>{
+  s.onclick=()=>{
+    selectedRating = Number(s.dataset.val);
+    document.querySelectorAll('#reviewStars span').forEach(x=>{
+      x.classList.toggle('active', Number(x.dataset.val)<=selectedRating);
+    });
+  };
+});
+
+document.getElementById('submitReview').onclick=async()=>{
+  if(!auth.currentUser){
+    alert('Sign in to write a review');
+    return;
+  }
+  if(!selectedRating){
+    alert('Select rating');
+    return;
+  }
+
+  await setDoc(
+    doc(db,'products',currentProductId,'reviews',auth.currentUser.uid),
+    {
+      rating:selectedRating,
+      text:document.getElementById('reviewText').value,
+      createdAt:serverTimestamp()
+    }
+  );
+
+  alert('Review submitted');
+};
+</script>
 
   <!-- Image zoom modal (added) -->
   <div class="modal zoom-modal" id="zoomModal" aria-hidden="true">
@@ -850,43 +971,97 @@ window.location.href = 'payment.html';});
     </div>
   </div>
 
-  <script>
-    // Lightweight zoom handlers (no dependencies)
-    document.addEventListener('click', function(ev){
-      try{
-        var target = ev.target;
-        var imgEl = (target && target.closest) ? target.closest('.imgwrap img') : null;
-        if(imgEl){
-          var src = imgEl.getAttribute('src');
-          if(!src) return;
-          var zoomImg = document.getElementById('zoomImg');
-          if(zoomImg) zoomImg.src = src;
-          var modal = document.getElementById('zoomModal');
-          if(modal) modal.classList.add('show'), modal.removeAttribute('aria-hidden'), document.body.style.overflow = 'hidden';
-        }
-      }catch(e){ console.error('zoom click handler failed', e); }
-    });
+<script>
+let currentProductId = null;
+let selectedRating = 0;
 
-    var closeZoomBtn = document.getElementById && document.getElementById('closeZoom');
-    if(closeZoomBtn){
-      closeZoomBtn.addEventListener('click', function(){
-        var zoomImg = document.getElementById('zoomImg'); if(zoomImg) zoomImg.src = '';
-        var modal = document.getElementById('zoomModal'); if(modal) modal.classList.remove('show'), modal.setAttribute('aria-hidden','true'), document.body.style.overflow = '';
-      });
+document.addEventListener('click', e=>{
+  const card = e.target.closest('.card');
+  if(!card) return;
+
+  const img = card.querySelector('.imgwrap img');
+  if(!img) return;
+
+  const pid = card.dataset.pid;
+  if(!pid) return;
+
+  currentProductId = pid;
+
+  const title = card.querySelector('h3').innerText;
+  const price = card.querySelector('.price').innerText;
+
+  document.getElementById('pdTitle').innerText = title;
+  document.getElementById('pdPrice').innerText = price;
+
+  const imgs = card.querySelectorAll('.imgwrap img');
+  const thumbs = document.getElementById('pdThumbs');
+  thumbs.innerHTML = '';
+
+  imgs.forEach((i,idx)=>{
+    const t = document.createElement('img');
+    t.src = i.src;
+    if(idx===0){
+      t.classList.add('active');
+      document.getElementById('pdMainImg').src = i.src;
     }
+    t.onclick = ()=>{
+      document.querySelectorAll('.pd-thumbs img').forEach(x=>x.classList.remove('active'));
+      t.classList.add('active');
+      document.getElementById('pdMainImg').src = t.src;
+    };
+    thumbs.appendChild(t);
+  });
 
-    document.addEventListener('keydown', function(e){
-      if(e.key === 'Escape'){
-        var modal = document.getElementById('zoomModal');
-        if(modal && modal.classList.contains('show')){
-          modal.classList.remove('show');
-          modal.setAttribute('aria-hidden','true');
-          document.body.style.overflow = '';
-          var zoomImg = document.getElementById('zoomImg'); if(zoomImg) zoomImg.src = '';
-        }
-      }
-    });
-  </script>
+  const modal = document.getElementById('productDetailModal');
+  modal.classList.add('show');
+  document.body.style.overflow='hidden';
+});
+
+document.getElementById('closeProductDetail').onclick=()=>{
+  document.getElementById('productDetailModal').classList.remove('show');
+  document.body.style.overflow='';
+};
+</script>
+
+  <!-- Product Detail Modal -->
+<div class="modal" id="productDetailModal" aria-hidden="true">
+  <div class="modal-box product-detail-box">
+    <button class="close-x" id="closeProductDetail">✕</button>
+
+    <div class="pd-layout">
+      <!-- Images -->
+      <div class="pd-images">
+        <img id="pdMainImg" class="pd-main-img" src="" alt="">
+        <div id="pdThumbs" class="pd-thumbs"></div>
+      </div>
+
+      <!-- Info -->
+      <div class="pd-info">
+        <h2 id="pdTitle"></h2>
+        <div id="pdPrice" class="pd-price"></div>
+        <div id="pdRating" class="pd-rating"></div>
+
+        <button id="pdOrderBtn" class="btn">Order Now</button>
+
+        <hr>
+
+        <!-- Write Review -->
+        <h3>Write a Review</h3>
+        <div class="review-write">
+          <div class="review-stars" id="reviewStars">
+            <span data-val="1">★</span>
+            <span data-val="2">★</span>
+            <span data-val="3">★</span>
+            <span data-val="4">★</span>
+            <span data-val="5">★</span>
+          </div>
+          <textarea id="reviewText" placeholder="Share your experience (optional)"></textarea>
+          <button id="submitReview" class="btn-ghost">Submit Review</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
   <footer style="text-align:center;padding:18px;color:#9fb8d9;font-size:13px;line-height:1.6;">
     ©2025 Hamsa Sarees, unauthorized use is strictly prohibited.<br>
