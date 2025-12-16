@@ -793,7 +793,7 @@ $('productImageField').value = mainImg;
 
   $('productField').value = title;
   $('productField').dataset.price = price;
-
+  $('productImageField').value = img;
   // Switch modals
   closeModal(document.getElementById('productDetailModal'));
   openModal(orderModal);
@@ -981,9 +981,7 @@ row.appendChild(ratingWrap);
       const pf = $('productField'); if(pf) {
         pf.value = prod;
         pf.dataset.price = price;
-        const imgSrc = $('productImageField').value || '';
-
-$('productImageField').value = imgSrc;
+        
       }
       openModal(orderModal);
     });
