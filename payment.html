@@ -121,14 +121,14 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    let currentUser = null;
+    window.currentUser = null;
 
     onAuthStateChanged(auth, user => {
       if (!user) {
         alert('Please sign in first');
         window.location.href = 'index.html';
       } else {
-        currentUser = user;
+        window.currentUser = user;
         payBtn.disabled = false;
       }
     });
