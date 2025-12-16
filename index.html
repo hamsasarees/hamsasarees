@@ -474,64 +474,9 @@ header{
   function openModal(modal){ if(!modal) return; modal.classList.add('show'); modal.removeAttribute('aria-hidden'); document.body.style.overflow = 'hidden'; }
     function closeModal(modal){ if(!modal) return; modal.classList.remove('show'); modal.setAttribute('aria-hidden','true'); document.body.style.overflow = ''; }
 
-  openModal($('productDetailModal'));
+ 
   let currentProductId = null;
 let selectedRating = 0;
-// ================= PRODUCT DETAIL OPEN (FINAL) =================
-document.addEventListener('click', e => {
-  const card = e.target.closest('.card');
-  if (!card || !card.dataset.pid) return;
-
-  // prevent opening when clicking Order button
-  if (e.target.closest('.orderBtn')) return;
-
-  const imgWrap = card.querySelector('.imgwrap');
-  if (!imgWrap) return;
-
-  currentProductId = card.dataset.pid;
-const pdRating = $('pdRating');
-pdRating.innerText = 'Loading reviews...';
-
-
-  pdRating.innerText = count
-    ? `★ ${(sum/count).toFixed(1)} (${count} reviews)`
-    : 'No reviews yet';
-});
-
-  $('pdTitle').innerText =
-    card.querySelector('h3')?.innerText || '';
-
-  $('pdPrice').innerText =
-    card.querySelector('.price')?.innerText || '';
-
-  const images = JSON.parse(imgWrap.dataset.images || '[]');
-  const thumbs = $('pdThumbs');
-  thumbs.innerHTML = '';
-
-  if (images.length) {
-    $('pdMainImg').src = images[0];
-
-    images.forEach((src, i) => {
-      const t = document.createElement('img');
-      t.src = src;
-      if (i === 0) t.classList.add('active');
-
-      t.onclick = () => {
-        thumbs.querySelectorAll('img')
-          .forEach(x => x.classList.remove('active'));
-        t.classList.add('active');
-        $('pdMainImg').src = src;
-      };
-
-      thumbs.appendChild(t);
-    });
-  }
-
-  
-});
-$('closeProductDetail')?.addEventListener('click', () => {
-  closeModal($('productDetailModal'));
-});
 
   // ---- CONFIG ----
   const ADMIN_UID = 'EenXHJIvZpavhkGTCI8EZyFAfH93'; // UI-only sentinel; enforce admin in Firestore rules / backend
@@ -564,6 +509,29 @@ $('closeProductDetail')?.addEventListener('click', () => {
     const db = getFirestore(app);
     const storage = getStorage(app);
     const googleProvider = new GoogleAuthProvider();
+    function loadProductReviews(pid){
+  const pdRating = $('pdRating');
+  if(!pdRating) return;
+
+  pdRating.innerText = 'Loading reviews...';
+
+  const reviewsRef = collection(db, 'products', pid, 'reviews');
+  onSnapshot(reviewsRef, snap => {
+    let sum = 0;
+    let count = 0;
+
+    snap.forEach(d => {
+      if(typeof d.data().rating === 'number'){
+        sum += d.data().rating;
+        count++;
+      }
+    });
+
+    pdRating.innerText = count
+      ? `★ ${(sum / count).toFixed(1)} (${count} reviews)`
+      : 'No reviews yet';
+  });
+}
 
     // ---- DOM refs ----
     
@@ -668,7 +636,7 @@ $('submitReview')?.addEventListener('click', async () => {
       const avgDisplay = avg ? `★ ${avg} (${data._count||0})` : 'No ratings';
 
       const card = document.createElement('div'); card.className = 'card'; card.dataset.pid = id;
-
+      
       // build DOM safely (no raw innerHTML from user content)
       if(tag){ const tagEl = document.createElement('div'); tagEl.className = 'tag'; tagEl.textContent = tag; card.appendChild(tagEl); }
       
