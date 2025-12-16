@@ -735,7 +735,8 @@ $('submitReview')?.addEventListener('click', async () => {
     // ================= PRODUCT DETAIL → ORDER NOW =================
 const pdOrderBtn = $('pdOrderBtn');
 
-pdOrderBtn.addEventListener('click', () => {
+pdOrderBtn?.addEventListener('click', () => {
+
   if (!currentProductId) {
     alert('Product not selected');
     return;
@@ -1052,7 +1053,7 @@ window.location.href = 'payment.html';});
       loadAdminProductsList();
       openModal(adminModal);
     });
-    $('adminCancel').addEventListener('click', ()=>{ closeModal(adminModal); });
+    
 
     // Load and render products list for admin
     async function loadAdminProductsList(){
@@ -1222,6 +1223,7 @@ window.location.href = 'payment.html';});
     console.error('Init error', err);
     alert('Initialization failed — check console.');
   }
+})();
 
 </script>
 
