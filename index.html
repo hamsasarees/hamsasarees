@@ -383,6 +383,14 @@ button,a{
   .hero{grid-template-columns:1fr}
   .pd-layout{grid-template-columns:1fr}
 }
+.imgwrap{
+  position:relative; /* 🔒 fixes flicker */
+}
+.tag{
+  pointer-events:none;
+  will-change:transform;
+  transform:translateZ(0);
+}
 
 </style>
 
