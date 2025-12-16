@@ -470,6 +470,8 @@ header{
 <script type="module">
 (async function(){
   if(document.readyState === 'loading') await new Promise(r=>document.addEventListener('DOMContentLoaded', r));
+  let currentProductId = null;
+let selectedRating = 0;
 // ================= PRODUCT DETAIL OPEN =================
 document.addEventListener('click', e => {
   const card = e.target.closest('.card');
@@ -504,13 +506,13 @@ document.addEventListener('click', e => {
     });
   }
 
-  openModal($('productDetailModal'));
+  
+});
+
+});
+openModal($('productDetailModal'));
   $('closeProductDetail').addEventListener('click', () => {
   closeModal($('productDetailModal'));
-});
-
-});
-
   // ---- CONFIG ----
   const ADMIN_UID = 'EenXHJIvZpavhkGTCI8EZyFAfH93'; // UI-only sentinel; enforce admin in Firestore rules / backend
   const firebaseConfig = {
@@ -555,11 +557,11 @@ document.addEventListener('click', e => {
 
     function openModal(modal){ if(!modal) return; modal.classList.add('show'); modal.removeAttribute('aria-hidden'); document.body.style.overflow = 'hidden'; }
     function closeModal(modal){ if(!modal) return; modal.classList.remove('show'); modal.setAttribute('aria-hidden','true'); document.body.style.overflow = ''; }
+const toastEl = document.getElementById('toast');
 
     // backdrop click and Esc
    // ================= REVIEW SYSTEM (FIXED) =================
-let currentProductId = null;
-let selectedRating = 0;
+
 
 document.addEventListener('click', e => {
   const star = e.target.closest('#reviewStars span');
@@ -720,6 +722,7 @@ imgWrap.appendChild(imgEl);
     productGrid.addEventListener('click', ev=>{
       const btn = ev.target.closest('.orderBtn');
       if(!btn) return;
+      ev.stopPropagation();
       const prod = btn.getAttribute('data-product') || '';
       const price = btn.getAttribute('data-price') || '0';
       if(!auth.currentUser){ openModal(loginModal); showLoginError('Please sign in with Google to place orders'); return; }
