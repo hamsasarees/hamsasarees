@@ -473,6 +473,8 @@ button,a{
         <div class="field"><label class="sr-only" for="custAddress">Address</label><textarea id="custAddress" name="entry.654904844" placeholder="Address" required></textarea></div>
         <div class="field"><label class="sr-only" for="custPhone">Mobile number</label><input id="custPhone" name="entry.1644126654" placeholder="Mobile Number" required></div>
         <div class="field"><input id="productField" name="entry.1866699911" readonly aria-readonly="true"></div>
+        <input type="hidden" id="productImageField">
+
         <div class="modal-footer" style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
           <button class="btn" id="placeOrder">Place Order</button>
           <button type="button" class="btn-ghost" id="cancelOrder">Cancel</button>
@@ -967,6 +969,9 @@ row.appendChild(ratingWrap);
       const pf = $('productField'); if(pf) {
         pf.value = prod;
         pf.dataset.price = price;
+        const imgSrc = $('productImageField').value || '';
+
+$('productImageField').value = imgSrc;
       }
       openModal(orderModal);
     });
