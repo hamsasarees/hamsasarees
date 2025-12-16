@@ -486,6 +486,22 @@ document.addEventListener('click', e => {
   if (!imgWrap) return;
 
   currentProductId = card.dataset.pid;
+const pdRating = $('pdRating');
+pdRating.innerText = 'Loading reviews...';
+
+const reviewsRef = collection(db, 'products', currentProductId, 'reviews');
+onSnapshot(reviewsRef, snap => {
+  let sum = 0, count = 0;
+  snap.forEach(d => {
+    if(typeof d.data().rating === 'number'){
+      sum += d.data().rating;
+      count++;
+    }
+  });
+  pdRating.innerText = count
+    ? `★ ${(sum/count).toFixed(1)} (${count} reviews)`
+    : 'No reviews yet';
+});
 
   $('pdTitle').innerText =
     card.querySelector('h3')?.innerText || '';
