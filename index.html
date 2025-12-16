@@ -793,7 +793,7 @@ $('productImageField').value = mainImg;
 
   $('productField').value = title;
   $('productField').dataset.price = price;
-  $('productImageField').value = img;
+  
   // Switch modals
   closeModal(document.getElementById('productDetailModal'));
   openModal(orderModal);
@@ -970,21 +970,29 @@ row.appendChild(ratingWrap);
     }catch(e){ console.warn('products onSnapshot not available', e); }
 
     // delegate order button via productGrid click
-    productGrid.addEventListener('click', ev=>{
-      const btn = ev.target.closest('.orderBtn');
-      if(!btn) return;
-      ev.stopPropagation();
-      const prod = btn.getAttribute('data-product') || '';
-      const price = btn.getAttribute('data-price') || '0';
-      if(!auth.currentUser){ openModal(loginModal); showLoginError('Please sign in with Google to place orders'); return; }
-      const sel = $('selectedProduct'); if(sel) sel.innerText = `${prod} (₹${price})`;
-      const pf = $('productField'); if(pf) {
-        pf.value = prod;
-        pf.dataset.price = price;
-        
-      }
-      openModal(orderModal);
-    });
+productGrid.addEventListener('click', ev=>{
+  const btn = ev.target.closest('.orderBtn');
+  if(!btn) return;
+
+  ev.stopPropagation();
+
+  const prod = btn.dataset.product || '';
+  const price = btn.dataset.price || '0';
+  const img = btn.dataset.image || '';
+
+  if(!auth.currentUser){
+    openModal(loginModal);
+    showLoginError('Please sign in with Google to place orders');
+    return;
+  }
+
+  $('selectedProduct').innerText = `${prod} (₹${price})`;
+  $('productField').value = prod;
+  $('productField').dataset.price = price;
+  $('productImageField').value = img;
+
+  openModal(orderModal);
+});
 
     // ---- Rating listeners and live averages per product ----
     // ---- Rating listeners and live averages (FIXED) ----
