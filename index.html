@@ -471,6 +471,9 @@ header{
 (async function(){
   if(document.readyState === 'loading') await new Promise(r=>document.addEventListener('DOMContentLoaded', r));
   const $ = id => document.getElementById(id);
+  function openModal(modal){ if(!modal) return; modal.classList.add('show'); modal.removeAttribute('aria-hidden'); document.body.style.overflow = 'hidden'; }
+    function closeModal(modal){ if(!modal) return; modal.classList.remove('show'); modal.setAttribute('aria-hidden','true'); document.body.style.overflow = ''; }
+
   openModal($('productDetailModal'));
   let currentProductId = null;
 let selectedRating = 0;
@@ -489,15 +492,7 @@ document.addEventListener('click', e => {
 const pdRating = $('pdRating');
 pdRating.innerText = 'Loading reviews...';
 
-const reviewsRef = collection(db, 'products', currentProductId, 'reviews');
-onSnapshot(reviewsRef, snap => {
-  let sum = 0, count = 0;
-  snap.forEach(d => {
-    if(typeof d.data().rating === 'number'){
-      sum += d.data().rating;
-      count++;
-    }
-  });
+
   pdRating.innerText = count
     ? `★ ${(sum/count).toFixed(1)} (${count} reviews)`
     : 'No reviews yet';
@@ -580,9 +575,7 @@ $('closeProductDetail')?.addEventListener('click', () => {
     function toast(msg){ if(!toastEl) return; toastEl.innerText = msg; toastEl.style.display = 'block'; setTimeout(()=>toastEl.style.display = 'none', 2200); }
     function showLoginError(msg){ if(!loginErr) return; loginErr.innerText = msg; loginErr.style.display = msg ? 'block' : 'none'; }
 
-    function openModal(modal){ if(!modal) return; modal.classList.add('show'); modal.removeAttribute('aria-hidden'); document.body.style.overflow = 'hidden'; }
-    function closeModal(modal){ if(!modal) return; modal.classList.remove('show'); modal.setAttribute('aria-hidden','true'); document.body.style.overflow = ''; }
-const toastEl = document.getElementById('toast');
+    const toastEl = document.getElementById('toast');
 
     // backdrop click and Esc
    // ================= REVIEW SYSTEM (FIXED) =================
