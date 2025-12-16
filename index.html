@@ -471,6 +471,7 @@ header{
 (async function(){
   if(document.readyState === 'loading') await new Promise(r=>document.addEventListener('DOMContentLoaded', r));
   const $ = id => document.getElementById(id);
+  openModal($('productDetailModal'));
   let currentProductId = null;
 let selectedRating = 0;
 // ================= PRODUCT DETAIL OPEN (FINAL) =================
@@ -515,7 +516,7 @@ document.addEventListener('click', e => {
     });
   }
 
-  openModal($('productDetailModal'));
+  
 });
 $('closeProductDetail')?.addEventListener('click', () => {
   closeModal($('productDetailModal'));
