@@ -859,18 +859,14 @@ let discount = 0;
 if (mrp > price) {
   discount = Math.round(((mrp - price) / mrp) * 100);
 }
-const badge = document.createElement('span');
-badge.className = 'discount-badge';
-
-let discount = 0;
-if (mrp > price) {
-  discount = Math.round(((mrp - price) / mrp) * 100);
-}
 
 if (discount > 0) {
+  const badge = document.createElement('span');
+  badge.className = 'discount-badge';
   badge.textContent = `${discount}% OFF`;
   priceWrap.appendChild(badge);
 }
+
 
 
       const ratingWrap = document.createElement('div'); ratingWrap.style.display='flex'; ratingWrap.style.alignItems='center';
