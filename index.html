@@ -470,31 +470,27 @@ header{
 <script type="module">
 (async function(){
   if(document.readyState === 'loading') await new Promise(r=>document.addEventListener('DOMContentLoaded', r));
+  const $ = id => document.getElementById(id);
   let currentProductId = null;
 let selectedRating = 0;
-// ================= PRODUCT DETAIL OPEN =================
+// ================= PRODUCT DETAIL OPEN (FINAL) =================
 document.addEventListener('click', e => {
   const card = e.target.closest('.card');
   if (!card || !card.dataset.pid) return;
 
-
-  const imgWrap = card.querySelector('.imgwrap');
-  if (!imgWrap) return;
-
-  currentProductId = card.dataset.pid;
-const $ = id => document.getElementById(id);
-  // ================= PRODUCT DETAIL OPEN =================
-document.addEventListener('click', e => {
-  const card = e.target.closest('.card');
-  if (!card || !card.dataset.pid) return;
+  // prevent opening when clicking Order button
+  if (e.target.closest('.orderBtn')) return;
 
   const imgWrap = card.querySelector('.imgwrap');
   if (!imgWrap) return;
 
   currentProductId = card.dataset.pid;
 
-  $('pdTitle').innerText = card.querySelector('h3')?.innerText || '';
-  $('pdPrice').innerText = card.querySelector('.price')?.innerText || '';
+  $('pdTitle').innerText =
+    card.querySelector('h3')?.innerText || '';
+
+  $('pdPrice').innerText =
+    card.querySelector('.price')?.innerText || '';
 
   const images = JSON.parse(imgWrap.dataset.images || '[]');
   const thumbs = $('pdThumbs');
@@ -509,7 +505,8 @@ document.addEventListener('click', e => {
       if (i === 0) t.classList.add('active');
 
       t.onclick = () => {
-        thumbs.querySelectorAll('img').forEach(x => x.classList.remove('active'));
+        thumbs.querySelectorAll('img')
+          .forEach(x => x.classList.remove('active'));
         t.classList.add('active');
         $('pdMainImg').src = src;
       };
@@ -523,34 +520,6 @@ document.addEventListener('click', e => {
 $('closeProductDetail')?.addEventListener('click', () => {
   closeModal($('productDetailModal'));
 });
-
-  $('pdTitle').innerText = card.querySelector('h3')?.innerText || '';
-  $('pdPrice').innerText = card.querySelector('.price')?.innerText || '';
-
-  const images = JSON.parse(imgWrap.dataset.images || '[]');
-  const thumbs = $('pdThumbs');
-  thumbs.innerHTML = '';
-
-  if (images.length) {
-    $('pdMainImg').src = images[0];
-
-    images.forEach((src, i) => {
-      const t = document.createElement('img');
-      t.src = src;
-      if (i === 0) t.classList.add('active');
-
-      t.onclick = () => {
-        thumbs.querySelectorAll('img').forEach(x => x.classList.remove('active'));
-        t.classList.add('active');
-        $('pdMainImg').src = src;
-      };
-      thumbs.appendChild(t);
-    });
-    openModal($('productDetailModal'));
-
-  }
-
-  
 
   // ---- CONFIG ----
   const ADMIN_UID = 'EenXHJIvZpavhkGTCI8EZyFAfH93'; // UI-only sentinel; enforce admin in Firestore rules / backend
