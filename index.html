@@ -1067,12 +1067,13 @@ function attachRatingListenersToGrid(){
       ev.preventDefault();
       const name = $('custName').value.trim(), address = $('custAddress').value.trim(), phone = $('custPhone').value.trim();
       const product = $('productField').value || '';
+      const imgSrc = $('productImageField').value || '';
       const price = $('productField').dataset.price || '0';
       if(!name || !address || !phone){ alert('Fill all fields'); return; }
       if(!/^[6-9]\d{9}$/.test(phone)){ alert('Enter a valid 10-digit Indian mobile number'); return; }
       closeModal(orderModal);
       // Redirect to payment page with order details as URL parameters
-const imgSrc = $('productImageField').value || '';
+
 
 const tempOrder = {
   product: product,
