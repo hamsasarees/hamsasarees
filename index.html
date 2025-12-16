@@ -517,7 +517,53 @@ header{
     function closeModal(modal){ if(!modal) return; modal.classList.remove('show'); modal.setAttribute('aria-hidden','true'); document.body.style.overflow = ''; }
 
     // backdrop click and Esc
-   
+   // ================= REVIEW SYSTEM (FIXED) =================
+let currentProductId = null;
+let selectedRating = 0;
+
+document.addEventListener('click', e => {
+  const star = e.target.closest('#reviewStars span');
+  if (!star) return;
+
+  selectedRating = Number(star.dataset.val);
+  document.querySelectorAll('#reviewStars span').forEach(s => {
+    s.classList.toggle('active', Number(s.dataset.val) <= selectedRating);
+  });
+});
+
+$('submitReview')?.addEventListener('click', async () => {
+  if (!auth.currentUser) {
+    alert('Sign in to write a review');
+    return;
+  }
+  if (!currentProductId) {
+    alert('Product not selected');
+    return;
+  }
+  if (!selectedRating) {
+    alert('Select rating');
+    return;
+  }
+
+  try {
+    await setDoc(
+      doc(db, 'products', currentProductId, 'reviews', auth.currentUser.uid),
+      {
+        rating: selectedRating,
+        text: $('reviewText').value.trim(),
+        createdAt: serverTimestamp()
+      }
+    );
+    toast('Review submitted');
+    $('reviewText').value = '';
+    selectedRating = 0;
+    document.querySelectorAll('#reviewStars span').forEach(s => s.classList.remove('active'));
+  } catch (err) {
+    console.error('Review save failed', err);
+    alert('Failed to submit review');
+  }
+});
+
     try {
   const rr = await getRedirectResult(auth);
   if (rr && rr.user) {
@@ -566,8 +612,16 @@ header{
       // build DOM safely (no raw innerHTML from user content)
       if(tag){ const tagEl = document.createElement('div'); tagEl.className = 'tag'; tagEl.textContent = tag; card.appendChild(tagEl); }
       
-      const imgWrap = document.createElement('div'); imgWrap.className = 'imgwrap';
-      const imgEl = document.createElement('img'); imgEl.loading = 'lazy'; imgEl.src = primaryImage; imgEl.alt = title; imgWrap.appendChild(imgEl); 
+      const imgWrap = document.createElement('div');
+imgWrap.className = 'imgwrap';
+imgWrap.dataset.images = JSON.stringify(images); // ⭐ STORE ALL IMAGES
+
+const imgEl = document.createElement('img');
+imgEl.loading = 'lazy';
+imgEl.src = primaryImage;
+imgEl.alt = title;
+imgWrap.appendChild(imgEl);
+ 
       
       // Add a multi-image indicator if there's more than one image
       if (images.length > 1) {
@@ -917,45 +971,6 @@ window.location.href = 'payment.html';});
   }
 })();
 </script>
-<script type="module">
-import { doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-const auth = getAuth();
-const db = getFirestore();
-
-document.querySelectorAll('#reviewStars span').forEach(s=>{
-  s.onclick=()=>{
-    selectedRating = Number(s.dataset.val);
-    document.querySelectorAll('#reviewStars span').forEach(x=>{
-      x.classList.toggle('active', Number(x.dataset.val)<=selectedRating);
-    });
-  };
-});
-
-document.getElementById('submitReview').onclick=async()=>{
-  if(!auth.currentUser){
-    alert('Sign in to write a review');
-    return;
-  }
-  if(!selectedRating){
-    alert('Select rating');
-    return;
-  }
-
-  await setDoc(
-    doc(db,'products',currentProductId,'reviews',auth.currentUser.uid),
-    {
-      rating:selectedRating,
-      text:document.getElementById('reviewText').value,
-      createdAt:serverTimestamp()
-    }
-  );
-
-  alert('Review submitted');
-};
-</script>
 
   <!-- Image zoom modal (added) -->
   <div class="modal zoom-modal" id="zoomModal" aria-hidden="true">
@@ -987,29 +1002,28 @@ document.addEventListener('click', e=>{
   document.getElementById('pdTitle').innerText = title;
   document.getElementById('pdPrice').innerText = price;
 
-  const imgs = card.querySelectorAll('.imgwrap img');
-  const thumbs = document.getElementById('pdThumbs');
-  thumbs.innerHTML = '';
+  const imgWrap = card.querySelector('.imgwrap');
+const images = JSON.parse(imgWrap.dataset.images || '[]');
 
-  imgs.forEach((i,idx)=>{
+const thumbs = document.getElementById('pdThumbs');
+thumbs.innerHTML = '';
+
+if (images.length) {
+  document.getElementById('pdMainImg').src = images[0];
+
+  images.forEach((src, idx) => {
     const t = document.createElement('img');
-    t.src = i.src;
-    if(idx===0){
+    t.src = src;
+    if (idx === 0) t.classList.add('active');
+
+    t.onclick = () => {
+      document.querySelectorAll('.pd-thumbs img').forEach(x => x.classList.remove('active'));
       t.classList.add('active');
-      document.getElementById('pdMainImg').src = i.src;
-    }
-    t.onclick = ()=>{
-      document.querySelectorAll('.pd-thumbs img').forEach(x=>x.classList.remove('active'));
-      t.classList.add('active');
-      document.getElementById('pdMainImg').src = t.src;
+      document.getElementById('pdMainImg').src = src;
     };
     thumbs.appendChild(t);
   });
-
-  const modal = document.getElementById('productDetailModal');
-  modal.classList.add('show');
-  document.body.style.overflow='hidden';
-});
+}
 
 document.getElementById('closeProductDetail').onclick=()=>{
   document.getElementById('productDetailModal').classList.remove('show');
