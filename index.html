@@ -563,11 +563,23 @@ let selectedRating = 0;
       div.className = 'review-item';
 
       const stars = '★'.repeat(r.rating || 0);
+const date = r.createdAt?.toDate
+  ? r.createdAt.toDate().toLocaleDateString('en-IN', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    })
+  : '';
 
-      div.innerHTML = `
-        <div class="stars">${stars}</div>
-        ${r.text ? `<div class="text">${escapeHtml(r.text)}</div>` : ''}
-      `;
+div.innerHTML = `
+  <div style="display:flex;justify-content:space-between;align-items:center">
+    <strong>${escapeHtml(r.userName || 'User')}</strong>
+    <span style="font-size:12px;color:var(--muted)">${date}</span>
+  </div>
+  <div class="stars">${stars}</div>
+  ${r.text ? `<div class="text">${escapeHtml(r.text)}</div>` : ''}
+`;
+
 
       reviewsList.appendChild(div);
     });
@@ -618,13 +630,15 @@ $('submitReview')?.addEventListener('click', async () => {
 
   try {
     await setDoc(
-      doc(db, 'products', currentProductId, 'reviews', auth.currentUser.uid),
-      {
-        rating: selectedRating,
-        text: $('reviewText').value.trim(),
-        createdAt: serverTimestamp()
-      }
-    );
+  doc(db, 'products', currentProductId, 'reviews', auth.currentUser.uid),
+  {
+    rating: selectedRating,
+    text: $('reviewText').value.trim(),
+    userName: auth.currentUser.displayName || 'Anonymous',
+    createdAt: serverTimestamp()
+  }
+);
+
     toast('Review submitted');
     $('reviewText').value = '';
     selectedRating = 0;
