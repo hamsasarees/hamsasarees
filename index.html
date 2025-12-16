@@ -929,7 +929,7 @@ row.appendChild(ratingWrap);
 
     
       const orderWrap = document.createElement('div'); orderWrap.style.marginTop='8px';
-      const orderBtn = document.createElement('button'); orderBtn.className='orderBtn btn'; orderBtn.type='button'; orderBtn.dataset.product = title; orderBtn.dataset.price = price; orderBtn.textContent='Order Now'; orderWrap.appendChild(orderBtn);
+      const orderBtn = document.createElement('button'); orderBtn.className='orderBtn btn'; orderBtn.type='button'; orderBtn.dataset.product = title; orderBtn.dataset.price = price;orderBtn.dataset.image = primaryImage; orderBtn.textContent='Order Now'; orderWrap.appendChild(orderBtn);
       card.appendChild(orderWrap);
 
       return card;
