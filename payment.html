@@ -36,6 +36,11 @@
   <div class="card">
     <h1>Secure Payment</h1>
     <div class="small">Powered by Razorpay</div>
+<div class="row" style="text-align:center">
+  <img id="productImg"
+       style="max-width:100%;border-radius:12px;margin-bottom:12px;display:none"
+       alt="Product image">
+</div>
 
     <div class="row">
       <label>Product</label>
@@ -87,6 +92,13 @@
     const priceText = document.getElementById('priceText');
     const nameEl = document.getElementById('name');
     const phoneEl = document.getElementById('phone');
+    const productImg = document.getElementById('productImg');
+
+if (order.image) {
+  productImg.src = order.image;
+  productImg.style.display = 'block';
+}
+
     const emailEl = document.getElementById('email');
     const payBtn = document.getElementById('payBtn');
 
