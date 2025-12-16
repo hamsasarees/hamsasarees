@@ -1019,7 +1019,8 @@ function attachRatingListenersToGrid(){
     attachRatingListenersToGrid();
 
     // ---- Orders: place & redirect to payment page ----
-    $('placeOrder').addEventListener('click', ev=>{
+    $('placeOrder')?.addEventListener('click', ev=>{
+
       ev.preventDefault();
       const name = $('custName').value.trim(), address = $('custAddress').value.trim(), phone = $('custPhone').value.trim();
       const product = $('productField').value || '';
@@ -1128,6 +1129,8 @@ window.location.href = 'payment.html';});
       const title = $('admin_pTitle').value.trim();
       const price = Number($('admin_pPrice').value.trim());
       const tag = $('admin_pTag').value.trim();
+      const mrp = Number($('admin_pMrp').value.trim()) || price;
+
       const imageUrls = [...document.querySelectorAll('#imageUrlsContainer .imageUrlInput')]
         .map(input => input.value.trim())
         .filter(url => url);
@@ -1139,14 +1142,15 @@ window.location.href = 'payment.html';});
       try {
         const btn = $('adminSave'); btn.disabled = true; btn.innerText = 'Saving...';
         
-        const payload = {
-          title,
-          price,
-          tag,
-          img: imageUrls[0], // For thumbnail/main image
-          images: imageUrls, // Array of all image URLs
-          createdAt: serverTimestamp()
-        };
+const payload = {
+  title,
+  price,
+  mrp,
+  tag,
+  img: imageUrls[0],
+  images: imageUrls,
+  createdAt: serverTimestamp()
+};
 
         await addDoc(collection(db, 'products'), payload);
         toast('Product added');
@@ -1155,6 +1159,8 @@ window.location.href = 'payment.html';});
         $('admin_pTitle').value = '';
         $('admin_pPrice').value = '';
         $('admin_pTag').value = '';
+        $('admin_pMrp').value = '';
+
         const imageUrlsContainer = $('imageUrlsContainer');
         imageUrlsContainer.innerHTML = '<input class="imageUrlInput" type="text" placeholder="Image URL 1" style="margin-bottom: 8px;">';
 
