@@ -569,9 +569,18 @@ button,a{
   if(document.readyState === 'loading') await new Promise(r=>document.addEventListener('DOMContentLoaded', r));
   const $ = id => document.getElementById(id);
   function openModal(modal){ if(!modal) return; modal.classList.add('show'); modal.removeAttribute('aria-hidden'); document.body.style.overflow = 'hidden'; }
-    function closeModal(modal){ if(!modal) return; modal.classList.remove('show'); modal.setAttribute('aria-hidden','true'); document.body.style.overflow = ''; }
+    function closeModal(modal){
+  if(!modal) return;
 
- 
+  if(document.activeElement instanceof HTMLElement){
+    document.activeElement.blur();
+  }
+
+  modal.classList.remove('show');
+  modal.setAttribute('aria-hidden','true');
+  document.body.style.overflow = '';
+}
+
   let currentProductId = null;
 let selectedRating = 0;
 
@@ -779,6 +788,7 @@ pdOrderBtn?.addEventListener('click', () => {
 
   // Fill order modal
   $('selectedProduct').innerText = `${title} (₹${price})`;
+  $('productImageField').value = btn.dataset.image || '';
   $('productField').value = title;
   $('productField').dataset.price = price;
 
@@ -1060,7 +1070,7 @@ function attachRatingListenersToGrid(){
       if(!/^[6-9]\d{9}$/.test(phone)){ alert('Enter a valid 10-digit Indian mobile number'); return; }
       closeModal(orderModal);
       // Redirect to payment page with order details as URL parameters
-const imgSrc = btn.dataset.image || '';
+const imgSrc = $('productImageField').value || '';
 
 const tempOrder = {
   product: prod,
