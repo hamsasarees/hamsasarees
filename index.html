@@ -664,6 +664,37 @@ $('submitReview')?.addEventListener('click', async () => {
 
     // ---- PRODUCTS: load from Firestore (live) ----
     const productGrid = $('productGrid');
+    // ================= PRODUCT DETAIL → ORDER NOW =================
+const pdOrderBtn = $('pdOrderBtn');
+
+pdOrderBtn.addEventListener('click', () => {
+  if (!currentProductId) {
+    alert('Product not selected');
+    return;
+  }
+
+  if (!auth.currentUser) {
+    closeModal(document.getElementById('productDetailModal'));
+    openModal(loginModal);
+    showLoginError('Please sign in to place orders');
+    return;
+  }
+
+  // Get product info from detail modal
+  const title = $('pdTitle').innerText || '';
+  const priceText = $('pdPrice').innerText || '';
+  const price = priceText.replace(/[^\d]/g, '');
+
+  // Fill order modal
+  $('selectedProduct').innerText = `${title} (₹${price})`;
+  $('productField').value = title;
+  $('productField').dataset.price = price;
+
+  // Switch modals
+  closeModal(document.getElementById('productDetailModal'));
+  openModal(orderModal);
+});
+
     // ================= PRODUCT CARD CLICK → DETAIL MODAL =================
 productGrid.addEventListener('click', e => {
   const card = e.target.closest('.card');
