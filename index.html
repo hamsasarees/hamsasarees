@@ -848,30 +848,36 @@ const newPrice = document.createElement('span');
 newPrice.className = 'price-new';
 newPrice.textContent = `₹${price}`;
 
-priceWrap.appendChild(oldPrice);
+if (mrp > price) {
+  priceWrap.appendChild(oldPrice);
+}
 priceWrap.appendChild(newPrice);
+
 
 // OPTIONAL discount badge
 let discount = 0;
 if (mrp > price) {
   discount = Math.round(((mrp - price) / mrp) * 100);
 }
+const badge = document.createElement('span');
+badge.className = 'discount-badge';
+
+let discount = 0;
+if (mrp > price) {
+  discount = Math.round(((mrp - price) / mrp) * 100);
+}
+
 if (discount > 0) {
   badge.textContent = `${discount}% OFF`;
   priceWrap.appendChild(badge);
 }
 
-const badge = document.createElement('span');
-badge.className = 'discount-badge';
-badge.textContent = `${discount}% OFF`;
-priceWrap.appendChild(badge);
 
-row.appendChild(priceWrap);
-row.appendChild(ratingWrap);
       const ratingWrap = document.createElement('div'); ratingWrap.style.display='flex'; ratingWrap.style.alignItems='center';
       const rEl = document.createElement('div'); rEl.className = 'product-rating small'; rEl.dataset.pid = id; rEl.textContent = avgDisplay;
       ratingWrap.appendChild(rEl);
-       
+       row.appendChild(priceWrap);
+row.appendChild(ratingWrap);
       card.appendChild(row);
 
       const ratingUI = document.createElement('div'); ratingUI.className = 'rating-ui'; ratingUI.style.marginTop='8px';
