@@ -788,7 +788,9 @@ pdOrderBtn?.addEventListener('click', () => {
 
   // Fill order modal
   $('selectedProduct').innerText = `${title} (₹${price})`;
-  $('productImageField').value = btn.dataset.image || '';
+  const mainImg = $('pdMainImg').src || '';
+$('productImageField').value = mainImg;
+
   $('productField').value = title;
   $('productField').dataset.price = price;
 
@@ -1073,7 +1075,7 @@ function attachRatingListenersToGrid(){
 const imgSrc = $('productImageField').value || '';
 
 const tempOrder = {
-  product: prod,
+  product: product,
   price: price,
   image: imgSrc, // ⭐ NOW SAFE
   name,
