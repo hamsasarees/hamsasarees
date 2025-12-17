@@ -187,56 +187,45 @@
           ordersContainer.innerHTML = '<div class="small" style="text-align:center;color:var(--muted);padding:32px">No orders yet. <a href="index.html" style="color:var(--accent)">Start shopping</a></div>';
           return;
         }
-        ordersContainer.innerHTML = '';
         snap.forEach(docSnap=>{
-          const o = docSnap.data();
-const id = docSnap.id;
+  const o = docSnap.data();
+  const id = docSnap.id;
 
-const dt = (o.createdAt && o.createdAt.toDate)
-  ? o.createdAt.toDate().toLocaleString()
-  : '';
+  const dt = (o.createdAt && o.createdAt.toDate)
+    ? o.createdAt.toDate().toLocaleString()
+    : '';
 
-// ⭐ IMAGE HANDLING (THIS WAS MISSING)
-const imgUrl = o.image || '';
-const imgHtml = imgUrl
-  ? `<img src="${imgUrl}" alt="Product image"
-        style="
-          width:70px;
-          height:90px;
-          object-fit:cover;
-          border-radius:8px;
-          border:1px solid rgba(255,255,255,0.08);
-        ">`
-  : '';
+  const imgUrl = o.image || '';
+  const imgHtml = imgUrl
+    ? `<img src="${imgUrl}" alt="Product image"
+          style="width:70px;height:90px;object-fit:cover;border-radius:8px;border:1px solid rgba(255,255,255,0.08)">`
+    : '';
 
-const card = document.createElement('div');
-card.className = 'order-card';
+  const card = document.createElement('div');
+  card.className = 'order-card';
 
-card.innerHTML = `
-  <div class="order-card-header">
-    <div style="display:flex;gap:12px;align-items:flex-start">
-      ${imgHtml}
-      <div class="order-info">
-        <strong>${escapeHtml(o.product || '')}</strong>
-        <div class="small">${escapeHtml(o.name || '')}</div>
-        <div class="small">${escapeHtml(o.phone || '')}</div>
-        <div class="small">₹${escapeHtml(o.price || '')}</div>
-        <div class="small" style="color:var(--muted);margin-top:6px">
-          ${escapeHtml(dt)}
+  card.innerHTML = `
+    <div class="order-card-header">
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        ${imgHtml}
+        <div class="order-info">
+          <strong>${escapeHtml(o.product || '')}</strong>
+          <div class="small">${escapeHtml(o.name || '')}</div>
+          <div class="small">${escapeHtml(o.phone || '')}</div>
+          <div class="small">₹${escapeHtml(o.price || '')}</div>
+          <div class="small" style="color:var(--muted);margin-top:6px">${escapeHtml(dt)}</div>
         </div>
       </div>
+      <div class="order-actions">
+        <button class="btn-ghost viewOrderBtn" data-id="${id}">View Details</button>
+        <button class="btn deleteOrderBtn" data-id="${id}"
+          style="background:linear-gradient(90deg,#ff3b3b,#ff5252)">Delete</button>
+      </div>
     </div>
-    <div class="order-actions">
-      <button class="btn-ghost viewOrderBtn" data-id="${id}">View Details</button>
-      <button class="btn deleteOrderBtn" data-id="${id}"
-        style="background:linear-gradient(90deg,#ff3b3b,#ff5252)">
-        Delete
-      </button>
-    </div>
-  </div>
-`;
+  `;
 
-ordersContainer.appendChild(card);});
+  ordersContainer.appendChild(card);
+});
 
 
         ordersContainer.querySelectorAll('.deleteOrderBtn').forEach(b=>{
