@@ -174,59 +174,56 @@
 
     // ---- Load and display user orders ----
     async function loadUserOrders(){
-      if(!auth.currentUser){
-        ordersContainer.innerHTML = '<div class="small" style="text-align:center;color:var(--muted);padding:32px">Please sign in to view your orders</div>';
-        return;
-      }
-      ordersContainer.innerHTML = '<div class="small" style="text-align:center;padding:16px">Loading orders...</div>';
-      try{
-        const uid = auth.currentUser.uid;
-        const q = query(collection(db, `users/${uid}/orders`), orderBy('createdAt','desc'));
-        const snap = await getDocs(q);
-        if(snap.empty){
-          ordersContainer.innerHTML = '<div class="small" style="text-align:center;color:var(--muted);padding:32px">No orders yet. <a href="index.html" style="color:var(--accent)">Start shopping</a></div>';
-          return;
-        }
-        ordersContainer.innerHTML = '';
-        snap.forEach(docSnap=>{
-  const o = docSnap.data();
-  const id = docSnap.id;
+  if(!auth.currentUser){
+    ordersContainer.innerHTML = '<div class="small">Please sign in</div>';
+    return;
+  }
 
-  const dt = (o.createdAt && o.createdAt.toDate)
-    ? o.createdAt.toDate().toLocaleString()
-    : '';
+  ordersContainer.innerHTML = '<div class="small">Loading...</div>';
 
-  const imgUrl = o.image || '';
-  const imgHtml = imgUrl
-    ? `<img src="${imgUrl}" alt="Product image"
-          style="width:70px;height:90px;object-fit:cover;border-radius:8px;border:1px solid rgba(255,255,255,0.08)">`
-    : '';
+  const uid = auth.currentUser.uid;
+  const q = query(collection(db, `users/${uid}/orders`), orderBy('createdAt','desc'));
+  const snap = await getDocs(q);
 
-  const card = document.createElement('div');
-  card.className = 'order-card';
+  if(snap.empty){
+    ordersContainer.innerHTML = '<div class="small">No orders yet</div>';
+    return;
+  }
 
-  card.innerHTML = `
-    <div class="order-card-header">
-      <div style="display:flex;gap:12px;align-items:flex-start">
-        ${imgHtml}
-        <div class="order-info">
-          <strong>${escapeHtml(o.product || '')}</strong>
-          <div class="small">${escapeHtml(o.name || '')}</div>
-          <div class="small">${escapeHtml(o.phone || '')}</div>
-          <div class="small">₹${escapeHtml(o.price || '')}</div>
-          <div class="small" style="color:var(--muted);margin-top:6px">${escapeHtml(dt)}</div>
+  ordersContainer.innerHTML = '';
+
+  snap.forEach(docSnap=>{
+    const o = docSnap.data();
+    const id = docSnap.id;
+
+    const imgHtml = o.image
+      ? `<img src="${o.image}" style="width:70px;height:90px;object-fit:cover;border-radius:8px">`
+      : '';
+
+    const card = document.createElement('div');
+    card.className = 'order-card';
+
+    card.innerHTML = `
+      <div class="order-card-header">
+        <div style="display:flex;gap:12px">
+          ${imgHtml}
+          <div class="order-info">
+            <strong>${escapeHtml(o.product)}</strong>
+            <div class="small">${escapeHtml(o.name)}</div>
+            <div class="small">${escapeHtml(o.phone)}</div>
+            <div class="small">₹${escapeHtml(o.price)}</div>
+          </div>
+        </div>
+        <div class="order-actions">
+          <button class="btn-ghost viewOrderBtn" data-id="${id}">View</button>
+          <button class="btn deleteOrderBtn" data-id="${id}">Delete</button>
         </div>
       </div>
-      <div class="order-actions">
-        <button class="btn-ghost viewOrderBtn" data-id="${id}">View Details</button>
-        <button class="btn deleteOrderBtn" data-id="${id}"
-          style="background:linear-gradient(90deg,#ff3b3b,#ff5252)">Delete</button>
-      </div>
-    </div>
-  `;
+    `;
 
-  ordersContainer.appendChild(card);
-});
+    ordersContainer.appendChild(card);
+  });
+}
 
 
   // ---- VIEW ORDER ----
