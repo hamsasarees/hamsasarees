@@ -187,6 +187,7 @@
           ordersContainer.innerHTML = '<div class="small" style="text-align:center;color:var(--muted);padding:32px">No orders yet. <a href="index.html" style="color:var(--accent)">Start shopping</a></div>';
           return;
         }
+        ordersContainer.innerHTML = '';
         snap.forEach(docSnap=>{
   const o = docSnap.data();
   const id = docSnap.id;
@@ -227,29 +228,6 @@
   ordersContainer.appendChild(card);
 });
 
-ordersContainer.addEventListener('click', async ev => {
-  const deleteBtn = ev.target.closest('.deleteOrderBtn');
-  const viewBtn   = ev.target.closest('.viewOrderBtn');
-
-  if (!deleteBtn && !viewBtn) return;
-
-  const id = (deleteBtn || viewBtn).dataset.id;
-  const uid = auth.currentUser?.uid;
-  if (!uid || !id) return;
-
-  // ---- DELETE ORDER ----
-  if (deleteBtn) {
-    if (!confirm('Delete this order permanently?')) return;
-    try {
-      await deleteDoc(doc(db, 'users', uid, 'orders', id));
-      toast('Order deleted');
-      loadUserOrders();
-    } catch (e) {
-      console.error(e);
-      alert('Failed to delete order');
-    }
-    return;
-  }
 
   // ---- VIEW ORDER ----
   if (viewBtn) {
@@ -287,6 +265,29 @@ Status: ${order.status}`;
   }
 });
 
+ordersContainer.addEventListener('click', async ev => {
+  const deleteBtn = ev.target.closest('.deleteOrderBtn');
+  const viewBtn   = ev.target.closest('.viewOrderBtn');
+
+  if (!deleteBtn && !viewBtn) return;
+
+  const id = (deleteBtn || viewBtn).dataset.id;
+  const uid = auth.currentUser?.uid;
+  if (!uid || !id) return;
+
+  // ---- DELETE ORDER ----
+  if (deleteBtn) {
+    if (!confirm('Delete this order permanently?')) return;
+    try {
+      await deleteDoc(doc(db, 'users', uid, 'orders', id));
+      toast('Order deleted');
+      loadUserOrders();
+    } catch (e) {
+      console.error(e);
+      alert('Failed to delete order');
+    }
+    return;
+  }
 
     // ---- Auth state changes: UI toggle ----
     onAuthStateChanged(auth, user=>{
