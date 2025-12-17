@@ -227,37 +227,40 @@
   ordersContainer.appendChild(card);
 });
 
+ordersContainer.addEventListener('click', async ev => {
+  const deleteBtn = ev.target.closest('.deleteOrderBtn');
+  const viewBtn   = ev.target.closest('.viewOrderBtn');
 
-        ordersContainer.querySelectorAll('.deleteOrderBtn').forEach(b=>{
-          b.addEventListener('click', async ev=>{
-            const id = ev.currentTarget.getAttribute('data-id'); if(!id) return;
-            const ok = confirm('Delete this order permanently from your account? This cannot be undone.');
-            if(!ok) return;
-            try{
-              const uid = auth.currentUser.uid;
-              await deleteDoc(doc(db, 'users', uid, 'orders', id));
-              toast('Order deleted');
-              await loadUserOrders();
-            }catch(err){ console.error('delete failed', err); alert('Failed to delete order. See console.'); }
-          });
-        });
+  if (!deleteBtn && !viewBtn) return;
 
-ordersContainer.querySelectorAll('.viewOrderBtn').forEach(b=>{
-  b.addEventListener('click', async ev=>{
-    const id = ev.currentTarget.dataset.id;
-    const uid = auth.currentUser.uid;
+  const id = (deleteBtn || viewBtn).dataset.id;
+  const uid = auth.currentUser?.uid;
+  if (!uid || !id) return;
 
+  // ---- DELETE ORDER ----
+  if (deleteBtn) {
+    if (!confirm('Delete this order permanently?')) return;
     try {
-      const snap = await getDocs(
-        query(collection(db, `users/${uid}/orders`))
-      );
+      await deleteDoc(doc(db, 'users', uid, 'orders', id));
+      toast('Order deleted');
+      loadUserOrders();
+    } catch (e) {
+      console.error(e);
+      alert('Failed to delete order');
+    }
+    return;
+  }
 
+  // ---- VIEW ORDER ----
+  if (viewBtn) {
+    try {
+      const snap = await getDocs(query(collection(db, `users/${uid}/orders`)));
       let order = null;
-      snap.forEach(d=>{
-        if(d.id === id) order = d.data();
+      snap.forEach(d => {
+        if (d.id === id) order = d.data();
       });
 
-      if(!order){
+      if (!order) {
         alert('Order not found');
         return;
       }
@@ -277,16 +280,13 @@ ${order.paymentId}
 Status: ${order.status}`;
 
       openModal(orderDetailModal);
-    } catch(e){
+    } catch (e) {
       console.error(e);
       alert('Failed to load order details');
     }
-  });
+  }
 });
 
-
-      }catch(e){ console.error('fetch orders failed', e); ordersContainer.innerHTML = '<div class="small" style="text-align:center;color:#ffb4b4;padding:32px">Failed to load orders. Try signing in again.</div>'; }
-    }
 
     // ---- Auth state changes: UI toggle ----
     onAuthStateChanged(auth, user=>{
