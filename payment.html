@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -142,7 +141,7 @@ const phoneEl = document.getElementById('phone');
 const addressEl = document.getElementById('address');
 const imgEl = document.getElementById('productImg');
 const payBtn = document.getElementById('payBtn');
-
+const priceRegex = /^[1-9]\d*(\.\d+)?$/;
 const price = Number(order.price);
 if (!price || price <= 0) {
   alert('Invalid price');
@@ -191,7 +190,7 @@ onAuthStateChanged(auth, user => {
     const phone = phoneEl.value.replace(/\s+/g,'');
     const address = addressEl.value.trim();
 
-    if (!name || !/^[6-9]\d{9}$/.test(phone) || address.length < 10) {
+    if (!name || !/^[6-9]\d{9}$/.test(phone) || !address || address.length < 10) {
       alert('Enter valid name, phone and full address');
       return;
     }
@@ -257,4 +256,5 @@ onAuthStateChanged(auth, user => {
 
 </body>
 </html>
+
 
