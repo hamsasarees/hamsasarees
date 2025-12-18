@@ -925,6 +925,9 @@ productGrid.addEventListener('click', e => {
   $('pdPrice').innerText =
   card.querySelector('.price-new')?.innerText || '';
 
+   // Get stock information from the card's dataset
+  const stock = data.stock;
+
   // ---- FIXED: Safely parse and populate additional details ----
   let data = {};
   try {
@@ -972,7 +975,7 @@ productGrid.addEventListener('click', e => {
   detailsContainer.appendChild(stockEl);
   
   // Also update the order button based on stock
-  $('pdOrderBtn').disabled = (stock === undefined || stock <= 0);
+   $('pdOrderBtn').disabled = (stock === undefined || stock <= 0);
 
   // Load reviews
   loadProductReviews(currentProductId);
@@ -1842,4 +1845,5 @@ window.location.href = 'payment.html';});
 
   </body>
 </html>
+
 
