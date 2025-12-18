@@ -932,6 +932,7 @@ productGrid.addEventListener('click', e => {
       const images = data.images && data.images.length > 0 ? data.images : [data.img];
       const primaryImage = images[0] || 'https://images.unsplash.com/photo-1520975918016-4d0b5b0b2f3d?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder';
       const price = data.price || '0';
+      const stock = data.stock;
       const avg = data._avg ? Number(data._avg).toFixed(1) : null;
       const avgDisplay = avg ? `★ ${avg} (${data._count||0})` : 'No ratings';
 
@@ -1017,11 +1018,61 @@ if (discount > 0) {
 row.appendChild(ratingWrap);
       card.appendChild(row);
 
-    
+      // ---- NEW: Product Details Block ----
+      const detailsContainer = document.createElement('div');
+      detailsContainer.style.marginTop = '10px';
+      detailsContainer.style.fontSize = '12px';
+      detailsContainer.style.color = 'var(--text-muted)';
+      detailsContainer.style.display = 'grid';
+      detailsContainer.style.gap = '4px';
+
+      const addDetail = (label, value) => {
+        if (!value || (Array.isArray(value) && value.length === 0)) return;
+        const detailEl = document.createElement('div');
+        const labelEl = document.createElement('span');
+        labelEl.textContent = `${label}: `;
+        labelEl.style.fontWeight = '600';
+        const valueEl = document.createElement('span');
+        valueEl.textContent = Array.isArray(value) ? value.map(v => v.charAt(0).toUpperCase() + v.slice(1)).join(', ') : value;
+        detailEl.appendChild(labelEl);
+        detailEl.appendChild(valueEl);
+        detailsContainer.appendChild(detailEl);
+      };
+
+      addDetail('Material', data.material);
+      addDetail('Style', data.style);
+      addDetail('Design', data.design);
+      addDetail('Colors', data.colors);
+      addDetail('Blouse', data.blouse);
+
+      // Stock Status
+      const stockStatusEl = document.createElement('div');
+      const stockLabelEl = document.createElement('span');
+      stockLabelEl.textContent = 'Availability: ';
+      stockLabelEl.style.fontWeight = '600';
+      const stockValueEl = document.createElement('span');
+      stockValueEl.textContent = (stock !== undefined && stock > 0) ? 'In Stock' : 'Out of Stock';
+      stockValueEl.style.color = (stock !== undefined && stock > 0) ? 'var(--success)' : 'var(--danger)';
+      stockStatusEl.appendChild(stockLabelEl);
+      stockStatusEl.appendChild(stockValueEl);
+      detailsContainer.appendChild(stockStatusEl);
+
+      card.appendChild(detailsContainer);
+
       const orderWrap = document.createElement('div'); orderWrap.style.marginTop='8px';
       const orderBtn = document.createElement('button'); orderBtn.className='orderBtn btn'; orderBtn.type='button'; orderBtn.dataset.product = title; orderBtn.dataset.price = price;orderBtn.dataset.image = primaryImage; orderBtn.textContent='Order Now'; orderWrap.appendChild(orderBtn);
       card.appendChild(orderWrap);
-
+      
+      // Mute card if out of stock
+      if (stock === undefined || stock <= 0) {
+        card.style.opacity = '0.6';
+        card.style.pointerEvents = 'auto'; // Keep card clickable for detail view
+        orderBtn.disabled = true;
+        orderBtn.textContent = 'Out of Stock';
+        orderBtn.style.background = '#555';
+        orderBtn.style.cursor = 'not-allowed';
+        orderBtn.style.boxShadow = 'none';
+      }
       return card;
     }
 
@@ -1656,3 +1707,4 @@ window.location.href = 'payment.html';});
 
   </body>
 </html>
+
