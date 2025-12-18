@@ -3,11 +3,10 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Hamsa Sarees — Premium Quality</title>
+<title>Hamsa Sarees — Premium Handpicked Sarees</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 
 <style>
-/* ================= ROOT THEME ================= */
 :root{
   --bg-main:#0a0e1a;
   --bg-panel:#11172c;
@@ -21,7 +20,6 @@
   --danger:#ff6b6b;
 }
 
-/* ================= RESET ================= */
 *{box-sizing:border-box;margin:0;padding:0}
 
 html,body{
@@ -32,10 +30,8 @@ html,body{
   min-height:100vh;
 }
 
-/* ================= UTILITIES ================= */
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
 
-/* ================= LOADING SPINNER ================= */
 .spinner{
   border:3px solid rgba(255,255,255,0.1);
   border-top:3px solid var(--gold);
@@ -44,7 +40,6 @@ html,body{
   height:24px;
   animation:spin 0.8s linear infinite;
   display:inline-block;
-  margin:0 auto;
 }
 
 @keyframes spin{
@@ -65,7 +60,6 @@ html,body{
 
 .loading-overlay.show{display:flex}
 
-/* ================= TOAST ================= */
 .toast{
   position:fixed;
   bottom:24px;
@@ -92,14 +86,12 @@ html,body{
   to{transform:translateX(0);opacity:1}
 }
 
-/* ================= LAYOUT ================= */
 .container{
   max-width:1200px;
   margin:auto;
   padding:20px 16px;
 }
 
-/* ================= HEADER ================= */
 header{
   display:flex;
   align-items:center;
@@ -143,7 +135,6 @@ header{
   line-height:1.4;
 }
 
-/* ================= SEARCH ================= */
 .search{
   display:flex;
   align-items:center;
@@ -167,7 +158,6 @@ header{
 
 .search input::placeholder{color:var(--text-muted)}
 
-/* ================= BUTTONS ================= */
 button,a{font-family:inherit}
 
 .btn{
@@ -195,6 +185,8 @@ button,a{font-family:inherit}
   cursor:pointer;
   transition:background 0.2s ease;
   font-size:14px;
+  text-decoration:none;
+  display:inline-block;
 }
 
 .btn-ghost:hover:not(:disabled){background:#18225a}
@@ -205,7 +197,6 @@ button,a{font-family:inherit}
   color:#fff;
 }
 
-/* ================= HERO ================= */
 .hero{
   display:grid;
   grid-template-columns:1.4fr .6fr;
@@ -230,7 +221,6 @@ button,a{font-family:inherit}
 
 .promo{text-align:center}
 
-/* ================= PRODUCT GRID ================= */
 .grid{
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
@@ -238,7 +228,6 @@ button,a{font-family:inherit}
   margin-top:18px;
 }
 
-/* ================= PRODUCT CARD ================= */
 .card{
   background:linear-gradient(180deg,#18245a,#111a3d);
   border:1px solid var(--border);
@@ -290,7 +279,6 @@ button,a{font-family:inherit}
   font-weight:700;
 }
 
-/* ================= PRICE ================= */
 .price-wrap{
   display:flex;
   align-items:baseline;
@@ -320,13 +308,11 @@ button,a{font-family:inherit}
   margin-left:auto;
 }
 
-/* ================= RATING ================= */
 .product-rating{
   font-size:13px;
   color:var(--success);
 }
 
-/* ================= MODALS ================= */
 .modal{
   position:fixed;
   inset:0;
@@ -374,7 +360,6 @@ button,a{font-family:inherit}
 
 .close-x:hover{background:rgba(255,255,255,0.05)}
 
-/* ================= PRODUCT DETAIL ================= */
 .pd-layout{
   display:grid;
   grid-template-columns:1fr 1fr;
@@ -415,7 +400,6 @@ button,a{font-family:inherit}
   margin:10px 0;
 }
 
-/* ================= REVIEWS ================= */
 .review-stars{
   display:flex;
   gap:4px;
@@ -448,7 +432,6 @@ button,a{font-family:inherit}
   padding:12px;
 }
 
-/* ================= FORMS ================= */
 .field{
   margin-bottom:12px;
 }
@@ -495,7 +478,6 @@ button,a{font-family:inherit}
 
 .error-text.show{display:block}
 
-/* ================= ADMIN ================= */
 .admin-section{
   border-bottom:1px solid rgba(255,255,255,0.06);
   padding:16px;
@@ -522,7 +504,6 @@ button,a{font-family:inherit}
 
 .admin-product-row:last-child{border-bottom:none}
 
-/* ================= MOBILE RESPONSIVE ================= */
 @media(max-width:768px){
   header{flex-direction:column;align-items:stretch}
   .hero{grid-template-columns:1fr}
@@ -531,7 +512,6 @@ button,a{font-family:inherit}
   .toast{right:16px;bottom:16px;min-width:200px}
 }
 
-/* ================= EMPTY STATE ================= */
 .empty-state{
   grid-column:1/-1;
   text-align:center;
@@ -549,12 +529,10 @@ button,a{font-family:inherit}
 
 </head>
 <body>
-  <!-- Loading Overlay -->
   <div class="loading-overlay" id="loadingOverlay">
     <div class="spinner"></div>
   </div>
 
-  <!-- Toast Notification -->
   <div class="toast" id="toast"></div>
 
   <div class="container">
@@ -580,6 +558,7 @@ button,a{font-family:inherit}
       <div class="actions" style="display:flex;gap:10px;flex-wrap:wrap">
         <button id="adminBtn" class="btn-ghost" style="display:none">Admin</button>
         <div id="userBadge" style="display:none;background:rgba(255,255,255,0.03);padding:8px 12px;border-radius:10px;color:#fff;font-weight:700;font-size:13px"></div>
+        <a href="yourorders.html" id="myOrdersBtn" class="btn-ghost" style="display:none">My Orders</a>
         <button id="signOutBtn" class="btn-ghost" style="display:none">Sign Out</button>
         <button id="loginShowBtn" class="btn">Sign In</button>
       </div>
@@ -772,23 +751,18 @@ button,a{font-family:inherit}
   </footer>
 
 <script type="module">
-// ==================== INITIALIZATION ====================
 (async function() {
-  // Wait for DOM
   if (document.readyState === 'loading') {
     await new Promise(r => document.addEventListener('DOMContentLoaded', r));
   }
 
-  // Utility function for DOM selection
   const $ = id => document.getElementById(id);
   
-  // Error boundary
   window.addEventListener('error', (e) => {
     console.error('Global error:', e.error);
     showToast('An error occurred. Please refresh the page.', 'error');
   });
 
-  // ==================== FIREBASE CONFIG ====================
   const firebaseConfig = {
     apiKey: "AIzaSyBozW19Rjc9nj0YabOIE3DlW0qVHtU5XLA",
     authDomain: "hamsasarees-24738.firebaseapp.com",
@@ -798,7 +772,6 @@ button,a{font-family:inherit}
     appId: "1:16303342424:web:d68d26160d45472713db2d"
   };
 
-  // ==================== FIREBASE IMPORTS ====================
   let auth, db, firebaseLoaded = false;
   
   try {
@@ -810,7 +783,6 @@ button,a{font-family:inherit}
     auth = authModule.getAuth(app);
     db = firestoreModule.getFirestore(app);
     
-    // Export for global access
     window.firebaseAuth = authModule;
     window.firebaseFirestore = firestoreModule;
     window.auth = auth;
@@ -824,7 +796,6 @@ button,a{font-family:inherit}
     return;
   }
 
-  // ==================== UTILITY FUNCTIONS ====================
   function escapeHtml(text) {
     const map = {
       '&': '&amp;',
@@ -843,854 +814,263 @@ button,a{font-family:inherit}
     }
   }
 
-  function showToast(message, type = 'success') {
+    function showToast(message, type = 'success') {
     const toast = $('toast');
     if (!toast) return;
-    
     toast.textContent = message;
-    toast.className = `toast ${type} show`;
-    
-    setTimeout(() => {
-      toast.classList.remove('show');
-    }, 3000);
+    toast.className = `toast show ${type}`;
+    setTimeout(() => toast.classList.remove('show'), 3000);
   }
 
-  function openModal(modal) {
-    if (!modal) return;
-    modal.classList.add('show');
-    modal.removeAttribute('aria-hidden');
-    document.body.style.overflow = 'hidden';
-  }
+  const ADMIN_UID = "EenXHJIvZpavhkGTCI8EZyFAfH93";
 
-  function closeModal(modal) {
-    if (!modal) return;
-    modal.classList.remove('show');
-    modal.setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = '';
-    
-    // Clear form if exists
-    const form = modal.querySelector('form');
-    if (form) form.reset();
-  }
-
-  function validatePhone(phone) {
-    return /^[6-9]\d{9}$/.test(phone);
-  }
-
-  function formatDate(timestamp) {
-    if (!timestamp) return '';
-    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-    return date.toLocaleDateString('en-IN', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
-    });
-  }
-
-  // ==================== STATE MANAGEMENT ====================
   let currentUser = null;
-  let currentProductId = null;
+  let productsCache = [];
+  let selectedProduct = null;
   let selectedRating = 0;
-  let productsUnsubscribe = null;
 
-  // ==================== AUTH FUNCTIONS ====================
-  async function signInWithGoogle() {
-    const { GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult } = window.firebaseAuth;
-    const provider = new GoogleAuthProvider();
-    
-    showLoading();
-    
-    try {
-      await signInWithPopup(auth, provider);
-      showToast('Signed in successfully!');
-      closeModal($('loginModal'));
-    } catch (error) {
-      console.error('Sign-in error:', error);
-      
-      // Handle popup blocked
-      if (error.code === 'auth/popup-blocked' || 
-          error.code === 'auth/popup-closed-by-user' ||
-          error.code === 'auth/cancelled-popup-request') {
-        try {
-          await signInWithRedirect(auth, provider);
-        } catch (redirectError) {
-          showToast('Sign-in failed. Please allow popups.', 'error');
-        }
-      } else if (error.code === 'auth/unauthorized-domain') {
-        showToast('Domain not authorized. Contact administrator.', 'error');
-      } else {
-        showToast('Sign-in failed. Please try again.', 'error');
-      }
-    } finally {
-      showLoading(false);
-    }
-  }
+  const {
+    onAuthStateChanged,
+    GoogleAuthProvider,
+    signInWithPopup,
+    signOut
+  } = window.firebaseAuth;
 
-  async function signOutUser() {
-    const { signOut } = window.firebaseAuth;
-    
-    try {
-      await signOut(auth);
-      showToast('Signed out successfully');
-    } catch (error) {
-      console.error('Sign-out error:', error);
-      showToast('Sign-out failed', 'error');
-    }
-  }
+  const {
+    collection, addDoc, getDocs, doc, deleteDoc,
+    query, where, orderBy, serverTimestamp
+  } = window.firebaseFirestore;
 
-  // Check for redirect result on page load
-  (async () => {
-    const { getRedirectResult } = window.firebaseAuth;
-    try {
-      const result = await getRedirectResult(auth);
-      if (result && result.user) {
-        showToast('Signed in successfully!');
-      }
-    } catch (error) {
-      console.warn('Redirect result error:', error);
-    }
-  })();
-
-  // ==================== PRODUCT FUNCTIONS ====================
-  function renderProductCard(docSnap) {
-    const { collection, doc: firestoreDoc, onSnapshot } = window.firebaseFirestore;
-    
-    const id = docSnap.id;
-    const data = docSnap.data() || {};
-    const title = data.title || 'Untitled';
-    const tag = data.tag || '';
-    const images = data.images && data.images.length > 0 ? data.images : [data.img || ''];
-    const primaryImage = images[0] || 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=400';
-    const price = data.price || 0;
-    const mrp = data.mrp || price;
-    
-    const card = document.createElement('div');
-    card.className = 'card';
-    card.dataset.pid = id;
-    
-    // Image wrapper
-    const imgWrap = document.createElement('div');
-    imgWrap.className = 'imgwrap';
-    imgWrap.dataset.images = JSON.stringify(images);
-    
-    // Tag
-    if (tag) {
-      const tagEl = document.createElement('div');
-      tagEl.className = 'tag';
-      tagEl.textContent = tag;
-      imgWrap.appendChild(tagEl);
-    }
-    
-    // Main image
-    const imgEl = document.createElement('img');
-    imgEl.loading = 'lazy';
-    imgEl.src = primaryImage;
-    imgEl.alt = title;
-    imgWrap.appendChild(imgEl);
-    
-    // Multi-image indicator
-    if (images.length > 1) {
-      const indicator = document.createElement('div');
-      indicator.textContent = `1/${images.length}`;
-      indicator.style.cssText = 'position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,0.7);color:white;padding:3px 8px;border-radius:10px;font-size:11px;font-weight:600';
-      imgWrap.appendChild(indicator);
-    }
-    
-    card.appendChild(imgWrap);
-    
-    // Title
-    const h3 = document.createElement('h3');
-    h3.textContent = title;
-    card.appendChild(h3);
-    
-    // Price row
-    const row = document.createElement('div');
-    row.style.display = 'flex';
-    row.style.justifyContent = 'space-between';
-    row.style.alignItems = 'center';
-    row.style.marginBottom = '8px';
-    
-    const priceWrap = document.createElement('div');
-    priceWrap.className = 'price-wrap';
-    
-    // MRP (if different from price)
-    if (mrp > price) {
-      const oldPrice = document.createElement('span');
-      oldPrice.className = 'price-old';
-      oldPrice.textContent = `₹${mrp}`;
-      priceWrap.appendChild(oldPrice);
-    }
-    
-    // Selling price
-    const newPrice = document.createElement('span');
-    newPrice.className = 'price-new';
-    newPrice.textContent = `₹${price}`;
-    priceWrap.appendChild(newPrice);
-    
-    // Discount badge
-    if (mrp > price) {
-      const discount = Math.round(((mrp - price) / mrp) * 100);
-      if (discount > 0) {
-        const badge = document.createElement('span');
-        badge.className = 'discount-badge';
-        badge.textContent = `${discount}% OFF`;
-        priceWrap.appendChild(badge);
-      }
-    }
-    
-    row.appendChild(priceWrap);
-    
-    // Rating
-    const ratingEl = document.createElement('div');
-    ratingEl.className = 'product-rating';
-    ratingEl.textContent = 'Loading...';
-    row.appendChild(ratingEl);
-    
-    card.appendChild(row);
-    
-    // Order button
-    const orderBtn = document.createElement('button');
-    orderBtn.className = 'btn';
-    orderBtn.type = 'button';
-    orderBtn.textContent = 'Order Now';
-    orderBtn.style.width = '100%';
-    orderBtn.dataset.product = title;
-    orderBtn.dataset.price = price;
-    orderBtn.dataset.image = primaryImage;
-    card.appendChild(orderBtn);
-    
-    // Listen to reviews for live rating
-    try {
-      const reviewsRef = collection(db, 'products', id, 'reviews');
-      onSnapshot(reviewsRef, (snap) => {
-        let sum = 0;
-        let count = 0;
-        
-        snap.forEach(docSnap => {
-          const review = docSnap.data();
-          if (typeof review.rating === 'number') {
-            sum += review.rating;
-            count++;
-          }
-        });
-        
-        if (count > 0) {
-          const avg = (sum / count).toFixed(1);
-          ratingEl.textContent = `★ ${avg} (${count})`;
-        } else {
-          ratingEl.textContent = 'No ratings';
-        }
-      });
-    } catch (error) {
-      console.warn('Could not attach rating listener:', error);
-      ratingEl.textContent = 'No ratings';
-    }
-    
-    return card;
-  }
-
-  function loadProducts() {
-    const { collection, onSnapshot } = window.firebaseFirestore;
-    const productGrid = $('productGrid');
-    
-    if (!productGrid) return;
-    
-    try {
-      const productsRef = collection(db, 'products');
-      
-      productsUnsubscribe = onSnapshot(productsRef, (snapshot) => {
-        productGrid.innerHTML = '';
-        
-        if (snapshot.empty) {
-          const emptyState = document.createElement('div');
-          emptyState.className = 'empty-state';
-          emptyState.innerHTML = `
-            <h3>No Products Available</h3>
-            <div class="small" style="margin-top:8px">Products will appear here once added by admin.</div>
-          `;
-          productGrid.appendChild(emptyState);
-          return;
-        }
-        
-        snapshot.forEach(docSnap => {
-          const card = renderProductCard(docSnap);
-          productGrid.appendChild(card);
-        });
-      }, (error) => {
-        console.error('Products snapshot error:', error);
-        showToast('Failed to load products', 'error');
-      });
-    } catch (error) {
-      console.error('Load products error:', error);
-      showToast('Failed to load products', 'error');
-    }
-  }
-
-  // ==================== PRODUCT DETAIL FUNCTIONS ====================
-  function loadProductReviews(productId) {
-    const { collection, onSnapshot } = window.firebaseFirestore;
-    
-    const pdRating = $('pdRating');
-    const reviewsList = $('reviewsList');
-    
-    if (!pdRating || !reviewsList) return;
-    
-    pdRating.textContent = 'Loading reviews...';
-    reviewsList.innerHTML = '<div class="small" style="padding:10px;text-align:center">Loading...</div>';
-    
-    try {
-      const reviewsRef = collection(db, 'products', productId, 'reviews');
-      
-      onSnapshot(reviewsRef, (snapshot) => {
-        let sum = 0;
-        let count = 0;
-        
-        reviewsList.innerHTML = '';
-        
-        if (snapshot.empty) {
-          pdRating.textContent = 'No reviews yet';
-          reviewsList.innerHTML = '<div class="small" style="padding:10px;text-align:center;color:var(--muted)">No reviews yet. Be the first!</div>';
-          return;
-        }
-        
-        snapshot.forEach(docSnap => {
-          const review = docSnap.data();
-          
-          if (typeof review.rating === 'number') {
-            sum += review.rating;
-            count++;
-          }
-          
-          const reviewItem = document.createElement('div');
-          reviewItem.className = 'review-item';
-          
-          const stars = '★'.repeat(review.rating || 0);
-          const date = formatDate(review.createdAt);
-          
-          reviewItem.innerHTML = `
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-              <strong>${escapeHtml(review.userName || 'Anonymous')}</strong>
-              <span style="font-size:11px;color:var(--muted)">${date}</span>
-            </div>
-            <div style="color:var(--gold);margin-bottom:4px">${stars}</div>
-            ${review.text ? `<div class="small">${escapeHtml(review.text)}</div>` : ''}
-          `;
-          
-          reviewsList.appendChild(reviewItem);
-        });
-        
-        if (count > 0) {
-          const avg = (sum / count).toFixed(1);
-          pdRating.textContent = `★ ${avg} (${count} reviews)`;
-        }
-      });
-    } catch (error) {
-      console.error('Load reviews error:', error);
-      pdRating.textContent = 'Error loading reviews';
-      reviewsList.innerHTML = '<div class="small" style="padding:10px;color:var(--danger)">Failed to load reviews</div>';
-    }
-  }
-
-  // ==================== ORDER FUNCTIONS ====================
-  async function placeOrder(orderData) {
-    const { collection, addDoc, serverTimestamp } = window.firebaseFirestore;
-    
-    if (!currentUser) {
-      showToast('Please sign in to place orders', 'error');
-      return false;
-    }
-    
-    try {
-      showLoading();
-      
-      const ordersRef = collection(db, 'users', currentUser.uid, 'orders');
-      
-      await addDoc(ordersRef, {
-        ...orderData,
-        status: 'pending',
-        createdAt: serverTimestamp()
-      });
-      
-      showToast('Order placed successfully!');
-      closeModal($('orderModal'));
-      
-      return true;
-    } catch (error) {
-      console.error('Place order error:', error);
-      showToast('Failed to place order. Please try again.', 'error');
-      return false;
-    } finally {
-      showLoading(false);
-    }
-  }
-
-  // ==================== ADMIN FUNCTIONS ====================
-  async function checkAdminStatus(user) {
-    if (!user) return false;
-    
-    const { doc: firestoreDoc, getDoc } = window.firebaseFirestore;
-    
-    try {
-      const adminDoc = await getDoc(firestoreDoc(db, 'admins', user.uid));
-      return adminDoc.exists();
-    } catch (error) {
-      console.error('Check admin status error:', error);
-      return false;
-    }
-  }
-
-  async function loadAdminProducts() {
-    const { collection, getDocs, deleteDoc, doc: firestoreDoc } = window.firebaseFirestore;
-    
-    const listContainer = $('adminProductsList');
-    if (!listContainer) return;
-    
-    listContainer.innerHTML = '<div class="small" style="padding:20px;text-align:center;color:var(--muted)">Loading...</div>';
-    
-    try {
-      const productsRef = collection(db, 'products');
-      const snapshot = await getDocs(productsRef);
-      
-      if (snapshot.empty) {
-        listContainer.innerHTML = '<div class="small" style="padding:20px;text-align:center;color:var(--muted)">No products yet</div>';
-        return;
-      }
-      
-      listContainer.innerHTML = '';
-      
-      snapshot.forEach(docSnap => {
-        const id = docSnap.id;
-        const data = docSnap.data() || {};
-        
-        const row = document.createElement('div');
-        row.className = 'admin-product-row';
-        
-        row.innerHTML = `
-          <div style="flex:1">
-            <strong style="color:#eaf6ff">${escapeHtml(data.title || 'Untitled')}</strong>
-            <div class="small" style="color:var(--muted)">₹${data.price || 0}</div>
-          </div>
-          <button class="btn btn-danger deleteProductBtn" data-id="${id}" type="button" style="white-space:nowrap">Delete</button>
-        `;
-        
-        listContainer.appendChild(row);
-        
-        // Attach delete handler
-        const deleteBtn = row.querySelector('.deleteProductBtn');
-        deleteBtn.addEventListener('click', async () => {
-          if (!confirm('Delete this product? This cannot be undone.')) return;
-          
-          try {
-            showLoading();
-            await deleteDoc(firestoreDoc(db, 'products', id));
-            showToast('Product deleted');
-            await loadAdminProducts();
-          } catch (error) {
-            console.error('Delete product error:', error);
-            showToast('Failed to delete product', 'error');
-          } finally {
-            showLoading(false);
-          }
-        });
-      });
-    } catch (error) {
-      console.error('Load admin products error:', error);
-      listContainer.innerHTML = '<div class="small" style="padding:20px;color:var(--danger)">Failed to load</div>';
-    }
-  }
-
-  async function addProduct(productData) {
-    const { collection, addDoc, serverTimestamp } = window.firebaseFirestore;
-    
-    try {
-      showLoading();
-      
-      const productsRef = collection(db, 'products');
-      
-      await addDoc(productsRef, {
-        ...productData,
-        createdAt: serverTimestamp()
-      });
-      
-      showToast('Product added successfully!');
-      
-      // Reset form
-      $('adminProductForm').reset();
-      
-      // Reset image inputs to default
-      const container = $('imageUrlsContainer');
-      container.innerHTML = '<input class="imageUrlInput" placeholder="Image URL 1" style="margin-bottom:8px;width:100%;background:#0f1738;border:1px solid var(--border);border-radius:12px;padding:10px;color:var(--text-main)" required>';
-      
-      await loadAdminProducts();
-      
-      return true;
-    } catch (error) {
-      console.error('Add product error:', error);
-      showToast('Failed to add product', 'error');
-      return false;
-    } finally {
-      showLoading(false);
-    }
-  }
-
-  // ==================== EVENT LISTENERS ====================
-  
-  // Auth buttons
-  $('googleSignInBtn')?.addEventListener('click', signInWithGoogle);
-  $('loginShowBtn')?.addEventListener('click', () => openModal($('loginModal')));
-  $('signOutBtn')?.addEventListener('click', signOutUser);
-  
-  // Modal close buttons
-  document.querySelectorAll('.close-x').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const modal = btn.closest('.modal');
-      closeModal(modal);
-    });
-  });
-  
-  $('cancelOrder')?.addEventListener('click', () => closeModal($('orderModal')));
-  $('adminCloseBtn')?.addEventListener('click', () => closeModal($('adminModal')));
-  
-  // Click outside modal to close
-  document.querySelectorAll('.modal').forEach(modal => {
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) {
-        closeModal(modal);
-      }
-    });
-  });
-  
-  // ESC key to close modals
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      document.querySelectorAll('.modal.show').forEach(modal => closeModal(modal));
-    }
-  });
-  
-  // Search functionality
-  let searchTimeout;
-  $('searchBox')?.addEventListener('input', (e) => {
-    clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(() => {
-      const query = e.target.value.toLowerCase().trim();
-      
-      document.querySelectorAll('#productGrid .card').forEach(card => {
-        const title = card.querySelector('h3')?.textContent.toLowerCase() || '';
-        const tag = card.querySelector('.tag')?.textContent.toLowerCase() || '';
-        const matches = !query || title.includes(query) || tag.includes(query);
-        card.style.display = matches ? '' : 'none';
-      });
-    }, 300);
-  });
-  
-  // Shop now - scroll to products
-  $('shopNow')?.addEventListener('click', () => {
-    $('productGrid')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  });
-  
-  // Product grid - delegate clicks
-  $('productGrid')?.addEventListener('click', (e) => {
-    // Check if order button clicked
-    const orderBtn = e.target.closest('.btn');
-    if (orderBtn && orderBtn.dataset.product) {
-      e.stopPropagation();
-      
-      if (!currentUser) {
-        openModal($('loginModal'));
-        showToast('Please sign in to place orders', 'error');
-        return;
-      }
-      
-      const product = orderBtn.dataset.product;
-      const price = orderBtn.dataset.price;
-      const image = orderBtn.dataset.image;
-      
-      $('selectedProduct').textContent = `${product} - ₹${price}`;
-      $('orderForm').dataset.product = product;
-      $('orderForm').dataset.price = price;
-      $('orderForm').dataset.image = image;
-      
-      openModal($('orderModal'));
-      return;
-    }
-    
-    // Check if card clicked (for detail view)
-    const card = e.target.closest('.card');
-    if (card && card.dataset.pid) {
-      currentProductId = card.dataset.pid;
-      
-      const imgWrap = card.querySelector('.imgwrap');
-      const images = JSON.parse(imgWrap?.dataset.images || '[]');
-      
-      if (images.length > 0) {
-        $('pdMainImg').src = images[0];
-        
-        const thumbsContainer = $('pdThumbs');
-        thumbsContainer.innerHTML = '';
-        
-        images.forEach((src, i) => {
-          const thumb = document.createElement('img');
-          thumb.src = src;
-          thumb.alt = `Thumbnail ${i + 1}`;
-          if (i === 0) thumb.classList.add('active');
-          
-          thumb.addEventListener('click', () => {
-            thumbsContainer.querySelectorAll('img').forEach(img => img.classList.remove('active'));
-            thumb.classList.add('active');
-            $('pdMainImg').src = src;
-          });
-          
-          thumbsContainer.appendChild(thumb);
-        });
-      }
-      
-      $('pdTitle').textContent = card.querySelector('h3')?.textContent || '';
-      $('pdPrice').textContent = card.querySelector('.price-new')?.textContent || '';
-      
-      loadProductReviews(currentProductId);
-      
-      openModal($('productDetailModal'));
-    }
-  });
-  
-  // Product detail - order button
-  $('pdOrderBtn')?.addEventListener('click', () => {
-    if (!currentUser) {
-      closeModal($('productDetailModal'));
-      openModal($('loginModal'));
-      showToast('Please sign in to place orders', 'error');
-      return;
-    }
-    
-    const title = $('pdTitle').textContent;
-    const priceText = $('pdPrice').textContent;
-    const price = priceText.replace(/[^\d]/g, '');
-    const image = $('pdMainImg').src;
-    
-    $('selectedProduct').textContent = `${title} - ₹${price}`;
-    $('orderForm').dataset.product = title;
-    $('orderForm').dataset.price = price;
-    $('orderForm').dataset.image = image;
-    
-    closeModal($('productDetailModal'));
-    openModal($('orderModal'));
-  });
-  
-  // Review stars
-  $('reviewStars')?.addEventListener('click', (e) => {
-    const star = e.target.closest('span');
-    if (!star) return;
-    
-    selectedRating = Number(star.dataset.val);
-    
-    $('reviewStars').querySelectorAll('span').forEach(s => {
-      s.classList.toggle('active', Number(s.dataset.val) <= selectedRating);
-    });
-  });
-  
-  // Submit review
-  $('submitReview')?.addEventListener('click', async () => {
-    const { doc: firestoreDoc, setDoc, serverTimestamp } = window.firebaseFirestore;
-    
-    if (!currentUser) {
-      showToast('Please sign in to write reviews', 'error');
-      return;
-    }
-    
-    if (!currentProductId) {
-      showToast('Product not selected', 'error');
-      return;
-    }
-    
-    if (!selectedRating) {
-      showToast('Please select a rating', 'error');
-      return;
-    }
-    
-    const reviewText = $('reviewText').value.trim();
-    
-    try {
-      showLoading();
-      
-      const reviewRef = firestoreDoc(db, 'products', currentProductId, 'reviews', currentUser.uid);
-      
-      await setDoc(reviewRef, {
-        rating: selectedRating,
-        text: reviewText,
-        userName: currentUser.displayName || 'Anonymous',
-        createdAt: serverTimestamp()
-      });
-      
-      showToast('Review submitted successfully!');
-      
-      // Reset
-      $('reviewText').value = '';
-      selectedRating = 0;
-      $('reviewStars').querySelectorAll('span').forEach(s => s.classList.remove('active'));
-      
-    } catch (error) {
-      console.error('Submit review error:', error);
-      showToast('Failed to submit review', 'error');
-    } finally {
-      showLoading(false);
-    }
-  });
-  
-  // Order form submission
-  $('orderForm')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const name = $('custName').value.trim();
-    const phone = $('custPhone').value.trim();
-    const address = $('custAddress').value.trim();
-    
-    // Clear previous errors
-    document.querySelectorAll('.error-text').forEach(el => el.classList.remove('show'));
-    
-    let hasError = false;
-    
-    if (!name) {
-      $('nameError').textContent = 'Name is required';
-      $('nameError').classList.add('show');
-      hasError = true;
-    }
-    
-    if (!phone) {
-      $('phoneError').textContent = 'Phone number is required';
-      $('phoneError').classList.add('show');
-      hasError = true;
-    } else if (!validatePhone(phone)) {
-      $('phoneError').textContent = 'Enter valid 10-digit mobile number';
-      $('phoneError').classList.add('show');
-      hasError = true;
-    }
-    
-    if (!address) {
-      $('addressError').textContent = 'Address is required';
-      $('addressError').classList.add('show');
-      hasError = true;
-    }
-    
-    if (hasError) return;
-    
-    const orderData = {
-      product: $('orderForm').dataset.product,
-      price: Number($('orderForm').dataset.price),
-      image: $('orderForm').dataset.image,
-      customerName: name,
-      phone: phone,
-      address: address,
-      userId: currentUser.uid,
-      userEmail: currentUser.email
-    };
-    
-    await placeOrder(orderData);
-  });
-  
-  // Admin button
-  $('adminBtn')?.addEventListener('click', async () => {
-    if (!currentUser) {
-      showToast('Please sign in', 'error');
-      return;
-    }
-    
-    const isAdmin = await checkAdminStatus(currentUser);
-    if (!isAdmin) {
-      showToast('Admin access required', 'error');
-      return;
-    }
-    
-    await loadAdminProducts();
-    openModal($('adminModal'));
-  });
-  
-  // Add image URL input
-  $('addImageUrl')?.addEventListener('click', () => {
-    const container = $('imageUrlsContainer');
-    const count = container.querySelectorAll('.imageUrlInput').length;
-    
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.className = 'imageUrlInput';
-    input.placeholder = `Image URL ${count + 1}`;
-    input.style.cssText = 'margin-bottom:8px;width:100%;background:#0f1738;border:1px solid var(--border);border-radius:12px;padding:10px;color:var(--text-main)';
-    
-    container.appendChild(input);
-  });
-  
-  // Admin product form
-  $('adminProductForm')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const title = $('adminTitle').value.trim();
-    const price = Number($('adminPrice').value);
-    const mrp = Number($('adminMrp').value) || price;
-    const tag = $('adminTag').value.trim();
-    
-    const imageInputs = document.querySelectorAll('.imageUrlInput');
-    const images = Array.from(imageInputs)
-      .map(input => input.value.trim())
-      .filter(url => url);
-    
-    if (!title || !price) {
-      showToast('Title and price are required', 'error');
-      return;
-    }
-    
-    if (images.length === 0) {
-      showToast('At least one image URL is required', 'error');
-      return;
-    }
-    
-    const productData = {
-      title,
-      price,
-      mrp,
-      tag,
-      img: images[0],
-      images
-    };
-    
-    await addProduct(productData);
-  });
-  
-  // ==================== AUTH STATE OBSERVER ====================
-  const { onAuthStateChanged } = window.firebaseAuth;
-  
   onAuthStateChanged(auth, async (user) => {
     currentUser = user;
-    
+    $('loginShowBtn').style.display = user ? 'none' : 'inline-block';
+    $('signOutBtn').style.display = user ? 'inline-block' : 'none';
+    $('myOrdersBtn').style.display = user ? 'inline-block' : 'none';
+    $('userBadge').style.display = user ? 'inline-block' : 'none';
+    $('adminBtn').style.display = (user && user.uid === ADMIN_UID) ? 'inline-block' : 'none';
+
     if (user) {
-      // User signed in
       $('userBadge').textContent = user.displayName || user.email;
-      $('userBadge').style.display = 'inline-block';
-      $('signOutBtn').style.display = 'inline-block';
-      $('loginShowBtn').style.display = 'none';
-      
-      // Check admin status
-      const isAdmin = await checkAdminStatus(user);
-      $('adminBtn').style.display = isAdmin ? 'inline-block' : 'none';
-      
-      closeModal($('loginModal'));
-    } else {
-      // User signed out
-      $('userBadge').style.display = 'none';
-      $('signOutBtn').style.display = 'none';
-      $('loginShowBtn').style.display = 'inline-block';
-      $('adminBtn').style.display = 'none';
+      showToast('Signed in successfully');
     }
   });
-  
-  // ==================== INITIALIZE ====================
+
+  $('loginShowBtn').onclick = () => $('loginModal').classList.add('show');
+  $('closeLogin').onclick = () => $('loginModal').classList.remove('show');
+
+  $('googleSignInBtn').onclick = async () => {
+    try {
+      showLoading(true);
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
+      $('loginModal').classList.remove('show');
+    } catch (e) {
+      $('loginError').textContent = e.message;
+      $('loginError').classList.add('show');
+    } finally {
+      showLoading(false);
+    }
+  };
+
+  $('signOutBtn').onclick = async () => {
+    await signOut(auth);
+    showToast('Signed out');
+  };
+
+  async function loadProducts() {
+    showLoading(true);
+    const snap = await getDocs(collection(db, 'products'));
+    productsCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderProducts(productsCache);
+    showLoading(false);
+  }
+
+  function renderProducts(list) {
+    const grid = $('productGrid');
+    grid.innerHTML = '';
+
+    if (!list.length) {
+      grid.innerHTML = `<div class="empty-state">
+        <h3>No Products Available</h3>
+        <div class="small">Products will appear here once added by admin.</div>
+      </div>`;
+      return;
+    }
+
+    list.forEach(p => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <div class="imgwrap">
+          ${p.tag ? `<div class="tag">${escapeHtml(p.tag)}</div>` : ''}
+          <img src="${p.images[0]}" alt="">
+        </div>
+        <h3>${escapeHtml(p.title)}</h3>
+        <div class="price-wrap">
+          ${p.mrp ? `<span class="price-old">₹${p.mrp}</span>` : ''}
+          <span class="price-new">₹${p.price}</span>
+        </div>
+      `;
+      card.onclick = () => openProductDetail(p);
+      grid.appendChild(card);
+    });
+  }
+
+  function openProductDetail(p) {
+    selectedProduct = p;
+    $('pdTitle').textContent = p.title;
+    $('pdPrice').textContent = `₹${p.price}`;
+    $('pdMainImg').src = p.images[0];
+
+    const thumbs = $('pdThumbs');
+    thumbs.innerHTML = '';
+    p.images.forEach((img, i) => {
+      const t = document.createElement('img');
+      t.src = img;
+      if (i === 0) t.classList.add('active');
+      t.onclick = () => {
+        $('pdMainImg').src = img;
+        [...thumbs.children].forEach(x => x.classList.remove('active'));
+        t.classList.add('active');
+      };
+      thumbs.appendChild(t);
+    });
+
+    $('productDetailModal').classList.add('show');
+    loadReviews(p.id);
+  }
+
+  $('closeProductDetail').onclick = () => {
+    $('productDetailModal').classList.remove('show');
+  };
+
+  $('pdOrderBtn').onclick = () => {
+    if (!currentUser) {
+      showToast('Please sign in to order', 'error');
+      return;
+    }
+    $('selectedProduct').textContent = selectedProduct.title;
+    $('orderModal').classList.add('show');
+  };
+
+  $('closeOrderModal').onclick =
+  $('cancelOrder').onclick = () =>
+    $('orderModal').classList.remove('show');
+
+  $('orderForm').onsubmit = async (e) => {
+    e.preventDefault();
+    showLoading(true);
+
+    await addDoc(collection(db, 'orders'), {
+      uid: currentUser.uid,
+      productId: selectedProduct.id,
+      product: selectedProduct.title,
+      price: selectedProduct.price,
+      name: custName.value,
+      phone: custPhone.value,
+      address: custAddress.value,
+      createdAt: serverTimestamp()
+    });
+
+    $('orderModal').classList.remove('show');
+    showToast('Order placed successfully');
+    showLoading(false);
+  };
+
+  $('reviewStars').onclick = (e) => {
+    if (!e.target.dataset.val) return;
+    selectedRating = Number(e.target.dataset.val);
+    [...$('reviewStars').children].forEach(s =>
+      s.classList.toggle('active', s.dataset.val <= selectedRating)
+    );
+  };
+
+  $('submitReview').onclick = async () => {
+    if (!currentUser || !selectedRating) {
+      showToast('Login & select rating', 'error');
+      return;
+    }
+    await addDoc(collection(db, 'reviews'), {
+      productId: selectedProduct.id,
+      uid: currentUser.uid,
+      rating: selectedRating,
+      text: reviewText.value,
+      createdAt: serverTimestamp()
+    });
+    reviewText.value = '';
+    selectedRating = 0;
+    loadReviews(selectedProduct.id);
+    showToast('Review submitted');
+  };
+
+  async function loadReviews(pid) {
+    const q = query(collection(db, 'reviews'), where('productId', '==', pid));
+    const snap = await getDocs(q);
+    const box = $('reviewsList');
+    box.innerHTML = '';
+    snap.forEach(d => {
+      const r = d.data();
+      box.innerHTML += `<div class="review-item">
+        <strong>${'★'.repeat(r.rating)}</strong>
+        <div class="small">${escapeHtml(r.text || '')}</div>
+      </div>`;
+    });
+  }
+
+  $('adminBtn').onclick = () => {
+    $('adminModal').classList.add('show');
+    renderAdminProducts();
+  };
+  $('closeAdmin').onclick =
+  $('adminCloseBtn').onclick = () =>
+    $('adminModal').classList.remove('show');
+
+  $('addImageUrl').onclick = () => {
+    const i = document.createElement('input');
+    i.className = 'imageUrlInput';
+    i.placeholder = 'Image URL';
+    i.style.cssText = $('imageUrlsContainer').firstElementChild.style.cssText;
+    $('imageUrlsContainer').appendChild(i);
+  };
+
+  $('adminProductForm').onsubmit = async (e) => {
+    e.preventDefault();
+    const images = [...document.querySelectorAll('.imageUrlInput')]
+      .map(i => i.value).filter(Boolean);
+
+    await addDoc(collection(db, 'products'), {
+      title: adminTitle.value,
+      price: Number(adminPrice.value),
+      mrp: Number(adminMrp.value || 0),
+      tag: adminTag.value,
+      images,
+      createdAt: serverTimestamp()
+    });
+
+    showToast('Product added');
+    loadProducts();
+  };
+
+  async function renderAdminProducts() {
+    const box = $('adminProductsList');
+    box.innerHTML = '';
+    productsCache.forEach(p => {
+      const row = document.createElement('div');
+      row.className = 'admin-product-row';
+      row.innerHTML = `
+        <span>${p.title}</span>
+        <button class="btn-danger btn">Delete</button>
+      `;
+      row.querySelector('button').onclick = async () => {
+        await deleteDoc(doc(db, 'products', p.id));
+        loadProducts();
+        renderAdminProducts();
+      };
+      box.appendChild(row);
+    });
+  }
+
   loadProducts();
-  
-  console.log('✅ Hamsa Sarees initialized successfully');
-  
-})().catch(error => {
-  console.error('Fatal initialization error:', error);
-  alert('Failed to initialize application. Please refresh the page.');
-});
+})();
 </script>
 
-</body>
-</html>
