@@ -12,8 +12,9 @@
   font-src https://fonts.gstatic.com data:;
   frame-src https://checkout.razorpay.com https://api.razorpay.com;
   connect-src https://api.razorpay.com https://checkout.razorpay.com
-               https://docs.google.com https://firestore.googleapis.com
-               https://identitytoolkit.googleapis.com https://www.gstatic.com;
+               https://firestore.googleapis.com
+               https://identitytoolkit.googleapis.com
+               https://www.gstatic.com;
   img-src 'self' data: https: http:;
 " />
 
@@ -37,10 +38,7 @@ body{
   max-width:420px;
   width:100%;
   box-shadow:0 20px 60px rgba(0,0,0,.45);
-  border:1px solid rgba(255,255,255,0.05)
 }
-h1{margin:0 0 6px;font-size:22px;font-weight:800}
-.small{color:#9fb8d9;font-size:14px;margin-bottom:14px}
 .row{margin-bottom:12px}
 label{display:block;font-size:13px;color:#9fb8d9;margin-bottom:6px}
 input,textarea{
@@ -50,16 +48,9 @@ input,textarea{
   border:1px solid rgba(255,255,255,0.08);
   background:#0b1220;
   color:#fff;
-  font-size:14px;
-  resize:none
 }
 textarea{min-height:90px}
-.price{
-  font-size:20px;
-  font-weight:800;
-  color:#4dd0e1;
-  margin:8px 0 14px
-}
+.price{font-size:20px;font-weight:800;color:#4dd0e1}
 button{
   width:100%;
   padding:14px;
@@ -68,18 +59,10 @@ button{
   background:linear-gradient(90deg,#00aaff,#ff5aa3);
   color:#fff;
   font-weight:800;
-  font-size:15px;
   cursor:pointer
 }
-button:disabled{opacity:.6;cursor:not-allowed}
-img{
-  max-width:100%;
-  max-height:260px;
-  object-fit:cover;
-  border-radius:12px;
-  margin-bottom:12px;
-  display:none
-}
+button:disabled{opacity:.6}
+img{display:none;max-width:100%;border-radius:12px;margin-bottom:12px}
 </style>
 </head>
 
@@ -87,17 +70,13 @@ img{
 
 <div class="card">
   <h1>Confirm & Pay</h1>
-  <div class="small">Please verify details before payment</div>
 
   <div class="row">
     <label>Product</label>
     <input id="product" readonly />
   </div>
 
-  <div class="row">
-    <label>Product Image</label>
-    <img id="productImg" alt="Product image">
-  </div>
+  <img id="productImg">
 
   <div class="row">
     <label>Amount</label>
@@ -106,17 +85,17 @@ img{
 
   <div class="row">
     <label>Your Name</label>
-    <input id="name" required />
+    <input id="name" />
   </div>
 
   <div class="row">
     <label>Phone</label>
-    <input id="phone" required />
+    <input id="phone" />
   </div>
 
   <div class="row">
-    <label>Delivery Address (Confirm Carefully)</label>
-    <textarea id="address" placeholder="House No, Street, Area, City, Pincode" required></textarea>
+    <label>Delivery Address</label>
+    <textarea id="address"></textarea>
   </div>
 
   <button id="payBtn" disabled>Pay Securely</button>
@@ -124,17 +103,17 @@ img{
 
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
-<script>
-const rawOrder = sessionStorage.getItem('pendingOrder');
-if(!rawOrder){
-  alert('Invalid access');
-  location.href='index.html';
-}
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-let order;
-try{ order = JSON.parse(rawOrder); }
-catch{ location.href='index.html'; }
+/* ---------- SESSION DATA ---------- */
+const raw = sessionStorage.getItem('pendingOrder');
+if(!raw){ alert('Invalid access'); location.href='index.html'; }
+const order = JSON.parse(raw);
 
+/* ---------- DOM ---------- */
 const productEl = document.getElementById('product');
 const priceText = document.getElementById('priceText');
 const nameEl = document.getElementById('name');
@@ -143,29 +122,15 @@ const addressEl = document.getElementById('address');
 const imgEl = document.getElementById('productImg');
 const payBtn = document.getElementById('payBtn');
 
-const price = Number(order.price);
-if(!price || price<=0){
-  alert('Invalid price');
-  location.href='index.html';
-}
-
+/* ---------- INIT UI ---------- */
 productEl.value = order.product || '';
-priceText.textContent = `₹${price}`;
-nameEl.value = order.name || '';
-phoneEl.value = order.phone || '';
-addressEl.value = order.address || '';
-
+priceText.textContent = `₹${order.price}`;
 if(order.image){
   imgEl.src = order.image;
-  imgEl.onload = ()=> imgEl.style.display='block';
+  imgEl.style.display='block';
 }
-</script>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
+/* ---------- FIREBASE ---------- */
 const app = initializeApp({
   apiKey: "AIzaSyBozW19Rjc9nj0YabOIE3DlW0qVHtU5XLA",
   authDomain: "hamsasarees-24738.firebaseapp.com",
@@ -174,28 +139,26 @@ const app = initializeApp({
 
 const auth = getAuth(app);
 const db = getFirestore(app);
-
 let currentUser = null;
 
 onAuthStateChanged(auth,user=>{
   if(!user){
-    alert('Please sign in first');
+    alert('Please sign in');
     location.href='index.html';
   }else{
     currentUser = user;
-    payBtn.disabled = false;
+    payBtn.disabled=false;
   }
 });
 
-payBtn.addEventListener('click', ()=>{
-  if(!currentUser) return;
-
+/* ---------- PAYMENT ---------- */
+payBtn.addEventListener('click',()=>{
   const name = nameEl.value.trim();
-  const phone = phoneEl.value.replace(/\s+/g,'');
+  const phone = phoneEl.value.trim();
   const address = addressEl.value.trim();
 
-  if(!name || !/^[6-9]\d{9}$/.test(phone) || address.length < 10){
-    alert('Please enter valid name, phone and full address');
+  if(!name || !/^[6-9]\d{9}$/.test(phone) || address.length<10){
+    alert('Fill details properly');
     return;
   }
 
@@ -204,43 +167,29 @@ payBtn.addEventListener('click', ()=>{
 
   const rzp = new Razorpay({
     key:'rzp_live_Rqulhc8rZRz8Iw',
-    amount:Math.round(price*100),
+    amount:Math.round(order.price*100),
     currency:'INR',
     name:'Hamsa Sarees',
-    description:order.product,
 
     handler: async res=>{
-      try{
-        await setDoc(
-          doc(db,'users',currentUser.uid,'orders',crypto.randomUUID()),
-          {
-            product:order.product,
-            price,
-            image:order.image||'',
-            name,
-            phone,
-            address,
-            email:currentUser.email,
-            paymentId:res.razorpay_payment_id,
-            status:'PAID',
-            createdAt:serverTimestamp()
-          }
-        );
-      }catch(e){
-        alert('Payment received but order save failed. Contact support.');
-        return;
-      }
+      await setDoc(
+        doc(db,'users',currentUser.uid,'orders',crypto.randomUUID()),
+        {
+          product:order.product,
+          price:order.price,
+          image:order.image||'',
+          name, phone, address,
+          email:currentUser.email,
+          paymentId:res.razorpay_payment_id,
+          status:'PAID',
+          createdAt:serverTimestamp()
+        }
+      );
 
       sessionStorage.removeItem('pendingOrder');
-      alert('Payment successful!');
+      alert('Payment successful');
       location.href='yourorders.html';
     }
-  });
-
-  rzp.on('payment.failed',()=>{
-    alert('Payment failed');
-    payBtn.disabled=false;
-    payBtn.textContent='Pay Securely';
   });
 
   rzp.open();
@@ -249,3 +198,4 @@ payBtn.addEventListener('click', ()=>{
 
 </body>
 </html>
+
