@@ -1471,6 +1471,7 @@ window.location.href = 'payment.html';});
     // ---- Search and shopNow (debounced) ----
     const searchBox = $('searchBox');
     if(searchBox){
+      // This is the old search logic. It will be replaced by applyFiltersAndRender.
       let searchTimer = null;
       searchBox.addEventListener('input', e=>{
         clearTimeout(searchTimer);
@@ -1490,6 +1491,7 @@ window.location.href = 'payment.html';});
 
     // ---- FILTERING LOGIC ----
     function applyFiltersAndRender() {
+      const productGrid = $('productGrid');
       const searchTerm = $('searchBox').value.toLowerCase();
       
       let filteredProducts = allProducts.filter(product => {
@@ -1512,7 +1514,7 @@ window.location.href = 'payment.html';});
         return true;
       });
 
-      renderProducts(filteredProducts);
+      renderProducts(filteredProducts, productGrid);
     }
 
     function updateColorFilterCounts() {
@@ -1540,6 +1542,7 @@ window.location.href = 'payment.html';});
 
     // ---- Initialize Filters UI ----
     function initializeFilters() {
+      const searchBox = $('searchBox');
       const container = $('colorFiltersContainer');
       container.innerHTML = '';
       for (const color in FILTERS_CONFIG.colors) {
@@ -1564,6 +1567,15 @@ window.location.href = 'payment.html';});
         document.querySelectorAll('.color-filter-item').forEach(item => item.style.outline = 'none');
         applyFiltersAndRender();
       });
+
+      // Integrate search box with the new filtering system
+      if (searchBox) {
+        let searchTimer = null;
+        searchBox.addEventListener('input', () => {
+          clearTimeout(searchTimer);
+          searchTimer = setTimeout(applyFiltersAndRender, 180); // Debounced call
+        });
+      }
     }
     initializeFilters();
 
@@ -1644,6 +1656,3 @@ window.location.href = 'payment.html';});
 
   </body>
 </html>
-
-
-
