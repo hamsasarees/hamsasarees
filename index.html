@@ -913,6 +913,46 @@ productGrid.addEventListener('click', e => {
   $('pdPrice').innerText =
   card.querySelector('.price-new')?.innerText || '';
 
+  // ---- NEW: Populate Additional Details in Modal ----
+  const data = JSON.parse(card.dataset.productData || '{}');
+  const detailsContainer = $('pdDetails');
+  detailsContainer.innerHTML = ''; // Clear previous details
+
+  const addDetailToModal = (label, value) => {
+    if (!value || (Array.isArray(value) && value.length === 0)) return;
+    const detailEl = document.createElement('div');
+    const labelEl = document.createElement('span');
+    labelEl.textContent = `${label}: `;
+    labelEl.style.fontWeight = '600';
+    labelEl.style.color = 'var(--text-main)';
+    
+    const valueEl = document.createElement('span');
+    const formattedValue = Array.isArray(value) 
+      ? value.map(v => v.charAt(0).toUpperCase() + v.slice(1)).join(', ') 
+      : value;
+    valueEl.textContent = formattedValue;
+
+    detailEl.appendChild(labelEl);
+    detailEl.appendChild(valueEl);
+    detailsContainer.appendChild(detailEl);
+  };
+
+  addDetailToModal('Material', data.material);
+  addDetailToModal('Style', data.style);
+  addDetailToModal('Design', data.design);
+  addDetailToModal('Colors', data.colors);
+  addDetailToModal('Blouse', data.blouse);
+
+  // Stock Status for Modal
+  const stock = data.stock;
+  const stockStatusText = (stock !== undefined && stock > 0) ? 'In Stock' : 'Out of Stock';
+  const stockColor = (stock !== undefined && stock > 0) ? 'var(--success)' : 'var(--danger)';
+  const stockEl = document.createElement('div');
+  stockEl.innerHTML = `<span style="font-weight:600; color: var(--text-main);">Availability: </span><span style="color: ${stockColor};">${stockStatusText}</span>`;
+  detailsContainer.appendChild(stockEl);
+  
+  // Also update the order button based on stock
+  $('pdOrderBtn').disabled = !(stock !== undefined && stock > 0);
 
   // Load reviews
   loadProductReviews(currentProductId);
@@ -1707,4 +1747,5 @@ window.location.href = 'payment.html';});
 
   </body>
 </html>
+
 
