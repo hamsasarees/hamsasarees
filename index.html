@@ -605,6 +605,11 @@ button,a{
         <button id="addImageUrl" type="button" class="btn-ghost" style="margin-top:8px">Add another image</button>
       </div>
 
+      <div class="field">
+        <label class="small" style="font-weight: 600;">Image Preview</label>
+        <img id="admin_pPreview" src="" alt="Product Image Preview" style="max-width: 100%; max-height: 200px; border: 1px solid var(--border); border-radius: 8px; margin-top: 8px; display: none;">
+      </div>
+
       <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
         <button id="adminCancelEdit" class="btn-ghost" style="display:none">Cancel Edit</button>
         <button id="adminSave" class="btn">Add Product</button>
@@ -1326,6 +1331,8 @@ function attachRatingListenersToGrid(){
       $('admin_pStock').value = '';
       const imageUrlsContainer = $('imageUrlsContainer');
       imageUrlsContainer.innerHTML = '<input class="imageUrlInput" placeholder="Image URL 1" style="margin-bottom:8px">';
+      imageUrlsContainer.querySelector('.imageUrlInput').addEventListener('input', updatePreview); // Re-attach listener
+      $('admin_pPreview').style.display = 'none';
       $('admin_pTitle').focus();
     });
 
@@ -1423,6 +1430,7 @@ function attachRatingListenersToGrid(){
           const newInput = document.createElement('input');
           newInput.className = 'imageUrlInput';
           newInput.value = url;
+          newInput.addEventListener('input', updatePreview);
           newInput.style.marginBottom = '8px';
           imageUrlsContainer.appendChild(newInput);
         });
@@ -1432,6 +1440,13 @@ function attachRatingListenersToGrid(){
       $('adminSave').innerText = 'Save Changes';
       $('adminCancelEdit').style.display = 'inline-block';
       window.scrollTo(0, 0);
+      updatePreview();
+    }
+
+    // Attach listener to the initial image URL input
+    const initialImageUrlInput = document.querySelector('#imageUrlsContainer .imageUrlInput');
+    if (initialImageUrlInput) {
+      initialImageUrlInput.addEventListener('input', updatePreview);
     }
     // Logic for adding multiple image URLs
     const addImageUrlBtn = $('addImageUrl');
@@ -1440,12 +1455,24 @@ function attachRatingListenersToGrid(){
         const imageUrlsContainer = $('imageUrlsContainer');
         const inputCount = imageUrlsContainer.querySelectorAll('.imageUrlInput').length;
         const newInput = document.createElement('input');
+        newInput.addEventListener('input', updatePreview);
         newInput.type = 'text';
         newInput.className = 'imageUrlInput';
         newInput.placeholder = `Image URL ${inputCount + 1}`;
         newInput.style.marginBottom = '8px';
         imageUrlsContainer.appendChild(newInput);
       });
+    }
+
+    function updatePreview() {
+      const imageUrls = [...document.querySelectorAll('#imageUrlsContainer .imageUrlInput')]
+        .map(input => input.value.trim())
+        .filter(url => url);
+      const previewImage = $('admin_pPreview');
+      if (imageUrls.length > 0) {
+        previewImage.src = imageUrls[0];
+        previewImage.style.display = 'block';
+      } else { previewImage.style.display = 'none'; }
     }
 
     $('adminSave').addEventListener('click', async ()=>{
@@ -1515,6 +1542,7 @@ function attachRatingListenersToGrid(){
 
         const imageUrlsContainer = $('imageUrlsContainer');
         imageUrlsContainer.innerHTML = '<input class="imageUrlInput" placeholder="Image URL 1" style="margin-bottom: 8px;">';
+        $('admin_pPreview').style.display = 'none';
 
         btn.disabled = false; btn.innerText = 'Add Product';
         await loadAdminProductsList();
