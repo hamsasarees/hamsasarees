@@ -38,6 +38,19 @@ html,body{
   color:var(--text-main);
 }
 
+/* ================= FILTERS ================= */
+.filter-section{
+  background:linear-gradient(180deg,#12183a,#0f152e);
+  border:1px solid var(--border);
+  padding:16px;
+  border-radius:16px;
+  margin-top:22px;
+}
+.color-filter-grid{
+  display:flex; flex-wrap:wrap; gap:12px;
+}
+.color-filter-item{ display:flex; align-items:center; gap:6px; background:#0f1738; padding:6px 10px; border-radius:8px; font-size:13px; cursor:pointer; border:1px solid var(--border); }
+.color-swatch{ width:16px; height:16px; border-radius:50%; border:1px solid rgba(255,255,255,0.1); }
 /* ================= LAYOUT ================= */
 .container{
   max-width:1200px;
@@ -446,12 +459,23 @@ button,a{
         </aside>
       </section>
 
+      <!-- Filters Section -->
+      <section class="filter-section">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <h3 style="margin:0; font-size:16px;">Filter by Color</h3>
+          <button id="clearFiltersBtn" class="btn-ghost" style="font-size:12px; padding:6px 12px;">Clear</button>
+        </div>
+        <div id="colorFiltersContainer" class="color-filter-grid">
+          <!-- Color filters will be dynamically inserted here -->
+        </div>
+      </section>
+
       <section style="margin-top:12px">
         <div style="display:flex;justify-content:space-between;align-items:center">
           <h2 style="margin:0">Products</h2>
           <div class="small">Sign in to place orders; orders saved to your account</div>
         </div>
-        <div class="grid" id="productGrid" aria-live="polite">
+        <div class="grid" id="productGrid" aria-live="polite" style="min-height:200px;">
           <div class="card" style="grid-column:1/-1;text-align:center;color:var(--muted);padding:32px;background:transparent">
             <strong style="color:#eaf6ff">No products yet</strong>
             <div class="small" style="margin-top:8px">As admin, open Admin → Add Product to upload items. The product grid updates live for users.</div>
@@ -536,6 +560,36 @@ button,a{
       </div>
 
       <div class="field">
+        <label class="small" style="font-weight:600">Colors (comma-separated) *</label>
+        <input id="admin_pColors" placeholder="e.g., red, gold, blue">
+      </div>
+
+      <div class="field">
+        <label class="small" style="font-weight:600">Material</label>
+        <input id="admin_pMaterial" placeholder="e.g., Cotton, Silk">
+      </div>
+
+      <div class="field">
+        <label class="small" style="font-weight:600">Style</label>
+        <input id="admin_pStyle" placeholder="e.g., Kanjivaram, Banarasi">
+      </div>
+
+      <div class="field">
+        <label class="small" style="font-weight:600">Design</label>
+        <input id="admin_pDesign" placeholder="e.g., Floral, Paisley">
+      </div>
+
+      <div class="field">
+        <label class="small" style="font-weight:600">Blouse Included</label>
+        <input id="admin_pBlouse" placeholder="e.g., Yes, No">
+      </div>
+
+      <div class="field">
+        <label class="small" style="font-weight:600">Number of Stock</label>
+        <input id="admin_pStock" type="number" placeholder="e.g., 10">
+      </div>
+
+      <div class="field">
         <label class="small" style="font-weight:600">Image URLs</label>
         <div id="imageUrlsContainer">
           <input class="imageUrlInput" placeholder="Image URL 1" style="margin-bottom:8px">
@@ -569,6 +623,7 @@ button,a{
   if(document.readyState === 'loading') await new Promise(r=>document.addEventListener('DOMContentLoaded', r));
   const $ = id => document.getElementById(id);
   let currentEditingId = null; // To track which product is being edited
+  let allProducts = []; // Master list of all products from Firestore
   function openModal(modal){ if(!modal) return; modal.classList.add('show'); modal.removeAttribute('aria-hidden'); document.body.style.overflow = 'hidden'; }
     function closeModal(modal){
   if(!modal) return;
@@ -597,6 +652,24 @@ let selectedRating = 0;
     measurementId: "G-1G1HQGJ5XS"
   };
 
+  // ---- FILTER CONFIG ----
+  const FILTERS_CONFIG = {
+    colors: {
+      red: '#ff4757', blue: '#3742fa', green: '#2ed573', yellow: '#ffc048',
+      black: '#2f3542', white: '#ffffff', pink: '#f78fb3', purple: '#8e44ad',
+      orange: '#ffa502', brown: '#834822', gold: '#e6b566', silver: '#bdc3c7',
+      multicolor: 'linear-gradient(45deg, red, yellow, green, blue)'
+    },
+    colorGroups: {
+      light: ['white', 'cream', 'beige', 'pastel pink', 'pastel blue', 'light yellow'],
+      dark: ['black', 'maroon', 'navy blue', 'dark green', 'dark red']
+    }
+  };
+  
+  // ---- State for active filters ----
+  let activeFilters = {
+    colors: new Set()
+  };
   // ---- helper: escape text for safe insertion ----
   function escapeHtml(s){ return String(s===undefined||s===null?'':s).replace(/[&<>\"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
@@ -854,7 +927,7 @@ productGrid.addEventListener('click', e => {
       const id = docSnap.id;
       const data = docSnap.data() || {};
       const title = data.title || 'Untitled';
-      const tag = data.tag || '';
+      const tag = data.tag || '';      
       // Use the 'images' array if it exists, otherwise fall back to 'img'.
       const images = data.images && data.images.length > 0 ? data.images : [data.img];
       const primaryImage = images[0] || 'https://images.unsplash.com/photo-1520975918016-4d0b5b0b2f3d?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder';
@@ -862,7 +935,11 @@ productGrid.addEventListener('click', e => {
       const avg = data._avg ? Number(data._avg).toFixed(1) : null;
       const avgDisplay = avg ? `★ ${avg} (${data._count||0})` : 'No ratings';
 
-      const card = document.createElement('div'); card.className = 'card'; card.dataset.pid = id;
+      const card = document.createElement('div'); 
+      card.className = 'card'; 
+      card.dataset.pid = id;
+      // Store product data on the element for filtering
+      card.dataset.productData = JSON.stringify(data);
       
       // build DOM safely (no raw innerHTML from user content)
       let tagEl = null;
@@ -948,25 +1025,59 @@ row.appendChild(ratingWrap);
       return card;
     }
 
+    function renderProducts(productsToRender) {
+      const productGrid = $('productGrid');
+      productGrid.innerHTML = '';
+
+      if (productsToRender.length === 0) {
+        const fallback = document.createElement('div');
+        fallback.className = 'card';
+        fallback.style.cssText = 'grid-column:1/-1;text-align:center;color:var(--muted);padding:32px;background:transparent;box-shadow:none;';
+        fallback.innerHTML = '<strong style="color:#eaf6ff">No products match your filters.</strong><div class="small" style="margin-top:8px">Try clearing the filters to see all products.</div>';
+        productGrid.appendChild(fallback);
+        return;
+      }
+
+      productsToRender.forEach(productData => {
+        // We need a mock docSnap structure for renderProductCard
+        const mockDocSnap = {
+          id: productData.id,
+          data: () => productData
+        };
+        const card = renderProductCard(mockDocSnap);
+        productGrid.appendChild(card);
+      });
+      attachRatingListenersToGrid();
+    }
+
     let productsUnsub = null;
     try{
       productsUnsub = onSnapshot(productsColRef, snap=>{
-        // render from DB
-        productGrid.innerHTML = '';
+        allProducts = []; // Clear and repopulate the master list
         if(snap.empty){
-          const fallback = document.createElement('div'); fallback.className='card'; fallback.style.gridColumn='1/-1'; fallback.style.textAlign='center'; fallback.style.color='var(--muted)'; fallback.style.padding='32px';
-          fallback.innerHTML = '<strong style="color:#eaf6ff">No products yet</strong><div class="small" style="margin-top:8px">As admin, open Admin → Add Product to upload items. The product grid updates live for users.</div><div style="margin-top:12px"><button id="openAdminFromEmptyInner" class="btn-ghost">Open Admin</button></div>';
-          productGrid.appendChild(fallback);
-          // attach handler to that button
-          setTimeout(()=>{ document.getElementById('openAdminFromEmptyInner')?.addEventListener('click', ()=>{ if(!auth.currentUser){ openModal(loginModal); showLoginError('Sign in as admin to add products'); return; } if(auth.currentUser.uid !== ADMIN_UID){ alert('You are not admin'); return; } openModal(adminModal); }); },50);
+          productGrid.innerHTML = `<div class="card" style="grid-column:1/-1;text-align:center;color:var(--muted);padding:32px;background:transparent">
+            <strong style="color:#eaf6ff">No products yet</strong>
+            <div class="small" style="margin-top:8px">As admin, open Admin → Add Product to upload items. The product grid updates live for users.</div>
+            <div style="margin-top:12px"><button id="openAdminFromEmptyInner" class="btn-ghost">Open Admin</button></div>
+          </div>`;
+          document.getElementById('openAdminFromEmptyInner')?.addEventListener('click', ()=>{ 
+            if(!auth.currentUser){ openModal(loginModal); showLoginError('Sign in as admin to add products'); return; } 
+            if(auth.currentUser.uid !== ADMIN_UID){ alert('You are not admin'); return; } 
+            openModal(adminModal); 
+          });
           return;
         }
 
         snap.forEach(d => {
-          const card = renderProductCard(d);
-          productGrid.appendChild(card);
+          allProducts.push({ id: d.id, ...d.data() });
         });
-        attachRatingListenersToGrid();
+
+        // Initial render with all products
+        applyFiltersAndRender();
+
+        // Update product counts in filters
+        updateColorFilterCounts();
+
       }, err => { console.error('products snapshot error', err); });
     }catch(e){ console.warn('products onSnapshot not available', e); }
 
@@ -1124,6 +1235,12 @@ window.location.href = 'payment.html';});
       $('admin_pPrice').value = '';
       $('admin_pMrp').value = '';
       $('admin_pTag').value = '';
+      $('admin_pColors').value = '';
+      $('admin_pMaterial').value = '';
+      $('admin_pStyle').value = '';
+      $('admin_pDesign').value = '';
+      $('admin_pBlouse').value = '';
+      $('admin_pStock').value = '';
       const imageUrlsContainer = $('imageUrlsContainer');
       imageUrlsContainer.innerHTML = '<input class="imageUrlInput" placeholder="Image URL 1" style="margin-bottom:8px">';
       $('admin_pTitle').focus();
@@ -1208,6 +1325,12 @@ window.location.href = 'payment.html';});
       $('admin_pPrice').value = data.price || '';
       $('admin_pMrp').value = data.mrp || '';
       $('admin_pTag').value = data.tag || '';
+      $('admin_pColors').value = (data.colors || []).join(', ');
+      $('admin_pMaterial').value = data.material || '';
+      $('admin_pStyle').value = data.style || '';
+      $('admin_pDesign').value = data.design || '';
+      $('admin_pBlouse').value = data.blouse || '';
+      $('admin_pStock').value = data.stock || '';
 
       const imageUrlsContainer = $('imageUrlsContainer');
       imageUrlsContainer.innerHTML = ''; // Clear existing inputs
@@ -1247,12 +1370,21 @@ window.location.href = 'payment.html';});
       const price = Number($('admin_pPrice').value.trim());
       const tag = $('admin_pTag').value.trim();
       const mrp = Number($('admin_pMrp').value.trim()) || price;
+      const colors = $('admin_pColors').value.trim().toLowerCase().split(',')
+        .map(c => c.trim())
+        .filter(c => c);
+      const material = $('admin_pMaterial').value.trim();
+      const pStyle = $('admin_pStyle').value.trim();
+      const design = $('admin_pDesign').value.trim();
+      const blouse = $('admin_pBlouse').value.trim();
+      const stock = Number($('admin_pStock').value.trim());
 
       const imageUrls = [...document.querySelectorAll('#imageUrlsContainer .imageUrlInput')]
         .map(input => input.value.trim())
         .filter(url => url);
 
-      if (!title || !price) { alert('Title and price required'); return; }
+      if (!title || !price) { alert('Title and Selling Price are required.'); return; }
+      if (colors.length === 0) { alert('Please enter at least one color.'); return; }
       if (imageUrls.length === 0) { alert('Please enter at least one image URL'); return; }
       if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) { alert('Only admin can add products'); return; }
 
@@ -1265,6 +1397,12 @@ window.location.href = 'payment.html';});
           mrp,
           tag,
           img: imageUrls[0],
+          material,
+          colors,
+          style: pStyle,
+          design,
+          blouse,
+          stock,
           images: imageUrls,
         };
 
@@ -1285,6 +1423,12 @@ window.location.href = 'payment.html';});
         $('admin_pPrice').value = '';
         $('admin_pTag').value = '';
         $('admin_pMrp').value = '';
+        $('admin_pColors').value = '';
+        $('admin_pMaterial').value = '';
+        $('admin_pStyle').value = '';
+        $('admin_pDesign').value = '';
+        $('admin_pBlouse').value = '';
+        $('admin_pStock').value = '';
 
         const imageUrlsContainer = $('imageUrlsContainer');
         imageUrlsContainer.innerHTML = '<input class="imageUrlInput" placeholder="Image URL 1" style="margin-bottom: 8px;">';
@@ -1342,7 +1486,86 @@ window.location.href = 'payment.html';});
       });
     }
     const shopNow = $('shopNow'); if(shopNow) shopNow.addEventListener('click', ()=>{ const grid=document.getElementById('productGrid'); if(grid) grid.scrollIntoView({behavior:'smooth'}); });
-$('adminClose')?.addEventListener('click', ()=>closeModal(adminModal));
+    $('adminClose')?.addEventListener('click', ()=>closeModal(adminModal));
+
+    // ---- FILTERING LOGIC ----
+    function applyFiltersAndRender() {
+      const searchTerm = $('searchBox').value.toLowerCase();
+      
+      let filteredProducts = allProducts.filter(product => {
+        // 1. Search term filter
+        const title = (product.title || '').toLowerCase();
+        const tag = (product.tag || '').toLowerCase();
+        const material = (product.material || '').toLowerCase();
+        const searchMatch = !searchTerm || title.includes(searchTerm) || tag.includes(searchTerm) || material.includes(searchTerm);
+        if (!searchMatch) return false;
+
+        // 2. Color filter
+        const selectedColors = activeFilters.colors;
+        if (selectedColors.size > 0) {
+          const productColors = product.colors || [];
+          const colorMatch = productColors.some(pc => selectedColors.has(pc));
+          if (!colorMatch) return false;
+        }
+
+        // If all filters pass, include the product
+        return true;
+      });
+
+      renderProducts(filteredProducts);
+    }
+
+    function updateColorFilterCounts() {
+      const colorCounts = {};
+      Object.keys(FILTERS_CONFIG.colors).forEach(c => colorCounts[c] = 0);
+
+      allProducts.forEach(p => {
+        (p.colors || []).forEach(color => {
+          if (colorCounts.hasOwnProperty(color)) {
+            colorCounts[color]++;
+          }
+        });
+      });
+
+      document.querySelectorAll('.color-filter-item').forEach(item => {
+        const color = item.dataset.color;
+        const countEl = item.querySelector('.color-count');
+        if (countEl && colorCounts[color] > 0) {
+          countEl.textContent = `(${colorCounts[color]})`;
+        } else if (countEl) {
+          countEl.textContent = '(0)';
+        }
+      });
+    }
+
+    // ---- Initialize Filters UI ----
+    function initializeFilters() {
+      const container = $('colorFiltersContainer');
+      container.innerHTML = '';
+      for (const color in FILTERS_CONFIG.colors) {
+        const item = document.createElement('div');
+        item.className = 'color-filter-item';
+        item.dataset.color = color;
+        item.innerHTML = `
+          <div class="color-swatch" style="background:${FILTERS_CONFIG.colors[color]}"></div>
+          <span>${color.charAt(0).toUpperCase() + color.slice(1)}</span>
+          <span class="color-count small" style="margin-left:4px; color:var(--text-muted);"></span>
+        `;
+        item.addEventListener('click', () => {
+          item.style.outline = activeFilters.colors.has(color) ? 'none' : '2px solid var(--gold)';
+          activeFilters.colors.has(color) ? activeFilters.colors.delete(color) : activeFilters.colors.add(color);
+          applyFiltersAndRender();
+        });
+        container.appendChild(item);
+      }
+
+      $('clearFiltersBtn').addEventListener('click', () => {
+        activeFilters.colors.clear();
+        document.querySelectorAll('.color-filter-item').forEach(item => item.style.outline = 'none');
+        applyFiltersAndRender();
+      });
+    }
+    initializeFilters();
 
     // initial UI ready
     document.getElementById('openAdminFromEmpty')?.addEventListener('click', ()=>{
@@ -1350,6 +1573,7 @@ $('adminClose')?.addEventListener('click', ()=>closeModal(adminModal));
       if(auth.currentUser.uid !== ADMIN_UID){ alert('You are not admin'); return; }
       openModal(adminModal);
     });
+
     console.log('Hamsa Sarees SPA ready — fixed');
   }catch(err){
     console.error('Init error', err);
@@ -1420,5 +1644,6 @@ $('adminClose')?.addEventListener('click', ()=>closeModal(adminModal));
 
   </body>
 </html>
+
 
 
