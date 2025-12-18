@@ -1098,19 +1098,20 @@ row.appendChild(ratingWrap);
       card.appendChild(row);
 
       // ---- NEW: Product Details Block ----
-
       // Stock Status
       const stockStatusEl = document.createElement('div');
+      stockStatusEl.style.fontSize = '13px';
+      stockStatusEl.style.marginTop = '8px';
       const stockLabelEl = document.createElement('span');
       stockLabelEl.textContent = 'Availability: ';
-      stockLabelEl.style.fontWeight = '600';
+      stockLabelEl.style.fontWeight = '500';
+      stockLabelEl.style.color = 'var(--text-muted)';
       const stockValueEl = document.createElement('span');
       stockValueEl.textContent = (stock !== undefined && stock > 0) ? 'In Stock' : 'Out of Stock';
       stockValueEl.style.color = (stock !== undefined && stock > 0) ? 'var(--success)' : 'var(--danger)';
       stockStatusEl.appendChild(stockLabelEl);
       stockStatusEl.appendChild(stockValueEl);
-
-      card.appendChild(detailsContainer);
+      card.appendChild(stockStatusEl);
 
       const orderWrap = document.createElement('div'); orderWrap.style.marginTop='8px';
       const orderBtn = document.createElement('button'); orderBtn.className='orderBtn btn'; orderBtn.type='button'; orderBtn.dataset.product = title; orderBtn.dataset.price = price;orderBtn.dataset.image = primaryImage; orderBtn.textContent='Order Now'; orderWrap.appendChild(orderBtn);
@@ -1193,24 +1194,26 @@ productGrid.addEventListener('click', ev=>{
   const btn = ev.target.closest('.orderBtn');
   if(!btn) return;
 
-  ev.stopPropagation();
-
-  const prod = btn.dataset.product || '';
-  const price = btn.dataset.price || '0';
-  const img = btn.dataset.image || '';
-
   if(!auth.currentUser){
     openModal(loginModal);
     showLoginError('Please sign in with Google to place orders');
     return;
   }
 
-  $('selectedProduct').innerText = `${prod} (₹${price})`;
-  $('productField').value = prod;
-  $('productField').dataset.price = price;
-  $('productImageField').value = img;
+  // --- UNIFIED ORDER LOGIC ---
+  // This now behaves exactly like the button in the detail modal.
+  const tempOrder = {
+    product: btn.dataset.product || '',
+    price: btn.dataset.price || '0',
+    image: btn.dataset.image || '',
+    name: auth.currentUser.displayName || '',
+    phone: '',
+    address: '',
+    createdAt: Date.now()
+  };
 
-  openModal(orderModal);
+  sessionStorage.setItem('pendingOrder', JSON.stringify(tempOrder));
+  window.location.href = 'payment.html';
 });
 
     // ---- Rating listeners and live averages per product ----
@@ -1285,36 +1288,6 @@ function attachRatingListenersToGrid(){
       
 
     attachRatingListenersToGrid();
-
-    // ---- Orders: place & redirect to payment page ----
-    $('placeOrder')?.addEventListener('click', ev=>{
-
-      ev.preventDefault();
-      const name = $('custName').value.trim(), address = $('custAddress').value.trim(), phone = $('custPhone').value.trim();
-      const product = $('productField').value || '';
-      const imgSrc = $('productImageField').value || '';
-      const price = $('productField').dataset.price || '0';
-      if(!name || !address || !phone){ alert('Fill all fields'); return; }
-      if(!/^[6-9]\d{9}$/.test(phone)){ alert('Enter a valid 10-digit Indian mobile number'); return; }
-      closeModal(orderModal);
-      // Redirect to payment page with order details as URL parameters
-
-
-const tempOrder = {
-  product: product,
-  price: price,
-  image: imgSrc, // ⭐ NOW SAFE
-  name,
-  address,
-  phone,
-  createdAt: Date.now()
-};
-
-sessionStorage.setItem('pendingOrder', JSON.stringify(tempOrder));
-window.location.href = 'payment.html';
-
-
-
 
     // Load user orders (persistent) and allow delete + view
     // Moved to yourorders.html as a separate page
@@ -1828,6 +1801,7 @@ window.location.href = 'payment.html';
 
   </body>
 </html>
+
 
 
 
