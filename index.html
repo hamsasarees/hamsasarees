@@ -964,15 +964,28 @@ productGrid.addEventListener('click', e => {
   addDetailToModal('Blouse', data.blouse);
 
   // Stock Status for Modal
-  const stock = data.stock; // Define stock *after* data is parsed
-  const stockStatusText = (stock !== undefined && stock > 0) ? 'In Stock' : 'Out of Stock';
-  const stockColor = (stock !== undefined && stock > 0) ? 'var(--success)' : 'var(--danger)';
+  const stock = Number(data.stock || 0); // Normalize stock as per requirements
+  const isInStock = stock > 0;
+
+  const stockStatusText = isInStock ? 'In Stock' : 'Out of Stock';
+  const stockColor = isInStock ? 'var(--success)' : 'var(--danger)';
   const stockEl = document.createElement('div');
   stockEl.innerHTML = `<span style="font-weight:600; color: var(--text-main);">Availability: </span><span style="color: ${stockColor};">${stockStatusText}</span>`;
   detailsContainer.appendChild(stockEl);
   
-  // Also update the order button based on stock
-   $('pdOrderBtn').disabled = (stock === undefined || stock <= 0);
+  // --- REQUIRED: Update the order button based on normalized stock ---
+  const pdOrderBtn = $('pdOrderBtn');
+  if (isInStock) {
+    pdOrderBtn.disabled = false;
+    pdOrderBtn.textContent = 'Order Now';
+    pdOrderBtn.style.opacity = '';
+    pdOrderBtn.style.cursor = 'pointer';
+  } else {
+    pdOrderBtn.disabled = true;
+    pdOrderBtn.textContent = 'Out of Stock';
+    pdOrderBtn.style.opacity = '0.6';
+    pdOrderBtn.style.cursor = 'not-allowed';
+  }
 
   // Load reviews
   loadProductReviews(currentProductId);
@@ -1005,7 +1018,7 @@ productGrid.addEventListener('click', e => {
         style: data.style || '',
         design: data.design || '',
         blouse: data.blouse || '',
-        stock: data.stock === undefined ? 1 : data.stock, // Default to 1 if undefined
+        stock: data.stock === undefined ? 0 : data.stock, // Default to 0 if undefined
         colors: Array.isArray(data.colors) ? data.colors : []
       };
       card.dataset.productData = JSON.stringify(safeDataForDataset);
@@ -1328,9 +1341,6 @@ const tempOrder = {
 sessionStorage.setItem('pendingOrder', JSON.stringify(tempOrder));
 window.location.href = 'payment.html';
 
-
-sessionStorage.setItem('pendingOrder', JSON.stringify(tempOrder));
-window.location.href = 'payment.html';});
 
 
 
@@ -1782,7 +1792,7 @@ window.location.href = 'payment.html';});
   <div class="modal zoom-modal" id="zoomModal" aria-hidden="true">
     <div class="modal-box" role="dialog" aria-modal="true">
       <button class="close-x" id="closeZoom" title="Close">✕</button>
-      <img id="zoomImg" src="" alt="Product zoom" />
+      <img id="zoomImg" src="" alt="Zoomed-in product image" />
     </div>
   </div>
 
@@ -1842,6 +1852,3 @@ window.location.href = 'payment.html';});
 
   </body>
 </html>
-
-
-
