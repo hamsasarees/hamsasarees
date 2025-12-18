@@ -8,81 +8,111 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 
 <style>
+/* ================= ROOT THEME ================= */
 :root{
-  --bg1:#001f3f; --bg2:#00306b;
-  --accent:#00aaff; --accent2:#4dd0e1;
-  --muted:#9fb8d9; --success:#10b981;
+  --bg-main:#0a0e1a;
+  --bg-panel:#11172c;
+  --bg-soft:#161e3d;
+  --border:rgba(255,255,255,0.08);
+  --gold:#e6b566;
+  --gold-dark:#cfa34e;
+  --text-main:#eef2ff;
+  --text-muted:#9fb0d1;
+  --success:#3ddc97;
+  --danger:#ff6b6b;
 }
+
+/* ================= RESET ================= */
 *{box-sizing:border-box}
 html,body{
-  margin:0;height:100%;
+  margin:0;
   font-family:Inter,system-ui,Arial,sans-serif;
-  background:linear-gradient(180deg,var(--bg1),var(--bg2));
-  color:#eaf6ff
+  background:
+    radial-gradient(900px 400px at 20% -10%, rgba(230,181,102,.12), transparent 60%),
+    linear-gradient(180deg,#080c18,#0a0e1a);
+  color:var(--text-main);
 }
-.container{max-width:1100px;margin:20px auto;padding:0 16px}
+.container{max-width:1200px;margin:auto;padding:20px 16px}
 header{
-  display:flex;justify-content:space-between;align-items:center;
-  background:rgba(255,255,255,0.02);
-  padding:12px;border-radius:12px;margin-bottom:20px
+  display:flex;
+  align-items:center;
+  gap:18px;
+  padding:16px 18px;
+  border-radius:16px;
+  background:linear-gradient(180deg,#12183a,#0f152e);
+  border:1px solid var(--border);
+  box-shadow:0 20px 50px rgba(0,0,0,.45);
 }
-.logo{
-  width:44px;height:44px;border-radius:10px;
-  background:linear-gradient(135deg,var(--accent),var(--accent2));
-  display:flex;align-items:center;justify-content:center;
-  font-weight:800;color:#032033
-}
+.brand{ display:flex; gap:12px; align-items:center; }
+.logo{ width:48px; height:48px; border-radius:12px; overflow:hidden; }
+.logo img { width: 100%; height: 100%; object-fit: cover; }
+.title{ font-weight:800; font-size:16px; }
+.small{ font-size:13px; color:var(--text-muted); }
 .actions{display:flex;gap:8px;align-items:center}
-.btn,.btn-ghost{
-  padding:9px 14px;border-radius:10px;
-  font-weight:700;cursor:pointer
-}
 .btn{
-  border:none;color:#fff;
-  background:linear-gradient(90deg,var(--accent),#ff5aa3)
+  font-family:inherit;
+  background:linear-gradient(90deg,var(--gold),#f3d48c);
+  color:#3b2b08;
+  border:none;
+  padding:10px 18px;
+  border-radius:14px;
+  font-weight:800;
+  cursor:pointer;
+  box-shadow:0 10px 30px rgba(230,181,102,.35);
+  text-decoration: none;
 }
 .btn-ghost{
-  background:transparent;border:1px solid rgba(255,255,255,.15);
-  color:#fff
+  font-family:inherit;
+  background:#0f1738;
+  border:1px solid var(--border);
+  color:var(--text-main);
+  padding:9px 16px;
+  border-radius:14px;
+  cursor:pointer;
+  text-decoration: none;
 }
 .order-card{
-  background:#071522;border-radius:12px;
-  padding:16px;margin-bottom:12px;
-  display:flex;justify-content:space-between;gap:12px
+  background:linear-gradient(180deg,#18245a,#111a3d);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:16px;
+  margin-bottom:12px;
+  display:flex;
+  justify-content:space-between;
+  gap:16px;
+  align-items: center;
 }
 .order-info strong{display:block;font-size:16px;margin-bottom:6px}
-.small{font-size:14px;color:var(--muted)}
-img{border-radius:8px}
+img{border-radius:10px}
 .modal{
   position:fixed;inset:0;display:none;
-  background:rgba(0,0,0,.6);
+  background:rgba(5,8,15,.9);
   align-items:center;justify-content:center
 }
 .modal.show{display:flex}
 .modal-box{
-  background:#071522;border-radius:12px;
-  padding:20px;max-width:700px;width:100%
-}
-.toast{
-  position:fixed;right:16px;bottom:16px;
-  background:#0b1220;padding:10px 14px;
-  border-radius:10px;border-left:4px solid var(--success);
-  display:none
+  background:linear-gradient(180deg,#162051,#0f1533);
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:24px;
+  max-width:700px;
+  width:100%;
+  box-shadow:0 40px 120px rgba(0,0,0,.7);
 }
 </style>
 </head>
 
 <body>
-
 <div class="container">
   <header>
-    <div style="display:flex;gap:12px;align-items:center">
-      <div class="logo">HS</div>
+    <div class="brand">
+      <div class="logo" aria-hidden="true"><img src="hamsasareeslogo.jpg" alt="Hamsa Sarees Logo"></div>
       <div>
-        <strong>Hamsa Sarees</strong><br>
-        <span class="small">My Orders</span>
+        <div class="title">Hamsa Sarees</div>
+        <div class="small">My Orders</div>
       </div>
     </div>
+    <div style="flex:1"></div>
     <div class="actions">
       <span id="userBadge" class="small" style="display:none"></span>
       <button id="loginBtn" class="btn">Sign in</button>
@@ -90,30 +120,36 @@ img{border-radius:8px}
       <a href="index.html" class="btn-ghost">Back</a>
     </div>
   </header>
-  <div class="container">
-  <header>
-    <div style="display:flex;gap:12px;align-items:center">
-          <h3>For Canceling Order , <a href="https://whatsapp.com/channel/0029Vb7MNNbDZ4LcXUZoSz2y" target="_blank" rel="noopener noreferrer" class="btn" style="margin-top: 16px;">
-            Contact Us
-          </a></h3>
-      </div>
+
+  <main>
+    <div style="background:var(--bg-soft); border:1px solid var(--border); border-radius:16px; padding:16px; margin: 22px 0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+      <h3 style="margin:0;">For order cancellations, please contact us on WhatsApp.</h3>
+      <a href="https://whatsapp.com/channel/0029Vb7MNNbDZ4LcXUZoSz2y" target="_blank" rel="noopener noreferrer" class="btn">
+        Contact Support
+      </a>
     </div>
-  
-  <div id="ordersContainer" class="small" style="text-align:center;padding:40px">
-    Please sign in to view your orders
-  </div>
+    
+    <div id="ordersContainer" class="small" style="text-align:center;padding:40px; border:1px solid var(--border); border-radius:16px; margin-top:22px; background:var(--bg-panel);">
+      Please sign in to view your orders
+    </div>
+  </main>
 </div>
 
 <!-- MODAL -->
 <div class="modal" id="orderModal">
   <div class="modal-box">
-    <button id="closeModal" class="btn-ghost" style="float:right">Close</button>
+    <button id="closeModal" class="btn-ghost" style="float:right; font-size:12px; padding:6px 12px;">Close</button>
     <h2>Order Details</h2>
     <pre id="orderDetails" class="small"></pre>
   </div>
 </div>
 
 <div id="toast" class="toast"></div>
+
+<footer style="text-align:center;padding:18px;color:#9fb8d9;font-size:13px;line-height:1.6;">
+  ©2025 Hamsa Sarees, unauthorized use is strictly prohibited.<br>
+  Website designed, created & published by Terminal Joint.
+</footer>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -162,7 +198,7 @@ async function loadOrders(){
     card.className = 'order-card';
     card.innerHTML = `
       <div style="display:flex;gap:12px">
-        ${o.image ? `<img src="${o.image}" width="70" height="90">` : ''}
+        ${o.image ? `<img src="${o.image}" width="70" height="90" style="object-fit:cover;">` : ''}
         <div class="order-info">
           <strong>${o.product}</strong>
           <div class="small">${o.name}</div>
@@ -170,7 +206,7 @@ async function loadOrders(){
         </div>
       </div>
       <div>
-        <button class="btn-ghost viewBtn" data-id="${d.id}">View</button>
+        <button class="btn-ghost viewBtn" data-id="${d.id}" style="font-size:12px; padding:6px 12px;">View</button>
       </div>
     `;
     ordersContainer.appendChild(card);
@@ -225,4 +261,3 @@ onAuthStateChanged(auth,user=>{
 
 </body>
 </html>
-
