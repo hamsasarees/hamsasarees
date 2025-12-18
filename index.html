@@ -625,7 +625,7 @@ button,a{
     </div>
 
     <div style="margin-top:16px;display:flex;justify-content:flex-end">
-      <button id="adminClose" class="btn-ghost">Close</button>
+      <button class="close-x btn-ghost">Close</button>
     </div>
   </div>
 </div>
@@ -992,6 +992,16 @@ productGrid.addEventListener('click', e => {
   openModal(document.getElementById('productDetailModal'));
 });
 
+    // ---- Helper function to add detail rows to a container ----
+    function addDetailToCard(container, label, value) {
+      if (!value || (Array.isArray(value) && value.length === 0)) return;
+      const detailEl = document.createElement('div');
+      // This function now expects value to be a pre-formatted string (or HTML)
+      const formattedValue = Array.isArray(value) ? value.map(v => v.charAt(0).toUpperCase() + v.slice(1)).join(', ') : value;
+      detailEl.innerHTML = `<span style="font-weight:600; color: var(--text-main);">${label}: </span><span>${formattedValue}</span>`;
+      container.appendChild(detailEl);
+    }
+
     const productsColRef = collection(db, 'products');
 
     function renderProductCard(docSnap){
@@ -1097,22 +1107,23 @@ if (discount > 0) {
 row.appendChild(ratingWrap);
       card.appendChild(row);
 
-      // ---- NEW: Product Details Block ----
-      // Stock Status
-      const stockStatusEl = document.createElement('div');
-      stockStatusEl.style.fontSize = '13px';
-      stockStatusEl.style.marginTop = '8px';
-      const stockLabelEl = document.createElement('span');
-      stockLabelEl.textContent = 'Availability: ';
-      stockLabelEl.style.fontWeight = '500';
-      stockLabelEl.style.color = 'var(--text-muted)';
-      const stockValueEl = document.createElement('span');
-      stockValueEl.textContent = (stock !== undefined && stock > 0) ? 'In Stock' : 'Out of Stock';
-      stockValueEl.style.color = (stock !== undefined && stock > 0) ? 'var(--success)' : 'var(--danger)';
-      stockStatusEl.appendChild(stockLabelEl);
-      stockStatusEl.appendChild(stockValueEl);
-      card.appendChild(stockStatusEl);
+      // --- Product Details Block (Restored) ---
+      const detailsContainer = document.createElement('div');
+      detailsContainer.style.cssText = 'margin-top: 10px; font-size: 12px; color: var(--text-muted); display: grid; gap: 4px;';
 
+      addDetailToCard(detailsContainer, 'Material', data.material);
+      addDetailToCard(detailsContainer, 'Style', data.style);
+      addDetailToCard(detailsContainer, 'Design', data.design);
+      addDetailToCard(detailsContainer, 'Blouse', data.blouse);
+      
+      // Add stock status directly to the details container for correct HTML
+      const stockStatusText = (stock !== undefined && stock > 0) ? 'In Stock' : 'Out of Stock';
+      const stockColor = (stock !== undefined && stock > 0) ? 'var(--success)' : 'var(--danger)';
+      const stockEl = document.createElement('div');
+      stockEl.innerHTML = `<span style="font-weight:600; color: var(--text-main);">Availability: </span><span style="color:${stockColor}">${stockStatusText}</span>`;
+      detailsContainer.appendChild(stockEl);
+
+      card.appendChild(detailsContainer);
       const orderWrap = document.createElement('div'); orderWrap.style.marginTop='8px';
       const orderBtn = document.createElement('button'); orderBtn.className='orderBtn btn'; orderBtn.type='button'; orderBtn.dataset.product = title; orderBtn.dataset.price = price;orderBtn.dataset.image = primaryImage; orderBtn.textContent='Order Now'; orderWrap.appendChild(orderBtn);
       card.appendChild(orderWrap);
@@ -1551,7 +1562,6 @@ function attachRatingListenersToGrid(){
       // The search input is now handled by the initializeFilters function
     }
     const shopNow = $('shopNow'); if(shopNow) shopNow.addEventListener('click', ()=>{ const grid=document.getElementById('productGrid'); if(grid) grid.scrollIntoView({behavior:'smooth'}); });
-    $('adminClose')?.addEventListener('click', ()=>closeModal(adminModal));
 
     // ---- FILTERING LOGIC ----
     function applyFiltersAndRender() {
@@ -1801,6 +1811,7 @@ function attachRatingListenersToGrid(){
 
   </body>
 </html>
+
 
 
 
