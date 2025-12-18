@@ -1209,7 +1209,7 @@ const payload = {
   createdAt: serverTimestamp()
 };
 
-        await addDoc(collection(db, 'products'), payload);
+        await setDoc(collection(db, 'products'), productName);
         toast('Product added');
 
         // Reset fields
