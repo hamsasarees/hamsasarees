@@ -972,7 +972,7 @@ productGrid.addEventListener('click', e => {
   detailsContainer.appendChild(stockEl);
   
   // Also update the order button based on stock
-  $('pdOrderBtn').disabled = !(stock !== undefined && stock > 0);
+  $('pdOrderBtn').disabled = (stock === undefined || stock <= 0);
 
   // Load reviews
   loadProductReviews(currentProductId);
@@ -1842,3 +1842,4 @@ window.location.href = 'payment.html';});
 
   </body>
 </html>
+
