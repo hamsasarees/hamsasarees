@@ -948,21 +948,10 @@ productGrid.addEventListener('click', e => {
   detailsContainer.innerHTML = ''; // Clear previous details
 
   const addDetailToModal = (label, value) => {
-    if (!value || (Array.isArray(value) && value.length === 0)) return;
+    if (!value || (Array.isArray(value) && value.length === 0)) return; // Don't render empty details
     const detailEl = document.createElement('div');
-    const labelEl = document.createElement('span');
-    labelEl.textContent = `${label}: `;
-    labelEl.style.fontWeight = '600';
-    labelEl.style.color = 'var(--text-main)';
-    
-    const valueEl = document.createElement('span');
-    const formattedValue = Array.isArray(value) 
-      ? value.map(v => v.charAt(0).toUpperCase() + v.slice(1)).join(', ') 
-      : value;
-    valueEl.textContent = formattedValue;
-
-    detailEl.appendChild(labelEl);
-    detailEl.appendChild(valueEl);
+    const formattedValue = Array.isArray(value) ? value.map(v => v.charAt(0).toUpperCase() + v.slice(1)).join(', ') : value;
+    detailEl.innerHTML = `<span style="font-weight:600; color: var(--text-main);">${label}: </span><span>${formattedValue}</span>`;
     detailsContainer.appendChild(detailEl);
   };
 
@@ -1109,31 +1098,6 @@ row.appendChild(ratingWrap);
       card.appendChild(row);
 
       // ---- NEW: Product Details Block ----
-      const detailsContainer = document.createElement('div');
-      detailsContainer.style.marginTop = '10px';
-      detailsContainer.style.fontSize = '12px';
-      detailsContainer.style.color = 'var(--text-muted)';
-      detailsContainer.style.display = 'grid';
-      detailsContainer.style.gap = '4px';
-
-      const addDetail = (label, value) => {
-        if (!value || (Array.isArray(value) && value.length === 0)) return;
-        const detailEl = document.createElement('div');
-        const labelEl = document.createElement('span');
-        labelEl.textContent = `${label}: `;
-        labelEl.style.fontWeight = '600';
-        const valueEl = document.createElement('span');
-        valueEl.textContent = Array.isArray(value) ? value.map(v => v.charAt(0).toUpperCase() + v.slice(1)).join(', ') : value;
-        detailEl.appendChild(labelEl);
-        detailEl.appendChild(valueEl);
-        detailsContainer.appendChild(detailEl);
-      };
-
-      addDetail('Material', data.material);
-      addDetail('Style', data.style);
-      addDetail('Design', data.design);
-      addDetail('Colors', data.colors);
-      addDetail('Blouse', data.blouse);
 
       // Stock Status
       const stockStatusEl = document.createElement('div');
@@ -1145,7 +1109,6 @@ row.appendChild(ratingWrap);
       stockValueEl.style.color = (stock !== undefined && stock > 0) ? 'var(--success)' : 'var(--danger)';
       stockStatusEl.appendChild(stockLabelEl);
       stockStatusEl.appendChild(stockValueEl);
-      detailsContainer.appendChild(stockStatusEl);
 
       card.appendChild(detailsContainer);
 
@@ -1821,24 +1784,25 @@ window.location.href = 'payment.html';
       <!-- Info -->
       <div class="pd-info">
         <h2 id="pdTitle"></h2>
-        <div id="pdPrice" class="pd-price"></div>
-        <div id="pdRating" class="pd-rating"></div>
+        <div id="pdPrice" class="pd-price" style="margin-bottom: 16px;"></div>
 
         <!-- Container for additional product details -->
         <div id="pdDetails" style="margin: 16px 0; font-size: 14px; color: var(--text-muted); display: grid; gap: 8px;"></div>
 
         <button id="pdOrderBtn" class="btn">Order Now</button>
 
-        <hr>
+        <hr style="margin: 20px 0; border-color: var(--border);">
+
+        <!-- User Reviews -->
+        <h3>User Reviews</h3>
+        <div id="pdRating" class="pd-rating small" style="margin-bottom: 10px;"></div>
+        <div id="reviewsList" class="reviews-list small"></div>
+
+        <hr style="margin: 20px 0; border-color: var(--border);">
 
         <!-- Write Review -->
-        <h3>Write a Review</h3>
         <div class="review-write">
-          <hr>
-
-<h3>User Reviews</h3>
-<div id="reviewsList" class="reviews-list small"></div>
-
+          <h3>Write a Review</h3>
           <div class="review-stars" id="reviewStars">
             <span data-val="1">★</span>
             <span data-val="2">★</span>
@@ -1861,7 +1825,9 @@ window.location.href = 'payment.html';
     ©2025 Hamsa Sarees, unauthorized use is strictly prohibited.<br>
     Website designed, created & published by Terminal Joint.
   </footer>
+
   </body>
 </html>
+
 
 
