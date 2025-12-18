@@ -80,12 +80,13 @@ header{
   width:48px;
   height:48px;
   border-radius:12px;
-  background:linear-gradient(135deg,var(--gold),#f3d48c);
-  color:#3b2b08;
-  font-weight:900;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+  overflow:hidden; /* Ensures the image respects the border radius */
+}
+
+.logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Ensures the image fills the container */
 }
 
 .title{
@@ -424,7 +425,7 @@ button,a{
   <div class="container">
     <header>
       <div class="brand">
-        <div class="logo" aria-hidden="true">HS</div>
+        <div class="logo" aria-hidden="true"><img src="logo.png" alt="Hamsa Sarees Logo"></div>
         <div>
           <div class="title">Hamsa Sarees<br> ! This Site Is Under Construction !</div>
           <div class="small">Handpicked • Ethnic • Quality</div>
@@ -448,21 +449,15 @@ button,a{
     </header>
 
     <main>
-      <section class="hero" style="gap:16px">
-        <div class="hero-card">
-          <h1>Real sarees. Real people. Real style.</h1>
-          <p class="small">Curated collection, saved orders for your account, and a smooth checkout. Mobile-first.</p>
-          <div style="margin-top:14px;display:flex;gap:10px">
-            <button id="shopNow" class="btn">Shop Now</button>
-            <button id="exploreBtn" class="btn-ghost">Collections</button>
-          </div>
+      <section class="hero">
+        <div class="hero-card" style="grid-column: 1 / -1; text-align: center;">
+          <p style="font-size: 16px; line-height: 1.6; margin: 0;">
+            Manufactured and Sold by Hamsa Sarees <br> Address: 22/3 , Tharamangalam Main Road , JALAKANDAPURAM , Salem 636501.
+          </p>
+          <a href="https://www.google.com/search?q=Hamsa+Sarees+,+Jalakandapuram" target="_blank" rel="noopener noreferrer" class="btn" style="margin-top: 16px;">
+            Search on Google About Us
+          </a>
         </div>
-
-        <aside class="promo" aria-hidden="true">
-          <strong>Limited Offer</strong>
-          <div class="small" style="margin-top:8px">Free shipping on orders above ₹3000</div>
-          <div style="margin-top:12px;font-weight:800;color:#7ee0b2">Best Seller: Elegant Cotton — ₹1499</div>
-        </aside>
       </section>
 
       <!-- Filters Section -->
@@ -1811,6 +1806,7 @@ function attachRatingListenersToGrid(){
 
   </body>
 </html>
+
 
 
 
