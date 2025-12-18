@@ -955,8 +955,8 @@ let selectedRating = 0;
     const { getStorage, ref, uploadBytes, getDownloadURL } = storageMod;
 
     const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app); //getAuth(app);
-    const db = getFirestore(app); //getFirestore(app);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
     const storage = getStorage(app);
     const googleProvider = new GoogleAuthProvider();
     function loadProductReviews(pid){
@@ -1149,7 +1149,7 @@ pdOrderBtn?.addEventListener('click', () => {
     // ================= PRODUCT CARD CLICK → DETAIL MODAL =================
 productGrid.addEventListener('click', e => {
   const card = e.target.closest('.product-card');
-  if (!card) return; //card
+  if (!card) return;
   if (!card.dataset.pid) return;
 
   // If Order button clicked, ignore (already handled elsewhere)
@@ -1285,7 +1285,7 @@ productGrid.addEventListener('click', e => {
       // build DOM safely (no raw innerHTML from user content)
       let tagEl = null;
 if(tag){
-  tagEl = document.createElement('div'); //div
+  tagEl = document.createElement('div');
   tagEl.className = 'product-tag';
   tagEl.textContent = tag;
 }
@@ -1298,7 +1298,7 @@ imgWrap.className = 'product-image';
 imgWrap.dataset.images = JSON.stringify(images); // ⭐ STORE ALL IMAGES
 
 const imgEl = document.createElement('img');
-imgEl.loading = 'lazy'; //lazy
+imgEl.loading = 'lazy';
 imgEl.src = primaryImage;
 imgEl.alt = title;
 imgWrap.appendChild(imgEl);
@@ -1310,7 +1310,7 @@ imgWrap.appendChild(imgEl);
 
       const h3 = document.createElement('div'); h3.className = 'product-title'; h3.textContent = title; infoWrap.appendChild(h3);
 
-      const priceWrap = document.createElement('div'); //div
+      const priceWrap = document.createElement('div');
 priceWrap.className = 'product-pricing';
 
 const oldPrice = document.createElement('span');
@@ -1376,7 +1376,7 @@ if (discount > 0) {
         card.style.opacity = '0.6';
         card.style.pointerEvents = 'auto'; // Keep card clickable for detail view
         orderBtn.disabled = true;
-        orderBtn.textContent = 'Out of Stock'; //Out of Stock
+        orderBtn.textContent = 'Out of Stock';
         orderBtn.style.background = 'var(--bg-tertiary)';
         orderBtn.style.cursor = 'not-allowed';
         orderBtn.style.boxShadow = 'none';
@@ -1384,7 +1384,7 @@ if (discount > 0) {
       return card;
     }
 
-    function renderProducts(productsToRender, productGrid) {
+    function renderProducts(productsToRender) {
       const productGrid = $('productGrid');
       productGrid.innerHTML = '';
 
@@ -1472,40 +1472,10 @@ productGrid.addEventListener('click', ev=>{
 
     // ---- Rating listeners and live averages per product ----
     // ---- Rating listeners and live averages (FIXED) ----
-function attachRatingListenersToGrid(){ //_
-  document.querySelectorAll('#productGrid .card').forEach(card=>{
+function attachRatingListenersToGrid(){
+  document.querySelectorAll('#productGrid .product-card').forEach(card=>{
     const pid = card.dataset.pid;
     if(!pid) return;
-
-    // ⭐ RATE BUTTON CLICK
-    card.querySelectorAll('.rateBtn').forEach(btn=>{
-      if(btn._bound) return;
-      btn._bound = true;
-
-      btn.addEventListener('click', async (ev)=>{
-        if(!auth.currentUser){
-          alert('Sign in to rate products');
-          return;
-        }
-
-        const rating = Number(ev.currentTarget.dataset.rating);
-        const uid = auth.currentUser.uid;
-
-        try{
-          await setDoc(
-            doc(db, 'products', pid, 'reviews', uid),
-            {
-              rating: rating,
-              createdAt: serverTimestamp()
-            }
-          );
-          toast('Thanks for rating!');
-        }catch(err){
-          console.error('rating save failed', err);
-          alert('Thanks for Your Review !');
-        }
-      });
-    });
 
     // ⭐ LIVE AVERAGE RATING
     if(card._reviewsUnsub) return;
@@ -1860,7 +1830,7 @@ function attachRatingListenersToGrid(){ //_
         return true;
       });
 
-      renderProducts(filteredProducts, productGrid);
+      renderProducts(filteredProducts);
     }
 
     function updateColorFilterCounts() {
@@ -2000,15 +1970,6 @@ function attachRatingListenersToGrid(){ //_
 })();
 
 </script>
-
-  <!-- Image zoom modal (added) -->
-  <div class="modal zoom-modal" id="zoomModal" aria-hidden="true">
-    <div class="modal-content" role="dialog" aria-modal="true">
-      <button class="modal-close" id="closeZoom" title="Close">✕</button>
-      <img id="zoomImg" src="" alt="Zoomed-in product image" />
-    </div>
-  </div>
-
 
   <!-- Product Detail Modal -->
   <div class="modal" id="productDetailModal" aria-hidden="true">
