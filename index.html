@@ -568,6 +568,7 @@ button,a{
 (async function(){
   if(document.readyState === 'loading') await new Promise(r=>document.addEventListener('DOMContentLoaded', r));
   const $ = id => document.getElementById(id);
+  let currentEditingId = null; // To track which product is being edited
   function openModal(modal){ if(!modal) return; modal.classList.add('show'); modal.removeAttribute('aria-hidden'); document.body.style.overflow = 'hidden'; }
     function closeModal(modal){
   if(!modal) return;
@@ -1112,6 +1113,21 @@ window.location.href = 'payment.html';});
       openModal(adminModal);
     });
     
+    // Handle Cancel Edit button
+    $('adminCancelEdit')?.addEventListener('click', () => {
+      currentEditingId = null;
+      $('adminFormTitle').innerText = 'Add Product';
+      $('adminSave').innerText = 'Add Product';
+      $('adminCancelEdit').style.display = 'none';
+      // Reset form fields
+      $('admin_pTitle').value = '';
+      $('admin_pPrice').value = '';
+      $('admin_pMrp').value = '';
+      $('admin_pTag').value = '';
+      const imageUrlsContainer = $('imageUrlsContainer');
+      imageUrlsContainer.innerHTML = '<input class="imageUrlInput" placeholder="Image URL 1" style="margin-bottom:8px">';
+      $('admin_pTitle').focus();
+    });
 
     // Load and render products list for admin
     async function loadAdminProductsList(){
@@ -1139,10 +1155,29 @@ window.location.href = 'payment.html';});
               <strong style="color:#eaf6ff">${escapeHtml(title)}</strong>
               <div class="small" style="color:var(--muted)">₹${escapeHtml(price)}</div>
             </div>
-            <button class="deleteProductBtn btn" data-id="${id}" style="background:linear-gradient(90deg,#ff3b3b,#ff5252);white-space:nowrap" type="button">Delete</button>
+            <div style="display:flex; gap:8px;">
+              <button class="editProductBtn btn-ghost" data-id="${id}" type="button">Edit</button>
+              <button class="deleteProductBtn btn" data-id="${id}" style="background:linear-gradient(90deg,#ff3b3b,#ff5252);white-space:nowrap" type="button">Delete</button>
+            </div>
           `;
           listContainer.appendChild(row);
         });
+        
+        // Attach edit handlers
+        listContainer.querySelectorAll('.editProductBtn').forEach(btn => {
+          btn.addEventListener('click', async (ev) => {
+            const id = ev.currentTarget.getAttribute('data-id');
+            if (!id) return;
+            try {
+              const docRef = doc(db, 'products', id);
+              const docSnap = await fsMod.getDoc(docRef);
+              if (docSnap.exists()) {
+                populateAdminFormForEdit(id, docSnap.data());
+              }
+            } catch (err) { console.error("Failed to fetch product for edit:", err); alert("Could not load product data."); }
+          });
+        });
+
         
         // Attach delete handlers
         listContainer.querySelectorAll('.deleteProductBtn').forEach(btn=>{
@@ -1167,6 +1202,31 @@ window.location.href = 'payment.html';});
       }
     }
 
+    function populateAdminFormForEdit(id, data) {
+      currentEditingId = id;
+      $('admin_pTitle').value = data.title || '';
+      $('admin_pPrice').value = data.price || '';
+      $('admin_pMrp').value = data.mrp || '';
+      $('admin_pTag').value = data.tag || '';
+
+      const imageUrlsContainer = $('imageUrlsContainer');
+      imageUrlsContainer.innerHTML = ''; // Clear existing inputs
+      const images = data.images || [data.img] || [];
+      if (images.length > 0) {
+        images.forEach(url => {
+          const newInput = document.createElement('input');
+          newInput.className = 'imageUrlInput';
+          newInput.value = url;
+          newInput.style.marginBottom = '8px';
+          imageUrlsContainer.appendChild(newInput);
+        });
+      }
+
+      $('adminFormTitle').innerText = 'Edit Product';
+      $('adminSave').innerText = 'Save Changes';
+      $('adminCancelEdit').style.display = 'inline-block';
+      window.scrollTo(0, 0);
+    }
     // Logic for adding multiple image URLs
     const addImageUrlBtn = $('addImageUrl');
     if (addImageUrlBtn) {
@@ -1198,28 +1258,36 @@ window.location.href = 'payment.html';});
 
       try {
         const btn = $('adminSave'); btn.disabled = true; btn.innerText = 'Saving...';
-        
-const payload = {
-  title,
-  price,
-  mrp,
-  tag,
-  img: imageUrls[0],
-  images: imageUrls,
-  createdAt: serverTimestamp()
-};
 
-        await addDoc(collection(db, 'products'), payload);
-        toast('Product added');
+        const payload = {
+          title,
+          price,
+          mrp,
+          tag,
+          img: imageUrls[0],
+          images: imageUrls,
+        };
+
+        if (currentEditingId) {
+          // Update existing document
+          await setDoc(doc(db, 'products', currentEditingId), payload, { merge: true });
+          toast('Product updated');
+        } else {
+          // Add new document
+          payload.createdAt = serverTimestamp();
+          await addDoc(collection(db, 'products'), payload);
+          toast('Product added');
+        }
 
         // Reset fields
+        $('adminCancelEdit').click(); // Use cancel logic to reset the form
         $('admin_pTitle').value = '';
         $('admin_pPrice').value = '';
         $('admin_pTag').value = '';
         $('admin_pMrp').value = '';
 
         const imageUrlsContainer = $('imageUrlsContainer');
-        imageUrlsContainer.innerHTML = '<input class="imageUrlInput" type="text" placeholder="Image URL 1" style="margin-bottom: 8px;">';
+        imageUrlsContainer.innerHTML = '<input class="imageUrlInput" placeholder="Image URL 1" style="margin-bottom: 8px;">';
 
         btn.disabled = false; btn.innerText = 'Add Product';
         await loadAdminProductsList();
@@ -1352,4 +1420,5 @@ $('adminClose')?.addEventListener('click', ()=>closeModal(adminModal));
 
   </body>
 </html>
+
 
