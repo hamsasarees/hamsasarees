@@ -1,643 +1,900 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Hamsa Sarees — Single Page (Fixed)</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Hamsa Sarees — Premium Collection</title>
+
+<!-- Security Headers -->
+<meta http-equiv="Content-Security-Policy" content="
+  default-src 'self';
+  script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdnjs.cloudflare.com;
+  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+  font-src https://fonts.gstatic.com data:;
+  img-src 'self' data: https: http:;
+  connect-src https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://www.googleapis.com;
+">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="X-Frame-Options" content="DENY">
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
- 
+
 <style>
-/* ================= ROOT THEME ================= */
+/* ================= THEME ================= */
 :root{
-  --bg-main:#0a0e1a;
-  --bg-panel:#11172c;
-  --bg-soft:#161e3d;
-
-  --border:rgba(255,255,255,0.08);
-
-  --gold:#e6b566;
-  --gold-dark:#cfa34e;
-
-  --text-main:#eef2ff;
-  --text-muted:#9fb0d1;
-
-  --success:#3ddc97;
-  --danger:#ff6b6b;
+  --bg-primary: #0a0e1a;
+  --bg-secondary: #111827;
+  --bg-tertiary: #1f2937;
+  
+  --gold: #d4af37;
+  --gold-light: #f4d58d;
+  --gold-dark: #b8941f;
+  
+  --text-primary: #f9fafb;
+  --text-secondary: #d1d5db;
+  --text-muted: #9ca3af;
+  
+  --success: #10b981;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+  --shadow-lg: 0 10px 25px rgba(0,0,0,0.2);
+  --shadow-xl: 0 20px 50px rgba(0,0,0,0.3);
+  
+  --border-radius: 12px;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* ================= RESET ================= */
-*{box-sizing:border-box}
+*{
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
 html,body{
-  margin:0;
-  font-family:Inter,system-ui,Arial,sans-serif;
-  background:
-    radial-gradient(900px 400px at 20% -10%, rgba(230,181,102,.12), transparent 60%),
-    linear-gradient(180deg,#080c18,#0a0e1a);
-  color:var(--text-main);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: 
+    radial-gradient(ellipse at top, rgba(212,175,55,0.08) 0%, transparent 50%),
+    linear-gradient(180deg, #0a0e1a 0%, #050810 100%);
+  color: var(--text-primary);
+  line-height: 1.6;
+  overflow-x: hidden;
 }
 
-/* ================= FILTERS ================= */
-.filter-section{
-  background:linear-gradient(180deg,#12183a,#0f152e);
-  border:1px solid var(--border);
-  padding:16px;
-  border-radius:16px;
-  margin-top:22px;
-}
-.color-filter-grid{
-  display:flex; flex-wrap:wrap; gap:12px;
-}
-.color-filter-item{ display:flex; align-items:center; gap:6px; background:#0f1738; padding:6px 10px; border-radius:8px; font-size:13px; cursor:pointer; border:1px solid var(--border); }
-.color-swatch{ width:16px; height:16px; border-radius:50%; border:1px solid rgba(255,255,255,0.1); }
-/* ================= LAYOUT ================= */
+/* ================= CONTAINER ================= */
 .container{
-  max-width:1200px;
-  margin:auto;
-  padding:20px 16px;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 20px;
 }
 
 /* ================= HEADER ================= */
 header{
-  display:flex;
-  align-items:center;
-  gap:18px;
-  padding:16px 18px;
-  border-radius:16px;
-  background:linear-gradient(180deg,#12183a,#0f152e);
-  border:1px solid var(--border);
-  box-shadow:0 20px 50px rgba(0,0,0,.45);
+  background: rgba(17, 24, 39, 0.8);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+  padding: 16px 0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: var(--shadow-md);
+}
+
+.header-content{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
 }
 
 .brand{
-  display:flex;
-  gap:12px;
-  align-items:center;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .logo{
-  width:48px;
-  height:48px;
-  border-radius:12px;
-  overflow:hidden; /* Ensures the image respects the border radius */
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: 24px;
+  color: var(--bg-primary);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
 }
 
-.logo img {
+.logo img{
   width: 100%;
   height: 100%;
-  object-fit: cover; /* Ensures the image fills the container */
+  object-fit: cover;
+  border-radius: 12px;
 }
 
-.title{
-  font-weight:800;
-  font-size:16px;
+.brand-info h1{
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
 }
 
-.small{
-  font-size:13px;
-  color:var(--text-muted);
+.brand-info p{
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0;
 }
 
 /* ================= SEARCH ================= */
+.search-wrapper{
+  flex: 1;
+  max-width: 500px;
+}
+
 .search{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  background:#0f1738;
-  border:1px solid var(--border);
-  padding:10px 14px;
-  border-radius:14px;
-  max-width:420px;
-  width:100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-tertiary);
+  border: 2px solid rgba(212, 175, 55, 0.1);
+  padding: 12px 16px;
+  border-radius: var(--border-radius);
+  transition: var(--transition);
+}
+
+.search:focus-within{
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
 }
 
 .search input{
-  flex:1;
-  background:none;
-  border:none;
-  outline:none;
-  color:var(--text-main);
-  font-size:14px;
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-size: 15px;
+}
+
+.search input::placeholder{
+  color: var(--text-muted);
 }
 
 /* ================= BUTTONS ================= */
-button,a{
-  font-family:inherit;
-}
-
 .btn{
-  background:linear-gradient(90deg,var(--gold),#f3d48c);
-  color:#3b2b08;
-  border:none;
-  padding:10px 18px;
-  border-radius:14px;
-  font-weight:800;
-  cursor:pointer;
-  box-shadow:0 10px 30px rgba(230,181,102,.35);
+  padding: 10px 20px;
+  border-radius: var(--border-radius);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+  transition: var(--transition);
+  white-space: nowrap;
 }
 
-.btn:hover{
-  transform:translateY(-1px);
+.btn-primary{
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  color: var(--bg-primary);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
 }
 
-.btn-ghost{
-  background:#0f1738;
-  border:1px solid var(--border);
-  color:var(--text-main);
-  padding:9px 16px;
-  border-radius:14px;
-  cursor:pointer;
+.btn-primary:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(212, 175, 55, 0.4);
 }
 
-.btn-ghost:hover{
-  background:#18225a;
+.btn-secondary{
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.btn-secondary:hover{
+  background: var(--bg-secondary);
+  border-color: var(--gold);
 }
 
 /* ================= HERO ================= */
 .hero{
-  display:grid;
-  grid-template-columns:1.4fr .6fr;
-  gap:18px;
-  margin-top:22px;
+  margin: 40px 0;
+  padding: 60px 40px;
+  background: 
+    linear-gradient(135deg, rgba(212,175,55,0.05) 0%, rgba(17,24,39,0.8) 100%),
+    var(--bg-secondary);
+  border-radius: 24px;
+  border: 1px solid rgba(212, 175, 55, 0.1);
+  text-align: center;
+  box-shadow: var(--shadow-xl);
 }
 
-.hero-card,
-.promo{
-  background:linear-gradient(180deg,#141c3f,#0f1533);
-  border:1px solid var(--border);
-  border-radius:20px;
-  padding:24px;
-  box-shadow:0 30px 70px rgba(0,0,0,.45);
+.hero h2{
+  font-family: 'Playfair Display', serif;
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--gold);
+  margin-bottom: 16px;
 }
 
-.hero-card h1{
-  margin:0 0 10px;
-  font-size:30px;
-  line-height:1.25;
+.hero p{
+  font-size: 16px;
+  color: var(--text-secondary);
+  max-width: 800px;
+  margin: 0 auto 32px;
+  line-height: 1.8;
 }
 
-.promo{
-  text-align:center;
+/* ================= FILTERS ================= */
+.filters{
+  background: var(--bg-secondary);
+  border: 1px solid rgba(212, 175, 55, 0.1);
+  border-radius: 20px;
+  padding: 24px;
+  margin: 32px 0;
+  box-shadow: var(--shadow-lg);
+}
+
+.filters-header{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.filters-header h3{
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.filter-group{
+  margin-bottom: 24px;
+}
+
+.filter-group:last-child{
+  margin-bottom: 0;
+}
+
+.filter-label{
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  display: block;
+}
+
+.filter-items{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.filter-item{
+  padding: 8px 16px;
+  background: var(--bg-tertiary);
+  border: 2px solid rgba(212, 175, 55, 0.1);
+  border-radius: 20px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-item:hover{
+  border-color: var(--gold);
+  background: rgba(212, 175, 55, 0.05);
+}
+
+.filter-item.active{
+  background: var(--gold);
+  color: var(--bg-primary);
+  border-color: var(--gold);
+  font-weight: 600;
+}
+
+.color-swatch{
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
 /* ================= PRODUCT GRID ================= */
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
-  gap:18px;
-  margin-top:18px;
+.products-section{
+  margin: 48px 0;
+}
+
+.section-header{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.section-header h2{
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.product-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
 }
 
 /* ================= PRODUCT CARD ================= */
-.card{
-  background:linear-gradient(180deg,#18245a,#111a3d);
-  border:1px solid var(--border);
-  border-radius:18px;
-  padding:12px;
+.product-card{
+  background: var(--bg-secondary);
+  border: 1px solid rgba(212, 175, 55, 0.1);
+  border-radius: 20px;
+  overflow: hidden;
+  transition: var(--transition);
   cursor:pointer;
-  transition:.25s ease;
-  box-shadow:0 18px 45px rgba(0,0,0,.5);
+  box-shadow: var(--shadow-md);
 }
 
-.card:hover{
-  transform:translateY(-6px);
+.product-card:hover{
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-xl);
+  border-color: var(--gold);
 }
 
-/* IMAGE */
-.imgwrap{
-  width:100%;
-  aspect-ratio:3/4;
-  border-radius:14px;
-  overflow:hidden;
-  background:#080c1f;
-  position:relative;
+.product-image{
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3/4;
+  overflow: hidden;
+  background: var(--bg-tertiary);
 }
 
-.imgwrap img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  transition:transform .4s ease;
+.product-image img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
 }
 
-.card:hover .imgwrap img{
-  transform:scale(1.05);
+.product-card:hover .product-image img{
+  transform: scale(1.08);
 }
 
-/* TAG */
-.tag{
-  position:absolute;
-  top:10px;
-  left:10px;
-  z-index:5;
-
-  padding:4px 12px;
-  background:linear-gradient(90deg,var(--gold),#f3d48c);
-  color:#3b2b08;
-  font-size:12px;
-  font-weight:800;
-  border-radius:999px;
-
-  pointer-events:none;
-  transform:translateZ(0);
+.product-tag{
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 6px 14px;
+  background: var(--gold);
+  color: var(--bg-primary);
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  z-index: 10;
 }
 
-
-/* TEXT */
-.card h3{
-  margin:12px 0 6px;
-  font-size:15px;
-  font-weight:700;
+.product-info{
+  padding: 20px;
 }
 
-/* ================= PRICE ================= */
-.price-wrap{
-  display:flex;
-  align-items:baseline;
-  gap:8px;
+.product-title{
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  line-height: 1.4;
 }
 
-.price-old{
-  font-size:13px;
-  color:var(--text-muted);
-  text-decoration:line-through;
+.product-details{
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
 }
 
-.price-new{
-  font-size:17px;
-  font-weight:900;
-  color:var(--gold);
+.product-pricing{
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 12px;
 }
 
-.discount-badge{
-  margin-left:auto;
-  font-size:12px;
-  font-weight:800;
-  background:#7ee0b2;
-  color:#0a0e1a;
-  padding:4px 10px;
-  border-radius:999px;
+.product-price{
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--gold);
 }
 
-/* ================= RATING ================= */
+.product-price-old{
+  font-size: 15px;
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+
+.product-discount{
+  padding: 4px 10px;
+  background: var(--success);
+  color: white;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 700;
+  margin-left: auto;
+}
+
 .product-rating{
-  font-size:13px;
-  color:var(--success);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--gold);
+  margin-bottom: 16px;
 }
 
-/* ================= MODALS ================= */
+.product-actions{
+  display: flex;
+  gap: 10px;
+}
+
+.product-actions .btn{
+  flex: 1;
+  padding: 12px;
+  font-size: 14px;
+}
+
+.stock-status{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+.stock-status.in-stock{
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--success);
+}
+
+.stock-status.out-of-stock{
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--danger);
+}
+
+/* ================= MODAL ================= */
 .modal{
-  position:fixed;
-  inset:0;
-  background:rgba(5,8,15,.9);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  z-index:1000;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 20px;
 }
 
 .modal.show{display:flex}
 
-.modal-box{
-  background:linear-gradient(180deg,#162051,#0f1533);
-  border:1px solid var(--border);
-  border-radius:20px;
-  padding:24px;
-  max-width:900px;
+.modal-content{
+  background: var(--bg-secondary);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: 24px;
+  max-width: 600px;
   width:100%;
   max-height:90vh;
-  overflow:auto;
-  box-shadow:0 40px 120px rgba(0,0,0,.7);
+  overflow-y: auto;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5);
+  animation: modalSlideIn 0.3s ease-out;
 }
 
-/* CLOSE BUTTON */
-.close-x{
-  float:right;
-  background:none;
-  border:none;
-  color:var(--text-muted);
-  font-size:20px;
-  cursor:pointer;
+@keyframes modalSlideIn{
+  from{
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to{
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* ================= PRODUCT DETAIL ================= */
-.product-detail-box{max-width:1000px}
-
-.pd-layout{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:20px;
+.modal-header{
+  padding: 24px;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.pd-main-img{
-  width:100%;
-  border-radius:16px;
+.modal-header h2{
+  font-family: 'Playfair Display', serif;
+  font-size: 24px;
+  color: var(--text-primary);
 }
 
-.pd-thumbs{
-  display:flex;
-  gap:8px;
-  margin-top:10px;
+.modal-close{
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 8px;
+  transition: var(--transition);
 }
 
-.pd-thumbs img{
-  width:64px;
-  height:86px;
-  object-fit:cover;
-  border-radius:10px;
-  opacity:.6;
-  cursor:pointer;
+.modal-close:hover{
+  color: var(--gold);
+  transform: rotate(90deg);
 }
 
-.pd-thumbs img.active{
-  opacity:1;
-  outline:2px solid var(--gold);
+.modal-body{
+  padding: 24px;
 }
 
-.pd-price{
-  font-size:22px;
-  font-weight:900;
-  color:var(--gold);
+.form-group{
+  margin-bottom: 20px;
 }
 
-/* ================= REVIEWS ================= */
-.review-stars span{
-  font-size:22px;
-  cursor:pointer;
-  color:#555;
+.form-group label{
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
 }
 
-.review-stars span.active{
-  color:var(--gold);
+.form-group input,
+.form-group textarea{
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--bg-tertiary);
+  border: 2px solid rgba(212, 175, 55, 0.1);
+  border-radius: var(--border-radius);
+  color: var(--text-primary);
+  font-size: 15px;
+  transition: var(--transition);
 }
 
-.reviews-list{
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-  margin-top:10px;
+.form-group input:focus,
+.form-group textarea:focus{
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
 }
 
-.review-item{
-  background:#0f1738;
-  border:1px solid var(--border);
-  border-radius:12px;
-  padding:10px;
+.form-group textarea{
+  min-height: 100px;
+  resize: vertical;
 }
 
-/* ================= ADMIN INPUTS ================= */
-.field input,
-.field textarea{
-  width:100%;
-  background:#0f1738;
-  border:1px solid var(--border);
-  border-radius:12px;
-  padding:10px;
-  color:var(--text-main);
+.modal-footer{
+  padding: 24px;
+  border-top: 1px solid rgba(212, 175, 55, 0.1);
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
 }
 
-/* ================= MOBILE ================= */
-@media(max-width:768px){
-  header{flex-direction:column}
-  .hero{grid-template-columns:1fr}
-  .pd-layout{grid-template-columns:1fr}
-}
-.imgwrap{
-  position:relative; /* 🔒 fixes flicker */
-}
-.tag{
-  pointer-events:none;
-  will-change:transform;
-  transform:translateZ(0);
+/* ================= TOAST ================= */
+.toast{
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  padding: 16px 24px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--gold);
+  border-radius: var(--border-radius);
+  color: var(--text-primary);
+  font-weight: 600;
+  box-shadow: var(--shadow-xl);
+  z-index: 3000;
+  animation: toastSlideIn 0.3s ease-out;
+  display: none;
 }
 
-/* A simple toast notification */
-#toast{ position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:linear-gradient(90deg,var(--gold),#f3d48c); color:#3b2b08; padding:12px 24px; border-radius:12px; font-weight:800; z-index:9999; box-shadow:0 10px 30px rgba(0,0,0,.3); display:none; }
-.sr-only{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border-width:0; }
+.toast.show{
+  display: block;
+}
 
+@keyframes toastSlideIn{
+  from{
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to{
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
 
+/* ================= FOOTER ================= */
+footer{
+  margin-top: 80px;
+  padding: 40px 0;
+  background: var(--bg-secondary);
+  border-top: 1px solid rgba(212, 175, 55, 0.1);
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+footer p{
+  margin: 8px 0;
+}
+
+footer a{
+  color: var(--gold);
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+footer a:hover{
+  color: var(--gold-light);
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 768px){
+  .header-content{
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .search-wrapper{
+    max-width: 100%;
+  }
+  
+  .hero h2{
+    font-size: 28px;
+  }
+  
+  .product-grid{
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 16px;
+  }
+}
+
+/* ================= LOADING STATE ================= */
+.loading{
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(212, 175, 55, 0.2);
+  border-radius: 50%;
+  border-top-color: var(--gold);
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin{
+  to{
+    transform: rotate(360deg);
+  }
+}
+
+/* ================= ACCESSIBILITY ================= */
+.sr-only{
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+
+:focus-visible{
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
 
 </style>
 
 </head>
 <body>
-  <div class="container">
-    <header>
-      <div class="brand">
-        <div class="logo" aria-hidden="true"><img src="hamsasareeslogo.jpg" alt="Hamsa Sarees Logo"></div>
-        <div>
-          <div class="title">Hamsa Sarees</div>
-          <div class="small">Jalakandapuram-636501</div>
-        </div>
-      </div>
-
-      <div style="flex:1;display:flex;justify-content:center">
-        <div class="search" role="search" aria-label="Search products">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 21l-4.35-4.35" stroke="#9fb6c9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <input id="searchBox" placeholder="Search sarees, cotton, silk..." aria-label="Search products" />
-        </div>
-      </div>
-
-      <div class="actions">
-        <button id="adminBtn" class="btn-ghost" style="display:none" aria-hidden="true">Admin</button>
-        <div id="userBadge" style="display:none;background:rgba(255,255,255,0.03);padding:8px 10px;border-radius:10px;color:#fff;font-weight:700"></div>
-        <a id="myOrdersBtn" href="yourorders.html" class="btn-ghost" style="display:none">My Orders</a>
-        <button id="signOutBtn" class="btn-ghost" style="display:none">Sign out</button>
-        <button id="loginShowBtn" class="btn">Sign in</button>
-      </div>
-    </header>
-
-    <main>
-      <section class="hero">
-        <div class="hero-card" style="grid-column: 1 / -1; text-align: center;">
-          <p style="font-size: 16px; line-height: 1.6; margin: 0;">
-            Manufactured and Sold by Hamsa Sarees <br> Address: 22/3 , Tharamangalam Main Road , JALAKANDAPURAM , Salem 636501.
-          </p><br><br><br>
-          <a href="https://www.google.com/search?q=Hamsa+Sarees+,+Jalakandapuram" target="_blank" rel="noopener noreferrer" class="btn" style="margin-top: 16px;">
-            Search on Google About Us
-          </a>
-        </div>
-      </section>
-
-      <!-- Filters Section -->
-      <section class="filter-section">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-          <h3 style="margin:0; font-size:16px;">Filters</h3>
-          <button id="clearFiltersBtn" class="btn-ghost" style="font-size:12px; padding:6px 12px;">Clear All</button>
-        </div>
-        <div id="filterGroupsContainer" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
-            <div id="colorFilterGroup">
-              <h4 style="margin: 0 0 10px 0; font-size: 14px;">By Color</h4>
-              <div id="colorFiltersContainer" class="color-filter-grid"></div>
-            </div>
-            <div id="materialFilterGroup"></div>
-            <div id="styleFilterGroup"></div>
-            <div id="designFilterGroup"></div>
-            <div id="availabilityFilterGroup"></div>
-        </div>
-      </section>
-
-      <section style="margin-top:12px">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <h2 style="margin:0">Products</h2>
-          <div class="small">Sign in to place orders; orders saved to your account</div>
-        </div>
-        <div class="grid" id="productGrid" aria-live="polite" style="min-height:200px;">
-          <div class="card" style="grid-column:1/-1;text-align:center;color:var(--muted);padding:32px;background:transparent">
-            <strong style="color:#eaf6ff">No products yet</strong>
-            <div class="small" style="margin-top:8px">As admin, open Admin → Add Product to upload items. The product grid updates live for users.</div>
-            <div style="margin-top:12px"><button id="openAdminFromEmpty" class="btn-ghost">Open Admin</button></div>
+  <!-- Header -->
+  <header>
+    <div class="container">
+      <div class="header-content">
+        <div class="brand">
+          <div class="logo">
+            <img src="hamsasareeslogo.jpg" alt="Hamsa Sarees Logo" onerror="this.parentElement.innerHTML='HS'">
+          </div>
+          <div class="brand-info">
+            <h1>Hamsa Sarees</h1>
+            <p>Jalakandapuram - 636501</p>
           </div>
         </div>
-      </section>
-    </main>
-  </div>
 
-  <!-- Modals (Order, Login, Payment, My Orders, Admin, Detail) -->
-  <div class="modal" id="orderModal" aria-hidden="true">
-    <div class="modal-box" role="dialog" aria-modal="true">
-      <button class="close-x" id="closeOrderModal" title="Close">✕</button>
-      <h2 id="orderModalTitle">Confirm Your Order</h2>
-      <p class="small" id="selectedProduct"></p>
-      <form id="orderForm" method="POST" target="hiddenFrame" action="https://docs.google.com/forms/d/e/1FAIpQLSfREKvTld9R59UADJQK6jxQIbM64tt1iP0M-XiPq4ykOOwe5w/formResponse">
-        <div class="field"><label class="sr-only" for="custName">Your name</label><input id="custName" name="entry.1128392407" placeholder="Your Name" required></div>
-        <div class="field"><label class="sr-only" for="custAddress">Address</label><textarea id="custAddress" name="entry.654904844" placeholder="Address" required></textarea></div>
-        <div class="field"><label class="sr-only" for="custPhone">Mobile number</label><input id="custPhone" name="entry.1644126654" placeholder="Mobile Number" required></div>
-        <div class="field"><input id="productField" name="entry.1866699911" readonly aria-readonly="true"></div>
-        <input type="hidden" id="productImageField">
-
-        <div class="modal-footer" style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
-          <button class="btn" id="placeOrder">Place Order</button>
-          <button type="button" class="btn-ghost" id="cancelOrder">Cancel</button>
+        <div class="search-wrapper">
+          <div class="search" role="search">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+              <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <input 
+              id="searchBox" 
+              type="search"
+              placeholder="Search sarees, cotton, silk..." 
+              aria-label="Search products"
+            />
+          </div>
         </div>
-      </form>
-      <div id="orderStatus" class="small" style="margin-top:10px;color:var(--success);display:none">Order placed. Thank you!</div>
-    </div>
-  </div>
 
-  <div class="modal" id="loginModal" aria-hidden="true">
-    <div class="modal-box" role="dialog" aria-modal="true">
-      <button class="close-x" id="closeLogin" title="Close">✕</button>
-      <h2>Sign in with Google</h2>
-      <p class="small">No typing required — uses Google auth.</p>
-      <div style="display:flex;justify-content:center;margin-top:12px">
-        <button id="googleBtnLarge" class="btn">Sign in with Google</button>
-      </div>
-      <p id="loginErr" class="small" style="margin-top:12px;color:#ffb4b4;display:none"></p>
-    </div>
-  </div>
-
-  <div class="modal" id="orderDetailModal" aria-hidden="true">
-    <div class="modal-box" role="dialog" aria-modal="true">
-      <button class="close-x" id="closeOrderDetail" title="Close">✕</button>
-      <h2>Order Details</h2>
-      <div id="orderDetailContent" class="small" style="white-space:pre-line;margin-top:8px"></div>
-      <div style="display:flex;gap:10px;margin-top:12px;justify-content:flex-end"><button id="closeDetailBtn" class="btn-ghost">Close</button></div>
-    </div>
-  </div>
-
-<div class="modal" id="adminModal" aria-hidden="true">
-  <div class="modal-box" role="dialog" aria-modal="true" style="max-height:90vh;overflow-y:auto">
-    <button class="close-x" id="closeAdmin" title="Close">✕</button>
-    <h2>Admin Panel</h2>
-
-    <!-- ADD / EDIT PRODUCT -->
-    <div style="border-bottom:1px solid rgba(255,255,255,0.06);padding:16px;margin-bottom:16px;background:rgba(255,255,255,0.01);border-radius:10px">
-      <h3 id="adminFormTitle" style="margin-top:0;color:#eaf6ff">Add Product</h3>
-      <p class="small">Only admin can add or edit products.</p>
-
-      <div class="field">
-        <label class="small" style="font-weight:600">Title *</label>
-        <input id="admin_pTitle" placeholder="Product title">
-      </div>
-
-      <div class="field">
-        <label class="small" style="font-weight:600">Selling Price (₹) *</label>
-        <input id="admin_pPrice" type="number" placeholder="1499">
-      </div>
-
-      <div class="field">
-        <label class="small" style="font-weight:600">MRP (₹)</label>
-        <input id="admin_pMrp" type="number" placeholder="1999">
-      </div>
-
-      <div class="field">
-        <label class="small" style="font-weight:600">Tag</label>
-        <input id="admin_pTag" placeholder="New / Best Seller">
-      </div>
-
-      <div class="field">
-        <label class="small" style="font-weight:600">Colors (comma-separated) *</label>
-        <input id="admin_pColors" placeholder="e.g., red, gold, blue">
-      </div>
-
-      <div class="field">
-        <label class="small" style="font-weight:600">Material</label>
-        <input id="admin_pMaterial" placeholder="e.g., Cotton, Silk">
-      </div>
-
-      <div class="field">
-        <label class="small" style="font-weight:600">Style</label>
-        <input id="admin_pStyle" placeholder="e.g., Kanjivaram, Banarasi">
-      </div>
-
-      <div class="field">
-        <label class="small" style="font-weight:600">Design</label>
-        <input id="admin_pDesign" placeholder="e.g., Floral, Paisley">
-      </div>
-
-      <div class="field">
-        <label class="small" style="font-weight:600">Blouse Included</label>
-        <input id="admin_pBlouse" placeholder="e.g., Yes, No">
-      </div>
-
-      <div class="field">
-        <label class="small" style="font-weight:600">Number of Stock</label>
-        <input id="admin_pStock" type="number" placeholder="e.g., 10">
-      </div>
-
-      <div class="field">
-        <label class="small" style="font-weight:600">Image URLs</label>
-        <div id="imageUrlsContainer">
-          <input class="imageUrlInput" placeholder="Image URL 1" style="margin-bottom:8px">
+        <div style="display: flex; gap: 12px; align-items: center;">
+          <button id="loginBtn" class="btn btn-primary">Sign In</button>
+          <div id="userBadge" style="display: none;"></div>
+          <button id="logoutBtn" class="btn btn-secondary" style="display: none;">Sign Out</button>
+          <a href="yourorders.html" id="ordersLink" class="btn btn-secondary" style="display: none; text-decoration: none;">My Orders</a>
+          <button id="adminBtn" class="btn btn-secondary" style="display: none;">Admin</button>
         </div>
-        <button id="addImageUrl" type="button" class="btn-ghost" style="margin-top:8px">Add another image</button>
-      </div>
-
-      <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
-        <button id="adminCancelEdit" class="btn-ghost" style="display:none">Cancel Edit</button>
-        <button id="adminSave" class="btn">Add Product</button>
       </div>
     </div>
+  </header>
 
-    <!-- PRODUCT LIST -->
-    <div>
-      <h3 style="margin-top:0;color:#eaf6ff">All Products</h3>
-      <div id="adminProductsList" style="border:1px solid rgba(255,255,255,0.06);border-radius:10px;max-height:400px;overflow-y:auto;background:rgba(255,255,255,0.01)">
-        <div class="small" style="padding:12px;text-align:center;color:var(--muted)">Loading products...</div>
+  <main class="container">
+    <!-- Hero Section -->
+    <section class="hero">
+      <h2>Welcome to Hamsa Sarees</h2>
+      <p>
+        Manufactured and Sold by Hamsa Sarees<br>
+        Address: 22/3, Tharamangalam Main Road, Jalakandapuram, Salem 636501
+      </p>
+      <a 
+        href="https://www.google.com/search?q=Hamsa+Sarees+Jalakandapuram" 
+        target="_blank" 
+        rel="noopener noreferrer" 
+        class="btn btn-primary"
+      >
+        Find Us on Google
+      </a>
+    </section>
+
+    <!-- Filters Section -->
+    <section class="filters">
+      <div class="filters-header">
+        <h3>Refine Your Search</h3>
+        <button id="clearFilters" class="btn btn-secondary" style="padding: 8px 16px; font-size: 13px;">
+          Clear Filters
+        </button>
       </div>
-    </div>
 
-    <div style="margin-top:16px;display:flex;justify-content:flex-end">
-      <button class="close-x btn-ghost">Close</button>
+      <div id="filtersContainer">
+        <!-- Filters will be dynamically generated -->
+        <!-- Static Color Filters will be injected here by JS -->
+        <!-- Dynamic Filter Groups will be injected here -->
+        <div id="materialFilterGroup"></div>
+        <div id="styleFilterGroup"></div>
+        <div id="designFilterGroup"></div>
+        <div id="blouseFilterGroup"></div>
+        <div id="availabilityFilterGroup"></div>
+
+
+      </div>
+    </section>
+
+    <!-- Products Section -->
+    <section class="products-section">
+      <div class="section-header">
+        <h2>Our Collection</h2>
+        <p style="color: var(--text-muted); font-size: 14px;">Sign in to place orders</p>
+      </div>
+
+      <div id="productGrid" class="product-grid">
+        <!-- Products will be dynamically loaded -->
+        <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px; color: var(--text-muted);">
+          <div class="loading"></div>
+          <p style="margin-top: 16px;">Loading products...</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 Hamsa Sarees. All rights reserved.</p>
+      <p>Website designed & developed by Terminal Joint</p>
+    </div>
+  </footer>
+
+  <!-- Login Modal -->
+  <div id="loginModal" class="modal" aria-hidden="true">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Sign In</h2>
+        <button class="modal-close" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="color: var(--text-secondary); margin-bottom: 24px;">
+          Sign in with your Google account to place orders and track your purchases.
+        </p>
+        <button id="googleSignIn" class="btn btn-primary" style="width: 100%;">
+          <span>Sign in with Google</span>
+        </button>
+        <p id="loginError" style="color: var(--danger); margin-top: 16px; display: none;"></p>
+      </div>
     </div>
   </div>
-</div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast"></div>
+
+  <!-- Admin Modal -->
+  <div class="modal" id="adminModal" aria-hidden="true">
+    <div class="modal-content" style="max-width: 800px;">
+      <div class="modal-header">
+        <h2>Admin Panel</h2>
+        <button class="modal-close" id="closeAdmin" title="Close">×</button>
+      </div>
+      <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+        <!-- ADD/EDIT PRODUCT FORM -->
+        <div style="background: var(--bg-tertiary); padding: 20px; border-radius: var(--border-radius); margin-bottom: 24px;">
+          <h3 id="adminFormTitle" style="margin-top:0; color: var(--text-primary);">Add Product</h3>
+          <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 16px;">Manage the product catalog. Fields with * are required.</p>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group"><label for="admin_pTitle">Title *</label><input id="admin_pTitle" placeholder="Product title"></div>
+            <div class="form-group"><label for="admin_pTag">Tag</label><input id="admin_pTag" placeholder="e.g., New Arrival, Best Seller"></div>
+            <div class="form-group"><label for="admin_pPrice">Selling Price (₹) *</label><input id="admin_pPrice" type="number" placeholder="1499"></div>
+            <div class="form-group"><label for="admin_pMrp">MRP (₹)</label><input id="admin_pMrp" type="number" placeholder="1999"></div>
+            <div class="form-group"><label for="admin_pColors">Colors (comma-separated) *</label><input id="admin_pColors" placeholder="red, gold, blue"></div>
+            <div class="form-group"><label for="admin_pMaterial">Material</label><input id="admin_pMaterial" placeholder="e.g., Cotton, Silk"></div>
+            <div class="form-group"><label for="admin_pStyle">Style</label><input id="admin_pStyle" placeholder="e.g., Kanjivaram"></div>
+            <div class="form-group"><label for="admin_pDesign">Design</label><input id="admin_pDesign" placeholder="e.g., Floral, Paisley"></div>
+            <div class="form-group"><label for="admin_pBlouse">Blouse Included</label><input id="admin_pBlouse" placeholder="e.g., Yes, No"></div>
+            <div class="form-group"><label for="admin_pStock">Number in Stock</label><input id="admin_pStock" type="number" placeholder="10"></div>
+          </div>
+          <div class="form-group">
+            <label>Image URLs *</label>
+            <div id="imageUrlsContainer">
+              <input class="imageUrlInput form-group" placeholder="Image URL 1" style="margin-bottom:8px; width: 100%;">
+            </div>
+            <button id="addImageUrl" type="button" class="btn btn-secondary" style="margin-top:8px">Add another image</button>
+          </div>
+          <div class="modal-footer" style="padding: 0; margin-top: 20px; border-top: none;">
+            <button id="adminCancelEdit" class="btn btn-secondary" style="display:none">Cancel Edit</button>
+            <button id="adminSave" class="btn btn-primary">Add Product</button>
+          </div>
+        </div>
+
+        <!-- PRODUCT LIST -->
+        <div>
+          <h3 style="color: var(--text-primary);">All Products</h3>
+          <div id="adminProductsList" style="border:1px solid var(--bg-tertiary); border-radius:var(--border-radius); max-height:400px; overflow-y:auto; background:var(--bg-tertiary);">
+            <div style="padding:12px; text-align:center; color:var(--text-muted);">Loading products...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
 
 <script type="module">
 (async function(){
-  if(document.readyState === 'loading') await new Promise(r=>document.addEventListener('DOMContentLoaded', r));
+  // if(document.readyState === 'loading') await new Promise(r=>document.addEventListener('DOMContentLoaded', r));
   const $ = id => document.getElementById(id);
   let currentEditingId = null; // To track which product is being edited
   let allProducts = []; // Master list of all products from Firestore
   function openModal(modal){ if(!modal) return; modal.classList.add('show'); modal.removeAttribute('aria-hidden'); document.body.style.overflow = 'hidden'; }
-    function closeModal(modal){
+  function closeModal(modal){
   if(!modal) return;
 
   if(document.activeElement instanceof HTMLElement){
-    document.activeElement.blur();
+    // document.activeElement.blur();
   }
 
   modal.classList.remove('show');
@@ -698,8 +955,8 @@ let selectedRating = 0;
     const { getStorage, ref, uploadBytes, getDownloadURL } = storageMod;
 
     const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+    const auth = getAuth(app); //getAuth(app);
+    const db = getFirestore(app); //getFirestore(app);
     const storage = getStorage(app);
     const googleProvider = new GoogleAuthProvider();
     function loadProductReviews(pid){
@@ -763,15 +1020,15 @@ div.innerHTML = `
 
     // ---- DOM refs ----
     
-    const loginModal = $('loginModal'), orderModal = $('orderModal'), adminModal = $('adminModal');
-    const loginErr = $('loginErr'), userBadge = $('userBadge'), signOutBtn = $('signOutBtn'), loginShowBtn = $('loginShowBtn'), googleBtnLarge = $('googleBtnLarge');
-    const myOrdersBtn = $('myOrdersBtn');
+    const loginModal = $('loginModal');
+    const loginErr = $('loginError'), userBadge = $('userBadge'), signOutBtn = $('logoutBtn'), loginShowBtn = $('loginBtn'), googleBtnLarge = $('googleSignIn');
+    const myOrdersBtn = $('ordersLink');
     const adminBtn = $('adminBtn');
 
-    function toast(msg){ if(!toastEl) return; toastEl.innerText = msg; toastEl.style.display = 'block'; setTimeout(()=>toastEl.style.display = 'none', 2200); }
+    function toast(msg){ if(!toastEl) return; toastEl.innerText = msg; toastEl.classList.add('show'); setTimeout(()=>toastEl.classList.remove('show'), 3000); }
     function showLoginError(msg){ if(!loginErr) return; loginErr.innerText = msg; loginErr.style.display = msg ? 'block' : 'none'; }
 
-    const toastEl = document.getElementById('toast');
+    const toastEl = $('toast');
 
     // backdrop click and Esc
    // ================= REVIEW SYSTEM (FIXED) =================
@@ -845,7 +1102,7 @@ $('submitReview')?.addEventListener('click', async () => {
       }
     }
     googleBtnLarge && googleBtnLarge.addEventListener('click', ()=>signInPopup());
-    loginShowBtn && loginShowBtn.addEventListener('click', ()=>{ openModal(loginModal); });
+    loginShowBtn && loginShowBtn.addEventListener('click', ()=>{ openModal(loginModal); console.log("open"); });
 
     signOutBtn && signOutBtn.addEventListener('click', async () => { try{ await signOut(auth); toast('Signed out'); }catch(e){ console.error('signout failed', e); } });
 
@@ -891,8 +1148,8 @@ pdOrderBtn?.addEventListener('click', () => {
 
     // ================= PRODUCT CARD CLICK → DETAIL MODAL =================
 productGrid.addEventListener('click', e => {
-  const card = e.target.closest('.card');
-  if (!card) return;
+  const card = e.target.closest('.product-card');
+  if (!card) return; //card
   if (!card.dataset.pid) return;
 
   // If Order button clicked, ignore (already handled elsewhere)
@@ -901,7 +1158,7 @@ productGrid.addEventListener('click', e => {
   currentProductId = card.dataset.pid;
 
   // Load images
-  const imgWrap = card.querySelector('.imgwrap');
+  const imgWrap = card.querySelector('.product-image');
   const images = JSON.parse(imgWrap?.dataset.images || '[]');
 
   if (images.length) {
@@ -925,9 +1182,8 @@ productGrid.addEventListener('click', e => {
   }
 
   // Title & price
-  $('pdTitle').innerText = card.querySelector('h3')?.innerText || '';
-  $('pdPrice').innerText =
-  card.querySelector('.price-new')?.innerText || '';
+  $('pdTitle').innerText = card.querySelector('.product-title')?.innerText || '';
+  $('pdPrice').innerText = card.querySelector('.product-price')?.innerText || '';
 
   // ---- FIXED: Safely parse and populate additional details ----
   let data = {};
@@ -1012,8 +1268,8 @@ productGrid.addEventListener('click', e => {
       const avg = data._avg ? Number(data._avg).toFixed(1) : null;
       const avgDisplay = avg ? `★ ${avg} (${data._count||0})` : 'No ratings';
 
-      const card = document.createElement('div'); 
-      card.className = 'card'; 
+      const card = document.createElement('div');
+      card.className = 'product-card';
       card.dataset.pid = id;
       // Store product data on the element for filtering
       const safeDataForDataset = {
@@ -1029,66 +1285,58 @@ productGrid.addEventListener('click', e => {
       // build DOM safely (no raw innerHTML from user content)
       let tagEl = null;
 if(tag){
-  tagEl = document.createElement('div');
-  tagEl.className = 'tag';
+  tagEl = document.createElement('div'); //div
+  tagEl.className = 'product-tag';
   tagEl.textContent = tag;
 }
 
       const imgWrap = document.createElement('div');
-imgWrap.className = 'imgwrap';
+imgWrap.className = 'product-image';
       if(tagEl){
   imgWrap.appendChild(tagEl); // ✅ CORRECT PLACE
 }
 imgWrap.dataset.images = JSON.stringify(images); // ⭐ STORE ALL IMAGES
 
 const imgEl = document.createElement('img');
-imgEl.loading = 'lazy';
+imgEl.loading = 'lazy'; //lazy
 imgEl.src = primaryImage;
 imgEl.alt = title;
 imgWrap.appendChild(imgEl);
  
-      
-      // Add a multi-image indicator if there's more than one image
-      if (images.length > 1) {
-        const multiImgIndicator = document.createElement('div');
-        multiImgIndicator.textContent = '1/' + images.length;
-        multiImgIndicator.style.cssText = 'position:absolute; bottom:8px; right:8px; background:rgba(0,0,0,0.6); color:white; padding:2px 8px; border-radius:10px; font-size:12px; font-weight:500;';
-        imgWrap.appendChild(multiImgIndicator);
-      }
-      
       card.appendChild(imgWrap);
 
-      const h3 = document.createElement('h3'); h3.textContent = title; card.appendChild(h3);
+      const infoWrap = document.createElement('div');
+      infoWrap.className = 'product-info';
 
-      const row = document.createElement('div'); row.style.display = 'flex'; row.style.justifyContent = 'space-between'; row.style.alignItems = 'center';
-      const priceWrap = document.createElement('div');
-priceWrap.className = 'price-wrap';
+      const h3 = document.createElement('div'); h3.className = 'product-title'; h3.textContent = title; infoWrap.appendChild(h3);
+
+      const priceWrap = document.createElement('div'); //div
+priceWrap.className = 'product-pricing';
 
 const oldPrice = document.createElement('span');
-oldPrice.className = 'price-old';
+oldPrice.className = 'product-price-old';
 const mrp = data.mrp || price;
 oldPrice.textContent = `₹${mrp}`;
 
 
 const newPrice = document.createElement('span');
-newPrice.className = 'price-new';
+newPrice.className = 'product-price';
 newPrice.textContent = `₹${price}`;
 
 if (mrp > price) {
   priceWrap.appendChild(oldPrice);
 }
 priceWrap.appendChild(newPrice);
-
+infoWrap.appendChild(priceWrap);
 
 // OPTIONAL discount badge
 let discount = 0;
 if (mrp > price) {
   discount = Math.round(((mrp - price) / mrp) * 100);
 }
-
 if (discount > 0) {
   const badge = document.createElement('span');
-  badge.className = 'discount-badge';
+  badge.className = 'product-discount';
   badge.textContent = `${discount}% OFF`;
   priceWrap.appendChild(badge);
 }
@@ -1096,47 +1344,47 @@ if (discount > 0) {
 
 
       const ratingWrap = document.createElement('div'); ratingWrap.style.display='flex'; ratingWrap.style.alignItems='center';
-      const rEl = document.createElement('div'); rEl.className = 'product-rating small'; rEl.dataset.pid = id; rEl.textContent = avgDisplay;
+      const rEl = document.createElement('div'); rEl.className = 'product-rating'; rEl.dataset.pid = id; rEl.textContent = avgDisplay;
       ratingWrap.appendChild(rEl);
-       row.appendChild(priceWrap);
-row.appendChild(ratingWrap);
-      card.appendChild(row);
+      infoWrap.appendChild(ratingWrap);
 
       // --- Product Details Block (Restored) ---
       const detailsContainer = document.createElement('div');
-      detailsContainer.style.cssText = 'margin-top: 10px; font-size: 12px; color: var(--text-muted); display: grid; gap: 4px;';
+      detailsContainer.className = 'product-details';
 
       addDetailToCard(detailsContainer, 'Material', data.material);
       addDetailToCard(detailsContainer, 'Style', data.style);
       addDetailToCard(detailsContainer, 'Design', data.design);
       addDetailToCard(detailsContainer, 'Blouse', data.blouse);
-      
+      infoWrap.appendChild(detailsContainer);
+
       // Add stock status directly to the details container for correct HTML
       const stockStatusText = (stock !== undefined && stock > 0) ? 'In Stock' : 'Out of Stock';
       const stockColor = (stock !== undefined && stock > 0) ? 'var(--success)' : 'var(--danger)';
       const stockEl = document.createElement('div');
-      stockEl.innerHTML = `<span style="font-weight:600; color: var(--text-main);">Availability: </span><span style="color:${stockColor}">${stockStatusText}</span>`;
-      detailsContainer.appendChild(stockEl);
+      stockEl.className = `stock-status ${(stock !== undefined && stock > 0) ? 'in-stock' : 'out-of-stock'}`;
+      stockEl.textContent = stockStatusText;
+      infoWrap.appendChild(stockEl);
 
-      card.appendChild(detailsContainer);
-      const orderWrap = document.createElement('div'); orderWrap.style.marginTop='8px';
-      const orderBtn = document.createElement('button'); orderBtn.className='orderBtn btn'; orderBtn.type='button'; orderBtn.dataset.product = title; orderBtn.dataset.price = price;orderBtn.dataset.image = primaryImage; orderBtn.textContent='Order Now'; orderWrap.appendChild(orderBtn);
-      card.appendChild(orderWrap);
+      const orderWrap = document.createElement('div'); orderWrap.className = 'product-actions';
+      const orderBtn = document.createElement('button'); orderBtn.className='orderBtn btn btn-primary'; orderBtn.type='button'; orderBtn.dataset.product = title; orderBtn.dataset.price = price;orderBtn.dataset.image = primaryImage; orderBtn.textContent='Order Now'; orderWrap.appendChild(orderBtn);
+      infoWrap.appendChild(orderWrap);
+      card.appendChild(infoWrap);
       
       // Mute card if out of stock
       if (stock === undefined || stock <= 0) {
         card.style.opacity = '0.6';
         card.style.pointerEvents = 'auto'; // Keep card clickable for detail view
         orderBtn.disabled = true;
-        orderBtn.textContent = 'Out of Stock';
-        orderBtn.style.background = '#555';
+        orderBtn.textContent = 'Out of Stock'; //Out of Stock
+        orderBtn.style.background = 'var(--bg-tertiary)';
         orderBtn.style.cursor = 'not-allowed';
         orderBtn.style.boxShadow = 'none';
       }
       return card;
     }
 
-    function renderProducts(productsToRender) {
+    function renderProducts(productsToRender, productGrid) {
       const productGrid = $('productGrid');
       productGrid.innerHTML = '';
 
@@ -1166,12 +1414,12 @@ row.appendChild(ratingWrap);
       productsUnsub = onSnapshot(productsColRef, snap=>{
         allProducts = []; // Clear and repopulate the master list
         if(snap.empty){
-          productGrid.innerHTML = `<div class="card" style="grid-column:1/-1;text-align:center;color:var(--muted);padding:32px;background:transparent">
+          productGrid.innerHTML = `<div class="product-card" style="grid-column:1/-1;text-align:center;color:var(--muted);padding:32px;background:transparent">
             <strong style="color:#eaf6ff">No products yet</strong>
             <div class="small" style="margin-top:8px">As admin, open Admin → Add Product to upload items. The product grid updates live for users.</div>
-            <div style="margin-top:12px"><button id="openAdminFromEmptyInner" class="btn-ghost">Open Admin</button></div>
+            <div style="margin-top:12px"><button id="openAdminFromEmptyInner" class="btn btn-secondary">Open Admin</button></div>
           </div>`;
-          document.getElementById('openAdminFromEmptyInner')?.addEventListener('click', ()=>{ 
+          $('openAdminFromEmptyInner')?.addEventListener('click', ()=>{ 
             if(!auth.currentUser){ openModal(loginModal); showLoginError('Sign in as admin to add products'); return; } 
             if(auth.currentUser.uid !== ADMIN_UID){ alert('You are not admin'); return; } 
             openModal(adminModal); 
@@ -1224,7 +1472,7 @@ productGrid.addEventListener('click', ev=>{
 
     // ---- Rating listeners and live averages per product ----
     // ---- Rating listeners and live averages (FIXED) ----
-function attachRatingListenersToGrid(){
+function attachRatingListenersToGrid(){ //_
   document.querySelectorAll('#productGrid .card').forEach(card=>{
     const pid = card.dataset.pid;
     if(!pid) return;
@@ -1352,11 +1600,11 @@ function attachRatingListenersToGrid(){
           row.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:12px;border-bottom:1px solid rgba(255,255,255,0.03)';
           row.innerHTML = `
             <div style="flex:1">
-              <strong style="color:#eaf6ff">${escapeHtml(title)}</strong>
+              <strong style="color:var(--text-primary)">${escapeHtml(title)}</strong>
               <div class="small" style="color:var(--muted)">₹${escapeHtml(price)}</div>
             </div>
             <div style="display:flex; gap:8px;">
-              <button class="editProductBtn btn-ghost" data-id="${id}" type="button">Edit</button>
+              <button class="editProductBtn btn-secondary" data-id="${id}" type="button">Edit</button>
               <button class="deleteProductBtn btn" data-id="${id}" style="background:linear-gradient(90deg,#ff3b3b,#ff5252);white-space:nowrap" type="button">Delete</button>
             </div>
           `;
@@ -1527,10 +1775,7 @@ function attachRatingListenersToGrid(){
     });
 
     // ---- Generic modal close (fix for all X buttons) ----
-    document.querySelectorAll('.close-x').forEach(btn=>{ btn.addEventListener('click', ()=>{ const modal = btn.closest('.modal'); closeModal(modal); }); });
-    $('cancelOrder')?.addEventListener('click', ()=>{ closeModal(orderModal); });
-    $('closeOrderDetail')?.addEventListener('click', ()=>{ closeModal(orderDetailModal); });
-    $('closeDetailBtn')?.addEventListener('click', ()=>{ closeModal(orderDetailModal); });
+    document.querySelectorAll('.modal-close').forEach(btn=>{ btn.addEventListener('click', ()=>{ const modal = btn.closest('.modal'); closeModal(modal); }); });
 
     // ---- Auth state changes: UI toggle ----
     onAuthStateChanged(auth, user=>{
@@ -1580,16 +1825,28 @@ function attachRatingListenersToGrid(){
         }
 
         // 3. Material filter (AND logic)
-        if (activeFilters.material.size > 0 && !activeFilters.material.has(product.material?.toLowerCase() || '')) return false;
+        const materialFilters = activeFilters.material; // This is a Set of selected materials
+        if (materialFilters.size > 0) {
+            if (!materialFilters.has(product.material?.toLowerCase() || '')) return false;
+        }
 
         // 4. Style filter (AND logic)
-        if (activeFilters.style.size > 0 && !activeFilters.style.has(product.style?.toLowerCase() || '')) return false;
+        const styleFilters = activeFilters.style;
+        if (styleFilters.size > 0) {
+            if (!styleFilters.has(product.style?.toLowerCase() || '')) return false;
+        }
 
         // 5. Design filter (AND logic)
-        if (activeFilters.design.size > 0 && !activeFilters.design.has(product.design?.toLowerCase() || '')) return false;
+        const designFilters = activeFilters.design;
+        if (designFilters.size > 0) {
+            if (!designFilters.has(product.design?.toLowerCase() || '')) return false;
+        }
 
         // 6. Blouse filter (AND logic)
-        if (activeFilters.blouse.size > 0 && !activeFilters.blouse.has(product.blouse?.toLowerCase() || '')) return false;
+        const blouseFilters = activeFilters.blouse;
+        if (blouseFilters.size > 0) {
+            if (!blouseFilters.has(product.blouse?.toLowerCase() || '')) return false;
+        }
 
         // 7. Stock filter (AND logic)
         if (activeFilters.stock.size > 0) {
@@ -1631,32 +1888,34 @@ function attachRatingListenersToGrid(){
 
     // ---- Initialize Filters UI ----
     function initializeFilters() {
-      // This function now handles ALL filter initialization and event listeners.
-      const container = document.getElementById('colorFiltersContainer');
+      const container = $('filtersContainer');
       if (container) container.innerHTML = '';
       for (const color in FILTERS_CONFIG.colors) {
         const item = document.createElement('div');
-        item.className = 'color-filter-item';
+        item.className = 'filter-item';
         item.dataset.color = color;
         item.innerHTML = `
           <div class="color-swatch" style="background:${FILTERS_CONFIG.colors[color]}"></div>
           <span>${color.charAt(0).toUpperCase() + color.slice(1)}</span>
-          <span class="color-count small" style="margin-left:4px; color:var(--text-muted);"></span>
+          <span class="color-count" style="margin-left:4px; color:var(--text-muted);"></span>
         `;
         item.addEventListener('click', () => {
-          item.style.outline = activeFilters.colors.has(color) ? 'none' : '2px solid var(--gold)';
+          item.classList.toggle('active');
+          // item.style.outline = activeFilters.colors.has(color) ? 'none' : '2px solid var(--gold)';
           activeFilters.colors.has(color) ? activeFilters.colors.delete(color) : activeFilters.colors.add(color);
           applyFiltersAndRender();
         });
         container.appendChild(item);
       }
+      
 
       // This now clears ALL filters
-      $('clearFiltersBtn').addEventListener('click', () => {
+      $('clearFilters').addEventListener('click', () => {
         for (const key in activeFilters) {
             activeFilters[key].clear();
         }
-        document.querySelectorAll('.color-filter-item, .filter-item').forEach(item => item.style.outline = 'none');
+        document.querySelectorAll('.filter-item.active').forEach(item => item.classList.remove('active'));
+        $('searchBox').value = '';
         applyFiltersAndRender();
       });
 
@@ -1676,6 +1935,7 @@ function attachRatingListenersToGrid(){
             material: { label: 'By Material', container: 'materialFilterGroup' },
             style: { label: 'By Style', container: 'styleFilterGroup' },
             design: { label: 'By Design', container: 'designFilterGroup' },
+            blouse: { label: 'Blouse', container: 'blouseFilterGroup' }
         };
 
         // --- Generate dynamic filters from product data (Material, Style, Design) ---
@@ -1689,8 +1949,8 @@ function attachRatingListenersToGrid(){
             let html = `<h4 style="margin: 0 0 10px 0; font-size: 14px;">${config.label}</h4><div class="color-filter-grid">`;
             uniqueValues.forEach(value => {
                 const count = allProducts.filter(p => p[field]?.trim().toLowerCase() === value).length;
-                html += `<div class="filter-item" data-filter-group="${field}" data-filter-value="${value}" style="cursor:pointer; border:1px solid var(--border); padding: 6px 10px; border-radius: 8px; font-size:13px;">
-                    ${value.charAt(0).toUpperCase() + value.slice(1)} <span class="small" style="margin-left:4px; color:var(--text-muted);">(${count})</span>
+                html += `<div class="filter-item" data-filter-group="${field}" data-filter-value="${value}">
+                    ${value.charAt(0).toUpperCase() + value.slice(1)} <span style="margin-left:4px; color:var(--text-muted);">(${count})</span>
                 </div>`;
             });
             html += `</div>`;
@@ -1701,13 +1961,13 @@ function attachRatingListenersToGrid(){
         const availabilityContainer = $('availabilityFilterGroup');
         if (availabilityContainer) {
             availabilityContainer.innerHTML = `<h4 style="margin: 0 0 10px 0; font-size: 14px;">By Availability</h4><div class="color-filter-grid">
-                <div class="filter-item" data-filter-group="stock" data-filter-value="in stock" style="cursor:pointer; border:1px solid var(--border); padding: 6px 10px; border-radius: 8px; font-size:13px;">In Stock</div>
-                <div class="filter-item" data-filter-group="stock" data-filter-value="out of stock" style="cursor:pointer; border:1px solid var(--border); padding: 6px 10px; border-radius: 8px; font-size:13px;">Out of Stock</div>
+                <div class="filter-item" data-filter-group="stock" data-filter-value="in stock">In Stock</div>
+                <div class="filter-item" data-filter-group="stock" data-filter-value="out of stock">Out of Stock</div>
             </div>`;
         }
 
         // --- Attach a single, delegated event listener for all new filters ---
-        const filterGroupsContainer = document.getElementById('filterGroupsContainer');
+        const filterGroupsContainer = $('filtersContainer');
         if (filterGroupsContainer && !filterGroupsContainer._bound) {
             filterGroupsContainer._bound = true; // Prevent multiple bindings
             filterGroupsContainer.addEventListener('click', (e) => {
@@ -1715,7 +1975,10 @@ function attachRatingListenersToGrid(){
                 if (!item) return;
                 const group = item.dataset.filterGroup;
                 const value = item.dataset.filterValue;
-                item.style.outline = activeFilters[group].has(value) ? 'none' : '2px solid var(--gold)';
+                if (!group || !value) return;
+
+                item.classList.toggle('active');
+                
                 activeFilters[group].has(value) ? activeFilters[group].delete(value) : activeFilters[group].add(value);
                 applyFiltersAndRender();
             });
@@ -1723,7 +1986,7 @@ function attachRatingListenersToGrid(){
     }
 
     // initial UI ready
-    document.getElementById('openAdminFromEmpty')?.addEventListener('click', ()=>{
+    $('openAdminFromEmpty')?.addEventListener('click', ()=>{
       if(!auth.currentUser){ openModal(loginModal); showLoginError('Sign in as admin to add products'); return; }
       if(auth.currentUser.uid !== ADMIN_UID){ alert('You are not admin'); return; }
       openModal(adminModal);
@@ -1740,75 +2003,51 @@ function attachRatingListenersToGrid(){
 
   <!-- Image zoom modal (added) -->
   <div class="modal zoom-modal" id="zoomModal" aria-hidden="true">
-    <div class="modal-box" role="dialog" aria-modal="true">
-      <button class="close-x" id="closeZoom" title="Close">✕</button>
+    <div class="modal-content" role="dialog" aria-modal="true">
+      <button class="modal-close" id="closeZoom" title="Close">✕</button>
       <img id="zoomImg" src="" alt="Zoomed-in product image" />
     </div>
   </div>
 
 
   <!-- Product Detail Modal -->
-<div class="modal" id="productDetailModal" aria-hidden="true">
-  <div class="modal-box product-detail-box">
-    <button class="close-x" id="closeProductDetail">✕</button>
-
-    <div class="pd-layout">
-      <!-- Images -->
-      <div class="pd-images">
-        <img id="pdMainImg" class="pd-main-img" src="" alt="Main product image">
-        <div id="pdThumbs" class="pd-thumbs"></div>
+  <div class="modal" id="productDetailModal" aria-hidden="true">
+    <div class="modal-content" style="max-width: 900px;">
+      <div class="modal-header">
+        <h2 id="pdTitle">Product Details</h2>
+        <button class="modal-close" id="closeProductDetail">✕</button>
       </div>
-
-      <!-- Info -->
-      <div class="pd-info">
-        <h2 id="pdTitle"></h2>
-        <div id="pdPrice" class="pd-price" style="margin-bottom: 16px;"></div>
-
-        <!-- Container for additional product details -->
-        <div id="pdDetails" style="margin: 16px 0; font-size: 14px; color: var(--text-muted); display: grid; gap: 8px;"></div>
-
-        <button id="pdOrderBtn" class="btn">Order Now</button>
-
-        <hr style="margin: 20px 0; border-color: var(--border);">
-
-        <!-- User Reviews -->
-        <h3>User Reviews</h3>
-        <div id="pdRating" class="pd-rating small" style="margin-bottom: 10px;"></div>
-        <div id="reviewsList" class="reviews-list small"></div>
-
-        <hr style="margin: 20px 0; border-color: var(--border);">
-
-        <!-- Write Review -->
-        <div class="review-write">
-          <h3>Write a Review</h3>
-          <div class="review-stars" id="reviewStars">
-            <span data-val="1">★</span>
-            <span data-val="2">★</span>
-            <span data-val="3">★</span>
-            <span data-val="4">★</span>
-            <span data-val="5">★</span>
+      <div class="modal-body">
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+          <!-- Images -->
+          <div>
+            <img id="pdMainImg" style="width:100%; border-radius: 12px;" src="" alt="Main product image">
+            <div id="pdThumbs" style="display:flex; gap:8px; margin-top:10px;"></div>
           </div>
-          <textarea id="reviewText" placeholder="Share your experience (optional)"></textarea>
-          <button id="submitReview" class="btn-ghost">Submit Review</button>
+  
+          <!-- Info -->
+          <div>
+            <div id="pdPrice" class="product-price" style="margin-bottom: 16px;"></div>
+            <div id="pdDetails" style="margin: 16px 0; font-size: 14px; color: var(--text-secondary); display: grid; gap: 8px;"></div>
+            <button id="pdOrderBtn" class="btn btn-primary">Order Now</button>
+            <hr style="margin: 20px 0; border-color: rgba(212, 175, 55, 0.1);">
+            <h3>User Reviews</h3>
+            <div id="pdRating" class="product-rating" style="margin-bottom: 10px;"></div>
+            <div id="reviewsList" style="display:flex; flex-direction:column; gap:10px; margin-top:10px;"></div>
+            <hr style="margin: 20px 0; border-color: rgba(212, 175, 55, 0.1);">
+            <div>
+              <h3>Write a Review</h3>
+              <div id="reviewStars">
+                <span data-val="1">★</span><span data-val="2">★</span><span data-val="3">★</span><span data-val="4">★</span><span data-val="5">★</span>
+              </div>
+              <textarea id="reviewText" class="form-group" style="width:100%; margin-top:8px;" placeholder="Share your experience (optional)"></textarea>
+              <button id="submitReview" class="btn btn-secondary">Submit Review</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
-
-  <!-- Toast notification element -->
-  <div id="toast"></div>
-
-  <footer style="text-align:center;padding:18px;color:#9fb8d9;font-size:13px;line-height:1.6;">
-    ©2025 Hamsa Sarees, unauthorized use is strictly prohibited.<br>
-    Website designed, created & published by Terminal Joint.
-  </footer>
 
   </body>
 </html>
-
-
-
-
-
-
