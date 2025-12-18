@@ -913,8 +913,16 @@ productGrid.addEventListener('click', e => {
   $('pdPrice').innerText =
   card.querySelector('.price-new')?.innerText || '';
 
-  // ---- NEW: Populate Additional Details in Modal ----
-  const data = JSON.parse(card.dataset.productData || '{}');
+  // ---- FIXED: Safely parse and populate additional details ----
+  let data = {};
+  try {
+    // Use the data stored in the dataset, which is now guaranteed to be safe
+    data = JSON.parse(card.dataset.productData || '{}');
+  } catch (e) {
+    console.error('Failed to parse productData from dataset:', e);
+    // data remains an empty object, so the modal still opens
+  }
+
   const detailsContainer = $('pdDetails');
   detailsContainer.innerHTML = ''; // Clear previous details
 
@@ -1747,5 +1755,6 @@ window.location.href = 'payment.html';});
 
   </body>
 </html>
+
 
 
