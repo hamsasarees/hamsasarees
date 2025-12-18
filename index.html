@@ -462,11 +462,18 @@ button,a{
       <!-- Filters Section -->
       <section class="filter-section">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-          <h3 style="margin:0; font-size:16px;">Filter by Color</h3>
-          <button id="clearFiltersBtn" class="btn-ghost" style="font-size:12px; padding:6px 12px;">Clear</button>
+          <h3 style="margin:0; font-size:16px;">Filters</h3>
+          <button id="clearFiltersBtn" class="btn-ghost" style="font-size:12px; padding:6px 12px;">Clear All</button>
         </div>
-        <div id="colorFiltersContainer" class="color-filter-grid">
-          <!-- Color filters will be dynamically inserted here -->
+        <div id="filterGroupsContainer" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+            <div id="colorFilterGroup">
+              <h4 style="margin: 0 0 10px 0; font-size: 14px;">By Color</h4>
+              <div id="colorFiltersContainer" class="color-filter-grid"></div>
+            </div>
+            <div id="materialFilterGroup"></div>
+            <div id="styleFilterGroup"></div>
+            <div id="designFilterGroup"></div>
+            <div id="availabilityFilterGroup"></div>
         </div>
       </section>
 
@@ -668,7 +675,12 @@ let selectedRating = 0;
   
   // ---- State for active filters ----
   let activeFilters = {
-    colors: new Set()
+    colors: new Set(),
+    material: new Set(),
+    style: new Set(),
+    design: new Set(),
+    blouse: new Set(),
+    stock: new Set()
   };
   // ---- helper: escape text for safe insertion ----
   function escapeHtml(s){ return String(s===undefined||s===null?'':s).replace(/[&<>\"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
@@ -988,8 +1000,16 @@ productGrid.addEventListener('click', e => {
       card.className = 'card'; 
       card.dataset.pid = id;
       // Store product data on the element for filtering
-      card.dataset.productData = JSON.stringify(data);
-      
+      const safeDataForDataset = {
+        material: data.material || '',
+        style: data.style || '',
+        design: data.design || '',
+        blouse: data.blouse || '',
+        stock: data.stock === undefined ? 1 : data.stock, // Default to 1 if undefined
+        colors: Array.isArray(data.colors) ? data.colors : []
+      };
+      card.dataset.productData = JSON.stringify(safeDataForDataset);
+
       // build DOM safely (no raw innerHTML from user content)
       let tagEl = null;
 if(tag){
@@ -1176,6 +1196,9 @@ row.appendChild(ratingWrap);
 
         // Update product counts in filters
         updateColorFilterCounts();
+
+        // Re-initialize all dynamic filters based on the full product list
+        initializeDynamicFilters();
 
       }, err => { console.error('products snapshot error', err); });
     }catch(e){ console.warn('products onSnapshot not available', e); }
@@ -1570,20 +1593,7 @@ window.location.href = 'payment.html';});
     // ---- Search and shopNow (debounced) ----
     const searchBox = $('searchBox');
     if(searchBox){
-      // This is the old search logic. It will be replaced by applyFiltersAndRender.
-      let searchTimer = null;
-      searchBox.addEventListener('input', e=>{
-        clearTimeout(searchTimer);
-        searchTimer = setTimeout(()=>{
-          const v = e.target.value.toLowerCase();
-          document.querySelectorAll('#productGrid .card').forEach(card=>{
-            const t = (card.querySelector('h3')||{innerText:''}).innerText.toLowerCase();
-            const tag = (card.querySelector('.tag')||{innerText:''}).innerText.toLowerCase();
-            const show = !v || t.includes(v) || tag.includes(v);
-            card.style.display = show ? '' : 'none';
-          });
-        }, 180);
-      });
+      // The search input is now handled by the initializeFilters function
     }
     const shopNow = $('shopNow'); if(shopNow) shopNow.addEventListener('click', ()=>{ const grid=document.getElementById('productGrid'); if(grid) grid.scrollIntoView({behavior:'smooth'}); });
     $('adminClose')?.addEventListener('click', ()=>closeModal(adminModal));
@@ -1607,6 +1617,26 @@ window.location.href = 'payment.html';});
           const productColors = product.colors || [];
           const colorMatch = productColors.some(pc => selectedColors.has(pc));
           if (!colorMatch) return false;
+        }
+
+        // 3. Material filter (AND logic)
+        if (activeFilters.material.size > 0 && !activeFilters.material.has(product.material?.toLowerCase() || '')) return false;
+
+        // 4. Style filter (AND logic)
+        if (activeFilters.style.size > 0 && !activeFilters.style.has(product.style?.toLowerCase() || '')) return false;
+
+        // 5. Design filter (AND logic)
+        if (activeFilters.design.size > 0 && !activeFilters.design.has(product.design?.toLowerCase() || '')) return false;
+
+        // 6. Blouse filter (AND logic)
+        if (activeFilters.blouse.size > 0 && !activeFilters.blouse.has(product.blouse?.toLowerCase() || '')) return false;
+
+        // 7. Stock filter (AND logic)
+        if (activeFilters.stock.size > 0) {
+            const isInStock = (product.stock || 0) > 0;
+            const selection = activeFilters.stock.has('in stock');
+            // Show if user wants "In Stock" and it is, or user wants "Out of Stock" and it is not.
+            if (selection !== isInStock) return false;
         }
 
         // If all filters pass, include the product
@@ -1641,9 +1671,9 @@ window.location.href = 'payment.html';});
 
     // ---- Initialize Filters UI ----
     function initializeFilters() {
-      const searchBox = $('searchBox');
-      const container = $('colorFiltersContainer');
-      container.innerHTML = '';
+      // This function now handles ALL filter initialization and event listeners.
+      const container = document.getElementById('colorFiltersContainer');
+      if (container) container.innerHTML = '';
       for (const color in FILTERS_CONFIG.colors) {
         const item = document.createElement('div');
         item.className = 'color-filter-item';
@@ -1661,15 +1691,18 @@ window.location.href = 'payment.html';});
         container.appendChild(item);
       }
 
+      // This now clears ALL filters
       $('clearFiltersBtn').addEventListener('click', () => {
-        activeFilters.colors.clear();
-        document.querySelectorAll('.color-filter-item').forEach(item => item.style.outline = 'none');
+        for (const key in activeFilters) {
+            activeFilters[key].clear();
+        }
+        document.querySelectorAll('.color-filter-item, .filter-item').forEach(item => item.style.outline = 'none');
         applyFiltersAndRender();
       });
 
       // Integrate search box with the new filtering system
-      if (searchBox) {
-        let searchTimer = null;
+      const searchBox = $('searchBox');
+      if(searchBox){ let searchTimer = null;
         searchBox.addEventListener('input', () => {
           clearTimeout(searchTimer);
           searchTimer = setTimeout(applyFiltersAndRender, 180); // Debounced call
@@ -1677,6 +1710,57 @@ window.location.href = 'payment.html';});
       }
     }
     initializeFilters();
+
+    function initializeDynamicFilters() {
+        const fieldsToFilter = {
+            material: { label: 'By Material', container: 'materialFilterGroup' },
+            style: { label: 'By Style', container: 'styleFilterGroup' },
+            design: { label: 'By Design', container: 'designFilterGroup' },
+        };
+
+        // --- Generate dynamic filters from product data (Material, Style, Design) ---
+        for (const field in fieldsToFilter) {
+            const uniqueValues = [...new Set(allProducts.map(p => p[field]?.trim().toLowerCase()).filter(Boolean))];
+            uniqueValues.sort();
+            const config = fieldsToFilter[field];
+            const container = $(config.container);
+            if (!container) continue;
+
+            let html = `<h4 style="margin: 0 0 10px 0; font-size: 14px;">${config.label}</h4><div class="color-filter-grid">`;
+            uniqueValues.forEach(value => {
+                const count = allProducts.filter(p => p[field]?.trim().toLowerCase() === value).length;
+                html += `<div class="filter-item" data-filter-group="${field}" data-filter-value="${value}" style="cursor:pointer; border:1px solid var(--border); padding: 6px 10px; border-radius: 8px; font-size:13px;">
+                    ${value.charAt(0).toUpperCase() + value.slice(1)} <span class="small" style="margin-left:4px; color:var(--text-muted);">(${count})</span>
+                </div>`;
+            });
+            html += `</div>`;
+            container.innerHTML = html;
+        }
+
+        // --- Generate static filters (Availability) ---
+        const availabilityContainer = $('availabilityFilterGroup');
+        if (availabilityContainer) {
+            availabilityContainer.innerHTML = `<h4 style="margin: 0 0 10px 0; font-size: 14px;">By Availability</h4><div class="color-filter-grid">
+                <div class="filter-item" data-filter-group="stock" data-filter-value="in stock" style="cursor:pointer; border:1px solid var(--border); padding: 6px 10px; border-radius: 8px; font-size:13px;">In Stock</div>
+                <div class="filter-item" data-filter-group="stock" data-filter-value="out of stock" style="cursor:pointer; border:1px solid var(--border); padding: 6px 10px; border-radius: 8px; font-size:13px;">Out of Stock</div>
+            </div>`;
+        }
+
+        // --- Attach a single, delegated event listener for all new filters ---
+        const filterGroupsContainer = document.getElementById('filterGroupsContainer');
+        if (filterGroupsContainer && !filterGroupsContainer._bound) {
+            filterGroupsContainer._bound = true; // Prevent multiple bindings
+            filterGroupsContainer.addEventListener('click', (e) => {
+                const item = e.target.closest('.filter-item');
+                if (!item) return;
+                const group = item.dataset.filterGroup;
+                const value = item.dataset.filterValue;
+                item.style.outline = activeFilters[group].has(value) ? 'none' : '2px solid var(--gold)';
+                activeFilters[group].has(value) ? activeFilters[group].delete(value) : activeFilters[group].add(value);
+                applyFiltersAndRender();
+            });
+        }
+    }
 
     // initial UI ready
     document.getElementById('openAdminFromEmpty')?.addEventListener('click', ()=>{
@@ -1721,6 +1805,9 @@ window.location.href = 'payment.html';});
         <div id="pdPrice" class="pd-price"></div>
         <div id="pdRating" class="pd-rating"></div>
 
+        <!-- Container for additional product details -->
+        <div id="pdDetails" style="margin: 16px 0; font-size: 14px; color: var(--text-muted); display: grid; gap: 8px;"></div>
+
         <button id="pdOrderBtn" class="btn">Order Now</button>
 
         <hr>
@@ -1755,6 +1842,3 @@ window.location.href = 'payment.html';});
 
   </body>
 </html>
-
-
-
