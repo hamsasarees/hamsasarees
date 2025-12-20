@@ -229,7 +229,7 @@ if (order.image) {
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 /* ---------- FIREBASE ---------- */
 const app = initializeApp({
@@ -250,6 +250,17 @@ onAuthStateChanged(auth, user => {
   }
 
   payBtn.disabled = false;
+
+  // 7️⃣ AUTO-FILL FROM FIRESTORE PROFILE
+  const userRef = doc(db, 'users', user.uid);
+  getDoc(userRef).then(snap => {
+    if(snap.exists()){
+      const data = snap.data();
+      if(data.name) nameEl.value = data.name;
+      if(data.phone) phoneEl.value = data.phone;
+      if(data.address) addressEl.value = data.address;
+    }
+  }).catch(err => console.error('Auto-fill error:', err));
 
   payBtn.onclick = () => {
     const name = nameEl.value.trim();
