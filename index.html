@@ -443,6 +443,7 @@ button,a{
         <button id="adminBtn" class="btn-ghost" style="display:none" aria-hidden="true">Admin</button>
         <div id="userBadge" style="display:none;background:rgba(255,255,255,0.03);padding:8px 10px;border-radius:10px;color:#fff;font-weight:700"></div>
         <a id="myOrdersBtn" href="yourorders.html" class="btn-ghost" style="display:none">My Orders</a>
+        <button id="profileBtn" class="btn-ghost" style="display:none">Profile</button>
         <button id="signOutBtn" class="btn-ghost" style="display:none">Sign out</button>
         <button id="loginShowBtn" class="btn">Sign in</button>
       </div>
@@ -512,6 +513,34 @@ button,a{
       <h2>Order Details</h2>
       <div id="orderDetailContent" class="small" style="white-space:pre-line;margin-top:8px"></div>
       <div style="display:flex;gap:10px;margin-top:12px;justify-content:flex-end"><button id="closeDetailBtn" class="btn-ghost">Close</button></div>
+    </div>
+  </div>
+
+  <div class="modal" id="profileModal" aria-hidden="true">
+    <div class="modal-box" role="dialog" aria-modal="true">
+      <button class="close-x" id="closeProfile" title="Close">✕</button>
+      <h2>My Profile</h2>
+      <p class="small">Manage your shipping details for faster checkout.</p>
+      
+      <div class="field">
+        <label class="small" style="font-weight:600">Name</label>
+        <input id="profileName" placeholder="Your Name">
+      </div>
+      <div class="field">
+        <label class="small" style="font-weight:600">Email (Read-only)</label>
+        <input id="profileEmail" readonly style="opacity:0.7;cursor:not-allowed">
+      </div>
+      <div class="field">
+        <label class="small" style="font-weight:600">Phone Number</label>
+        <input id="profilePhone" placeholder="10-digit mobile number">
+      </div>
+      <div class="field">
+        <label class="small" style="font-weight:600">Delivery Address</label>
+        <textarea id="profileAddress" placeholder="Full delivery address"></textarea>
+      </div>
+      <div style="margin-top:12px;display:flex;justify-content:flex-end">
+        <button id="saveProfileBtn" class="btn">Save Profile</button>
+      </div>
     </div>
   </div>
 
@@ -677,7 +706,7 @@ let selectedRating = 0;
     const storageMod = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js');
 
     const { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } = authMod;
-    const { getFirestore, collection, addDoc, setDoc, doc, deleteDoc, serverTimestamp, query, orderBy, getDocs, onSnapshot } = fsMod;
+    const { getFirestore, collection, addDoc, setDoc, doc, getDoc, deleteDoc, serverTimestamp, getDocs, onSnapshot } = fsMod;
     const { getStorage, ref, uploadBytes, getDownloadURL } = storageMod;
 
     const app = initializeApp(firebaseConfig);
@@ -747,8 +776,9 @@ div.innerHTML = `
     // ---- DOM refs ----
     
     const loginModal = $('loginModal'), adminModal = $('adminModal');
+    const profileModal = $('profileModal');
     const loginErr = $('loginErr'), userBadge = $('userBadge'), signOutBtn = $('signOutBtn'), loginShowBtn = $('loginShowBtn'), googleBtnLarge = $('googleBtnLarge');
-    const myOrdersBtn = $('myOrdersBtn');
+    const myOrdersBtn = $('myOrdersBtn'), profileBtn = $('profileBtn');
     const adminBtn = $('adminBtn');
 
     function toast(msg){ if(!toastEl) return; toastEl.innerText = msg; toastEl.style.display = 'block'; setTimeout(()=>toastEl.style.display = 'none', 2200); }
@@ -1212,36 +1242,6 @@ function attachRatingListenersToGrid(){
     const pid = card.dataset.pid;
     if(!pid) return;
 
-    // ⭐ RATE BUTTON CLICK
-    card.querySelectorAll('.rateBtn').forEach(btn=>{
-      if(btn._bound) return;
-      btn._bound = true;
-
-      btn.addEventListener('click', async (ev)=>{
-        if(!auth.currentUser){
-          alert('Sign in to rate products');
-          return;
-        }
-
-        const rating = Number(ev.currentTarget.dataset.rating);
-        const uid = auth.currentUser.uid;
-
-        try{
-          await setDoc(
-            doc(db, 'products', pid, 'reviews', uid),
-            {
-              rating: rating,
-              createdAt: serverTimestamp()
-            }
-          );
-          toast('Thanks for rating!');
-        }catch(err){
-          console.error('rating save failed', err);
-          alert('Thanks for Your Review !');
-        }
-      });
-    });
-
     // ⭐ LIVE AVERAGE RATING
     if(card._reviewsUnsub) return;
 
@@ -1545,6 +1545,7 @@ function attachRatingListenersToGrid(){
     // ---- Generic modal close (fix for all X buttons) ----
     document.querySelectorAll('.close-x').forEach(btn=>{ btn.addEventListener('click', ()=>{ const modal = btn.closest('.modal'); closeModal(modal); }); });
     $('closeOrderDetail')?.addEventListener('click', ()=>{ closeModal(orderDetailModal); });
+    $('closeProfile')?.addEventListener('click', ()=>{ closeModal(profileModal); });
     $('closeDetailBtn')?.addEventListener('click', ()=>{ closeModal(orderDetailModal); });
 
     // ---- Auth state changes: UI toggle ----
@@ -1554,15 +1555,77 @@ function attachRatingListenersToGrid(){
         if(userBadge){ userBadge.style.display='inline-block'; userBadge.innerText = user.displayName || user.email; }
         if(signOutBtn) signOutBtn.style.display='inline-block';
         if(myOrdersBtn) myOrdersBtn.style.display='inline-block';
+        if(profileBtn) profileBtn.style.display='inline-block';
         if(loginShowBtn) loginShowBtn.style.display='none';
         if(adminBtn) adminBtn.style.display = (user.uid === ADMIN_UID) ? 'inline-block' : 'none';
+
+        // 1️⃣ & 2️⃣ FIRST LOGIN: Check if user doc exists, if not create it
+        const userRef = doc(db, 'users', user.uid);
+        getDoc(userRef).then(snap => {
+          if(!snap.exists()){
+            setDoc(userRef, {
+              uid: user.uid,
+              name: user.displayName || '',
+              email: user.email || '',
+              phone: '',
+              address: '',
+              createdAt: serverTimestamp(),
+              updatedAt: serverTimestamp()
+            }).catch(err => console.error('Error creating profile:', err));
+          }
+        });
+
       }else{
         closeModal(loginModal);
         if(userBadge) userBadge.style.display='none';
         if(signOutBtn) signOutBtn.style.display='none';
         if(myOrdersBtn) myOrdersBtn.style.display='none';
+        if(profileBtn) profileBtn.style.display='none';
         if(loginShowBtn) loginShowBtn.style.display='inline-block';
         if(adminBtn) adminBtn.style.display='none';
+      }
+    });
+
+    // 4️⃣ & 5️⃣ PROFILE MODAL LOGIC
+    if(profileBtn){
+      profileBtn.addEventListener('click', async () => {
+        if(!auth.currentUser) return;
+        openModal(profileModal);
+        
+        // Auto-fill
+        const userRef = doc(db, 'users', auth.currentUser.uid);
+        const snap = await getDoc(userRef);
+        if(snap.exists()){
+          const data = snap.data();
+          $('profileName').value = data.name || '';
+          $('profileEmail').value = data.email || auth.currentUser.email;
+          $('profilePhone').value = data.phone || '';
+          $('profileAddress').value = data.address || '';
+        }
+      });
+    }
+
+    // 6️⃣ SAVE PROFILE
+    $('saveProfileBtn')?.addEventListener('click', async () => {
+      if(!auth.currentUser) return;
+      const name = $('profileName').value.trim();
+      const phone = $('profilePhone').value.trim();
+      const address = $('profileAddress').value.trim();
+
+      // Validation
+      if(!name) { alert('Name is required'); return; }
+      if(!/^[6-9]\d{9}$/.test(phone)) { alert('Please enter a valid 10-digit Indian mobile number'); return; }
+      if(!address) { alert('Address cannot be empty'); return; }
+
+      try {
+        await setDoc(doc(db, 'users', auth.currentUser.uid), {
+          name, phone, address, updatedAt: serverTimestamp()
+        }, { merge: true });
+        toast('Profile saved successfully');
+        closeModal(profileModal);
+      } catch(e) {
+        console.error(e);
+        alert('Failed to save profile');
       }
     });
 
