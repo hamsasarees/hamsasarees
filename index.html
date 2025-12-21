@@ -38,7 +38,7 @@ html,body{
     radial-gradient(circle at 85% 30%, rgba(230, 181, 102, 0.08) 0%, transparent 50%),
     #0a0e1a;
   color:var(--text-main);
-  scroll-behavior: smooth;
+  scroll-behavior: smooth !important;
   scroll-padding-top: 100px;
 }
 /* ================= SCROLLBAR ================= */
@@ -87,13 +87,13 @@ html,body{
 
 /* ================= FILTERS ================= */
 .filter-section{
-  background: rgba(15, 23, 56, 0.4);
+  background: rgba(255, 255, 255, 0.02);
   backdrop-filter: blur(12px);
   border:1px solid rgba(255,255,255,0.05);
   padding:20px;
   border-radius:20px;
   margin-top:30px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
 }
 .color-filter-grid{
   display:flex; flex-wrap:wrap; gap:12px;
@@ -143,6 +143,7 @@ header{
   height:48px;
   border-radius:12px;
   overflow:hidden; /* Ensures the image respects the border radius */
+  transition: transform 0.3s ease;
 }
 
 .logo img {
@@ -150,9 +151,11 @@ header{
   height: 100%;
   object-fit: cover; /* Ensures the image fills the container */
 }
+.logo:hover { transform: scale(1.05); }
 
 .title{
   font-weight:800;
+  letter-spacing: -0.02em;
   font-size:16px;
 }
 
@@ -166,7 +169,7 @@ header{
   display:flex;
   align-items:center;
   gap:10px;
-  background: rgba(15, 23, 56, 0.6);
+  background: rgba(255, 255, 255, 0.03);
   border:1px solid rgba(255,255,255,0.1);
   padding:10px 14px;
   border-radius:14px;
@@ -263,7 +266,7 @@ input.invalid, textarea.invalid {
 
 .btn:hover{
   transform: translateY(-2px);
-  box-shadow: 0 12px 35px rgba(230, 181, 102, 0.4);
+  box-shadow: 0 15px 35px rgba(230, 181, 102, 0.4);
 }
 
 .btn-ghost{
@@ -295,11 +298,11 @@ input.invalid, textarea.invalid {
 
 .hero-card {
   width: 100%;
-  background: linear-gradient(135deg, #1a2342 0%, #0b1023 100%);
+  background: radial-gradient(circle at top right, rgba(230, 181, 102, 0.08), transparent 40%), linear-gradient(135deg, #1a2342 0%, #050810 100%);
   border:1px solid rgba(230, 181, 102, 0.15);
   border-radius:20px;
   padding:60px 20px;
-  box-shadow:0 30px 80px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.05);
+  box-shadow:0 40px 100px -20px rgba(0,0,0,0.7), inset 0 0 0 1px rgba(255,255,255,0.05);
   text-align: center;
   position: relative;
   overflow: hidden;
@@ -319,7 +322,7 @@ input.invalid, textarea.invalid {
 .hero-content { position: relative; z-index: 2; max-width: 700px; margin: 0 auto; }
 
 .hero-content h1 {
-  font-size: 3rem; margin: 10px 0;
+  font-size: 3.5rem; margin: 10px 0; letter-spacing: -0.03em;
   background: linear-gradient(90deg, #fff, #e6b566, #fff); background-size: 200%;
   -webkit-background-clip: text;
   background-clip: text;
@@ -357,13 +360,14 @@ input.invalid, textarea.invalid {
 
 /* ================= PRODUCT CARD ================= */
 .card{
-  background: rgba(19, 27, 54, 0.6);
-  border:1px solid rgba(255,255,255,0.08);
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(10px);
+  border:1px solid rgba(255,255,255,0.05);
   border-radius:18px;
   padding:12px;
   cursor:pointer;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  box-shadow:0 10px 30px rgba(0,0,0,0.3);
+  box-shadow:0 10px 30px rgba(0,0,0,0.2);
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -372,10 +376,9 @@ input.invalid, textarea.invalid {
 @keyframes fadeIn { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
 
 .card:hover{
-  transform: translateY(-8px);
-  background: rgba(19, 27, 54, 0.9);
-  border-color: var(--gold);
-  box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 0 1px rgba(230, 181, 102, 0.2);
+  transform: translateY(-5px);
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
 }
 
 /* Hover Overlay for Image */
@@ -476,6 +479,7 @@ input.invalid, textarea.invalid {
   margin:12px 0 6px;
   font-size:15px;
   font-weight:700;
+  letter-spacing: -0.01em;
   line-height: 1.5;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -520,6 +524,7 @@ input.invalid, textarea.invalid {
 }
 h2 {
   background: linear-gradient(90deg, #fff, #e6b566);
+  letter-spacing: -0.02em;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -722,7 +727,7 @@ h2 {
 
 .empty-state {
   grid-column: 1 / -1;
-  text-align: center;
+  text-align: center; margin-top: 20px;
   color: var(--text-muted);
   padding: 40px;
   background: rgba(255,255,255,0.02);
@@ -789,7 +794,7 @@ h2 {
 .footer-col h4 { color: var(--gold); margin-bottom: 20px; font-size: 16px; font-weight: 700; letter-spacing: 0.5px; }
 .footer-col a { display: block; color: var(--text-muted); text-decoration: none; margin-bottom: 12px; font-size: 14px; transition: color 0.2s; }
 .footer-col a:hover { color: var(--gold); transform: translateX(5px); }
-.social-icons { display: flex; gap: 15px; margin-top: 20px; }
+.social-icons { display: flex; gap: 12px; margin-top: 20px; }
 .social-icon { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; transition: 0.3s; color: var(--text-main); border: 1px solid var(--border); }
 .social-icon:hover { background: var(--gold); color: #000; transform: translateY(-3px); box-shadow: 0 5px 15px rgba(230, 181, 102, 0.3); }
 .footer-bottom { text-align: center; padding: 20px; background: #020408; color: #5a6b8c; font-size: 13px; border-top: 1px solid rgba(255,255,255,0.03); }
@@ -1436,6 +1441,13 @@ $('pdMainImg')?.addEventListener('click', () => {
 });
 
     // ================= CART LOGIC =================
+    async function saveCart() {
+      if(!auth.currentUser) return;
+      try {
+        await setDoc(doc(db, 'users', auth.currentUser.uid), { cart }, { merge: true });
+      } catch(e) { console.error('Save cart error', e); }
+    }
+
     function updateCartUI() {
       const countEl = $('cartCount');
       if(countEl) {
@@ -1462,6 +1474,7 @@ $('pdMainImg')?.addEventListener('click', () => {
       }
       cart.push(product);
       updateCartUI();
+      saveCart();
       toast('Added to Cart');
       
       const cartBtnWrap = document.getElementById('openCartBtn');
@@ -1514,6 +1527,7 @@ $('pdMainImg')?.addEventListener('click', () => {
           const idx = Number(e.target.dataset.index);
           cart.splice(idx, 1);
           updateCartUI();
+          saveCart();
           renderCart();
         });
       });
@@ -1522,7 +1536,7 @@ $('pdMainImg')?.addEventListener('click', () => {
     $('openCartBtn')?.addEventListener('click', () => { renderCart(); openModal(cartModal); });
     $('floatingCartBtn')?.addEventListener('click', () => { renderCart(); openModal(cartModal); });
     $('closeCart')?.addEventListener('click', () => closeModal(cartModal));
-    $('clearCartBtn')?.addEventListener('click', () => { cart = []; updateCartUI(); renderCart(); });
+    $('clearCartBtn')?.addEventListener('click', () => { cart = []; updateCartUI(); saveCart(); renderCart(); });
     $('checkoutCartBtn')?.addEventListener('click', () => {
        // For now, we use the existing payment flow which handles one item, 
        // or we can just alert that bulk checkout is coming soon if payment.html isn't ready.
@@ -2311,6 +2325,15 @@ productGrid.addEventListener('click', ev=>{
     onAuthStateChanged(auth, user=>{
       if(user){
         closeModal(loginModal);
+        
+        // Load Cart from Firestore
+        getDoc(doc(db, 'users', user.uid)).then(snap => {
+          if(snap.exists() && Array.isArray(snap.data().cart)){
+            cart = snap.data().cart;
+            updateCartUI();
+          }
+        });
+
         if(userBadge){ userBadge.style.display='inline-block'; userBadge.innerText = user.displayName || user.email; }
         if(signOutBtn) signOutBtn.style.display='inline-block';
         if(myOrdersBtn) myOrdersBtn.style.display='inline-block';
@@ -2395,6 +2418,7 @@ productGrid.addEventListener('click', ev=>{
         if(userProfileUnsub) userProfileUnsub();
         isProfileForced = false;
         closeModal(loginModal);
+        cart = []; updateCartUI();
         if(userBadge) userBadge.style.display='none';
         if(signOutBtn) signOutBtn.style.display='none';
         if(myOrdersBtn) myOrdersBtn.style.display='none';
