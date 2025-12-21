@@ -38,6 +38,12 @@ html,body{
     linear-gradient(180deg,#080c18,#0a0e1a);
   color:var(--text-main);
 }
+/* ================= SCROLLBAR ================= */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-main); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
 
 /* ================= FILTERS ================= */
 .filter-section{
@@ -70,6 +76,17 @@ header{
   border:1px solid var(--border);
   box-shadow:0 20px 50px rgba(0,0,0,.45);
 }
+header.sticky {
+  position: sticky;
+  top: 12px;
+  width: 100%;
+  z-index: 1000;
+  background: rgba(10, 14, 26, 0.75);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  animation: slideDown 0.3s ease-out;
+}
+@keyframes slideDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }
 
 .brand{
   display:flex;
@@ -135,6 +152,7 @@ button,a{
   border-radius:14px;
   font-weight:800;
   cursor:pointer;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   box-shadow:0 10px 30px rgba(230,181,102,.35);
 }
 
@@ -146,8 +164,27 @@ button:disabled, .btn:disabled {
   transform: none !important;
 }
 
+input:focus, textarea:focus, select:focus {
+  border-color: var(--gold);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(230,181,102,0.15);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+input.invalid, textarea.invalid {
+  border-color: var(--danger);
+}
+
+.error-message {
+  font-size: 12px;
+  color: var(--danger);
+  min-height: 16px;
+  margin-top: 4px;
+}
+
 .btn:hover{
-  transform:translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 35px rgba(230, 181, 102, 0.4);
 }
 
 .btn-ghost{
@@ -157,10 +194,13 @@ button:disabled, .btn:disabled {
   padding:9px 16px;
   border-radius:14px;
   cursor:pointer;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 .btn-ghost:hover{
   background:#18225a;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
 }
 
 /* ================= HERO ================= */
@@ -177,6 +217,7 @@ button:disabled, .btn:disabled {
   border:1px solid var(--border);
   border-radius:20px;
   padding:24px;
+  background: linear-gradient(180deg, rgba(20, 28, 63, 0.6), rgba(15, 21, 51, 0.8));
   box-shadow:0 30px 70px rgba(0,0,0,.45);
 }
 
@@ -184,6 +225,10 @@ button:disabled, .btn:disabled {
   margin:0 0 10px;
   font-size:30px;
   line-height:1.25;
+  background: linear-gradient(90deg, #fff, #e6b566);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .promo{
@@ -207,10 +252,13 @@ button:disabled, .btn:disabled {
   cursor:pointer;
   transition:.25s ease;
   box-shadow:0 18px 45px rgba(0,0,0,.5);
+  animation: fadeIn 0.6s cubic-bezier(0.25, 0.8, 0.25, 1) backwards;
 }
+@keyframes fadeIn { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
 
 .card:hover{
-  transform:translateY(-6px);
+  transform: translateY(-6px);
+  box-shadow: 0 25px 50px rgba(0,0,0,0.6);
 }
 
 .card.out-of-stock {
@@ -302,12 +350,20 @@ button:disabled, .btn:disabled {
   font-size:13px;
   color:var(--success);
 }
+h2 {
+  background: linear-gradient(90deg, #fff, #e6b566);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
 
 /* ================= MODALS ================= */
 .modal{
   position:fixed;
   inset:0;
-  background:rgba(5,8,15,.9);
+  background:rgba(5, 8, 15, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display:none;
   align-items:center;
   justify-content:center;
@@ -330,7 +386,9 @@ button:disabled, .btn:disabled {
   max-height:90vh;
   overflow:auto;
   box-shadow:0 40px 120px rgba(0,0,0,.7);
+  animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
+@keyframes modalPop { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
 /* CLOSE BUTTON */
 .close-x{
@@ -348,7 +406,7 @@ button:disabled, .btn:disabled {
 .pd-layout{
   display:grid;
   grid-template-columns:1fr 1fr;
-  gap:20px;
+  gap:30px;
 }
 
 .pd-main-img{
@@ -380,6 +438,10 @@ button:disabled, .btn:disabled {
   font-size:22px;
   font-weight:900;
   color:var(--gold);
+}
+
+.pd-info {
+  padding-left: 10px;
 }
 
 /* ================= REVIEWS ================= */
@@ -582,6 +644,7 @@ button:disabled, .btn:disabled {
       <div class="field">
         <label class="small" style="font-weight:600">Delivery Address</label>
         <textarea id="profileAddress" placeholder="Full delivery address"></textarea>
+        <div id="profileError" class="error-message"></div>
       </div>
       <div style="margin-top:12px;display:flex;justify-content:flex-end">
         <button id="saveProfileBtn" class="btn">Save Profile</button>
@@ -665,6 +728,7 @@ button:disabled, .btn:disabled {
       <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
         <button id="adminCancelEdit" class="btn-ghost" style="display:none">Cancel Edit</button>
         <button id="adminSave" class="btn">Add Product</button>
+        <div id="adminError" class="error-message" style="margin-left:10px;align-self:center"></div>
       </div>
     </div>
 
@@ -684,6 +748,14 @@ button:disabled, .btn:disabled {
 
 
 <script type="module">
+
+// --- ✅ UI PERFECTION: Sticky Header ---
+window.addEventListener('scroll', () => {
+  const header = document.querySelector('header');
+  if (header) {
+    header.classList.toggle('sticky', window.scrollY > 50);
+  }
+});
 (async function(){
   if(document.readyState === 'loading') await new Promise(r=>document.addEventListener('DOMContentLoaded', r));
   const $ = id => document.getElementById(id);
@@ -944,7 +1016,7 @@ pdOrderBtn?.addEventListener('click', () => {
   // Get product info directly from the detail modal's state
   const title = $('pdTitle').innerText || '';
   const priceText = $('pdPrice').innerText || '';
-  const price = priceText.replace(/[^\d.]/g, ''); // Keep decimal point
+  const price = priceText.replace(/[^\d.]/g, '') || '0'; // Keep decimal point, default to 0
   const mainImg = $('pdMainImg').src || '';
   // Directly create order object and redirect to payment
   const tempOrder = {
@@ -973,7 +1045,7 @@ $('pdMainImg')?.addEventListener('click', () => {
   if(src){
     const z = $('zoomImg');
     z.src = src;
-    z.style.cssText = 'width:100%;height:auto;border-radius:8px';
+    z.style.cssText = 'max-width:100%; max-height:85vh; object-fit:contain; border-radius:8px; display:block; margin:auto;';
     openModal($('zoomModal'));
   }
 });
@@ -1092,7 +1164,7 @@ productGrid.addEventListener('click', e => {
       // Use the 'images' array if it exists, otherwise fall back to 'img'.
       const images = data.images && data.images.length > 0 ? data.images : [data.img];
       const primaryImage = images[0] || 'https://images.unsplash.com/photo-1520975918016-4d0b5b0b2f3d?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder';
-      const price = data.price || '0';
+      const price = String(data.price || '0').replace(/[^\d.]/g, '');
       const stock = data.stock;
       const avg = data._avg ? Number(data._avg).toFixed(1) : null;
       const avgDisplay = avg ? `★ ${avg} (${data._count||0})` : 'No ratings';
@@ -1313,7 +1385,7 @@ productGrid.addEventListener('click', ev=>{
   const tempOrder = {
     pid: btn.closest('.card').dataset.pid, // Critical for stock management
     product: btn.dataset.product || '',
-    price: btn.dataset.price || '0',
+    price: (btn.dataset.price || '0').replace(/[^\d.]/g, ''),
     image: btn.dataset.image || '',
     name: auth.currentUser.displayName || '',
     phone: '',
@@ -1519,15 +1591,17 @@ productGrid.addEventListener('click', ev=>{
       const design = $('admin_pDesign').value.trim();
       const blouse = $('admin_pBlouse').value.trim();
       const stock = Number($('admin_pStock').value.trim());
+      const errEl = $('adminError');
+      if(errEl) errEl.textContent = '';
 
       const imageUrls = [...document.querySelectorAll('#imageUrlsContainer .imageUrlInput')]
         .map(input => input.value.trim())
         .filter(url => url);
 
-      if (!title || !price) { alert('Title and Selling Price are required.'); return; }
-      if (colors.length === 0) { alert('Please enter at least one color.'); return; }
-      if (imageUrls.length === 0) { alert('Please enter at least one image URL'); return; }
-      if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) { alert('Only admin can add products'); return; }
+      if (!title || !price) { if(errEl) errEl.textContent='Title and Price required'; return; }
+      if (colors.length === 0) { if(errEl) errEl.textContent='Add at least one color'; return; }
+      if (imageUrls.length === 0) { if(errEl) errEl.textContent='Add at least one image'; return; }
+      if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) { if(errEl) errEl.textContent='Admin only'; return; }
 
       try {
         const btn = $('adminSave'); btn.disabled = true; btn.innerText = 'Saving...';
@@ -1579,7 +1653,7 @@ productGrid.addEventListener('click', ev=>{
         await loadAdminProductsList();
       } catch (err) {
         console.error('add product failed', err);
-        alert('Failed to add product: ' + (err.message || ''));
+        if(errEl) errEl.textContent = 'Failed: ' + (err.message || 'Error');
         $('adminSave').disabled = false;
         $('adminSave').innerText = 'Add Product';
       }
@@ -1714,11 +1788,16 @@ productGrid.addEventListener('click', ev=>{
       const name = $('profileName').value.trim();
       const phone = $('profilePhone').value.trim();
       const address = $('profileAddress').value.trim();
+      const errEl = $('profileError');
+      if(errEl) errEl.textContent = '';
+      $('profileName').classList.remove('invalid');
+      $('profilePhone').classList.remove('invalid');
+      $('profileAddress').classList.remove('invalid');
 
       // Validation
-      if(!name) { alert('Name is required'); return; }
-      if(!/^[6-9]\d{9}$/.test(phone)) { alert('Please enter a valid 10-digit Indian mobile number'); return; }
-      if(!address) { alert('Address cannot be empty'); return; }
+      if(!name) { if(errEl) errEl.textContent = 'Name is required'; $('profileName').classList.add('invalid'); return; }
+      if(!/^[6-9]\d{9}$/.test(phone)) { if(errEl) errEl.textContent = 'Enter valid 10-digit Indian number'; $('profilePhone').classList.add('invalid'); return; }
+      if(!address) { if(errEl) errEl.textContent = 'Address is required'; $('profileAddress').classList.add('invalid'); return; }
 
       const btn = $('saveProfileBtn');
       btn.disabled = true;
@@ -1737,7 +1816,7 @@ productGrid.addEventListener('click', ev=>{
         }
       } catch(e) {
         console.error(e);
-        alert('Failed to save profile');
+        if(errEl) errEl.textContent = 'Failed to save profile. Try again.';
       } finally {
         btn.disabled = false;
         btn.innerText = 'Save Profile';
@@ -1907,7 +1986,8 @@ productGrid.addEventListener('click', ev=>{
 
       let html = `<h4 style="margin: 0 0 10px 0; font-size: 14px;">By Price</h4><div class="color-filter-grid">`;
       ranges.forEach(r => {
-        html += `<div class="filter-item" data-filter-group="price" data-filter-value="${r.val}" style="cursor:pointer; border:1px solid var(--border); padding: 6px 10px; border-radius: 8px; font-size:13px;">${r.label}</div>`;
+        const isActive = activeFilters.price.has(r.val) ? 'active-filter' : '';
+        html += `<div class="filter-item ${isActive}" data-filter-group="price" data-filter-value="${r.val}" style="cursor:pointer; border:1px solid var(--border); padding: 6px 10px; border-radius: 8px; font-size:13px;">${r.label}</div>`;
       });
       html += `</div>`;
       container.innerHTML = html;
@@ -1931,7 +2011,8 @@ productGrid.addEventListener('click', ev=>{
             let html = `<h4 style="margin: 0 0 10px 0; font-size: 14px;">${config.label}</h4><div class="color-filter-grid">`;
             uniqueValues.forEach(value => {
                 const count = allProducts.filter(p => p[field]?.trim().toLowerCase() === value).length;
-                html += `<div class="filter-item" data-filter-group="${field}" data-filter-value="${value}" style="cursor:pointer; border:1px solid var(--border); padding: 6px 10px; border-radius: 8px; font-size:13px;">
+                const isActive = activeFilters[field].has(value) ? 'active-filter' : '';
+                html += `<div class="filter-item ${isActive}" data-filter-group="${field}" data-filter-value="${value}" style="cursor:pointer; border:1px solid var(--border); padding: 6px 10px; border-radius: 8px; font-size:13px;">
                     ${value.charAt(0).toUpperCase() + value.slice(1)} <span class="small" style="margin-left:4px; color:var(--text-muted);">(${count})</span>
                 </div>`;
             });
@@ -1942,9 +2023,11 @@ productGrid.addEventListener('click', ev=>{
         // --- Generate static filters (Availability) ---
         const availabilityContainer = $('availabilityFilterGroup');
         if (availabilityContainer) {
+            const inStockActive = activeFilters.stock.has('in stock') ? 'active-filter' : '';
+            const outStockActive = activeFilters.stock.has('out of stock') ? 'active-filter' : '';
             availabilityContainer.innerHTML = `<h4 style="margin: 0 0 10px 0; font-size: 14px;">By Availability</h4><div class="color-filter-grid">
-                <div class="filter-item" data-filter-group="stock" data-filter-value="in stock" style="cursor:pointer; border:1px solid var(--border); padding: 6px 10px; border-radius: 8px; font-size:13px;">In Stock</div>
-                <div class="filter-item" data-filter-group="stock" data-filter-value="out of stock" style="cursor:pointer; border:1px solid var(--border); padding: 6px 10px; border-radius: 8px; font-size:13px;">Out of Stock</div>
+                <div class="filter-item ${inStockActive}" data-filter-group="stock" data-filter-value="in stock" style="cursor:pointer; border:1px solid var(--border); padding: 6px 10px; border-radius: 8px; font-size:13px;">In Stock</div>
+                <div class="filter-item ${outStockActive}" data-filter-group="stock" data-filter-value="out of stock" style="cursor:pointer; border:1px solid var(--border); padding: 6px 10px; border-radius: 8px; font-size:13px;">Out of Stock</div>
             </div>`;
         }
 
