@@ -594,6 +594,32 @@ h2 {
   box-shadow: 0 0 0 1px var(--gold);
 }
 
+/* ================= UTILITY CLASSES (Optimized) ================= */
+.product-card-footer {
+  margin-top: auto;
+  padding-top: 12px;
+}
+
+.admin-product-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  transition: background 0.2s;
+}
+.admin-product-row:hover { background: rgba(255,255,255,0.02); }
+
+.empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: var(--text-muted);
+  padding: 40px;
+  background: rgba(255,255,255,0.02);
+  border-radius: 16px;
+  border: 1px dashed var(--border);
+}
+
 </style>
 
 </head>
@@ -1323,7 +1349,7 @@ productGrid.addEventListener('click', e => {
       if (images.length > 1) {
         const multiImgIndicator = document.createElement('div');
         multiImgIndicator.textContent = '1/' + images.length;
-        multiImgIndicator.style.cssText = 'position:absolute; bottom:8px; right:8px; background:rgba(0,0,0,0.6); color:white; padding:2px 8px; border-radius:10px; font-size:12px; font-weight:500;';
+        multiImgIndicator.style.cssText = 'position:absolute; bottom:8px; right:8px; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); color:white; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:600; letter-spacing:0.5px;';
         imgWrap.appendChild(multiImgIndicator);
       }
       
@@ -1405,8 +1431,7 @@ productGrid.addEventListener('click', e => {
 
       // --- ORDER BUTTON ---
       const orderWrap = document.createElement('div'); 
-      orderWrap.style.marginTop='auto';
-      orderWrap.style.paddingTop='12px';
+      orderWrap.className = 'product-card-footer';
       
       const orderBtn = document.createElement('button'); 
       orderBtn.className='orderBtn btn'; 
@@ -1435,8 +1460,7 @@ productGrid.addEventListener('click', e => {
 
       if (productsToRender.length === 0) {
         const fallback = document.createElement('div');
-        fallback.className = 'card';
-        fallback.style.cssText = 'grid-column:1/-1;text-align:center;color:var(--muted);padding:32px;background:transparent;box-shadow:none;';
+        fallback.className = 'empty-state';
         fallback.innerHTML = '<strong style="color:#eaf6ff">No products match your filters.</strong><div class="small" style="margin-top:8px">Try clearing the filters to see all products.</div>';
         productGrid.appendChild(fallback);
         return;
@@ -1458,7 +1482,7 @@ productGrid.addEventListener('click', e => {
       productsUnsub = onSnapshot(productsColRef, snap=>{
         allProducts = []; // Clear and repopulate the master list
         if(snap.empty){
-          productGrid.innerHTML = `<div class="card" style="grid-column:1/-1;text-align:center;color:var(--muted);padding:32px;background:transparent">
+          productGrid.innerHTML = `<div class="empty-state">
             <strong style="color:#eaf6ff">No products yet</strong>
             <div class="small" style="margin-top:8px">As admin, open Admin → Add Product to upload items. The product grid updates live for users.</div>
             <div style="margin-top:12px"><button id="openAdminFromEmptyInner" class="btn-ghost">Open Admin</button></div>
@@ -1573,7 +1597,7 @@ productGrid.addEventListener('click', ev=>{
           const primaryImage = (data.images && data.images.length > 0) ? data.images[0] : data.img || 'https://images.unsplash.com/photo-1520975918016-4d0b5b0b2f3d?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder';
           
           const row = document.createElement('div');
-          row.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:12px;border-bottom:1px solid rgba(255,255,255,0.03)';
+          row.className = 'admin-product-row';
           row.innerHTML = `
             <div style="width: 50px; height: 50px; overflow: hidden; border-radius: 8px; margin-right: 12px; flex-shrink: 0;">
               <img src="${escapeHtml(primaryImage)}" alt="${escapeHtml(title)}" style="width: 100%; height: 100%; object-fit: cover;">
