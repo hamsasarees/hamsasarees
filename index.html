@@ -298,6 +298,10 @@ button,a{
   z-index:1000;
 }
 
+#zoomModal {
+  z-index: 1100;
+}
+
 .modal.show{display:flex}
 
 .modal-box{
@@ -417,6 +421,17 @@ button,a{
 #toast{ position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:linear-gradient(90deg,var(--gold),#f3d48c); color:#3b2b08; padding:12px 24px; border-radius:12px; font-weight:800; z-index:9999; box-shadow:0 10px 30px rgba(0,0,0,.3); display:none; }
 .sr-only{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border-width:0; }
 
+/* ================= SPINNER ================= */
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(230,181,102,0.3);
+  border-radius: 50%;
+  border-top-color: var(--gold);
+  animation: spin 1s linear infinite;
+  margin: 20px auto;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 
 
 </style>
@@ -473,6 +488,7 @@ button,a{
               <h4 style="margin: 0 0 10px 0; font-size: 14px;">By Color</h4>
               <div id="colorFiltersContainer" class="color-filter-grid"></div>
             </div>
+            <div id="priceFilterGroup"></div>
             <div id="materialFilterGroup"></div>
             <div id="styleFilterGroup"></div>
             <div id="designFilterGroup"></div>
@@ -486,10 +502,10 @@ button,a{
           <div class="small">Sign in to place orders; orders saved to your account</div>
         </div>
         <div class="grid" id="productGrid" aria-live="polite" style="min-height:200px;">
-          <div class="card" style="grid-column:1/-1;text-align:center;color:var(--muted);padding:32px;background:transparent">
-            <strong style="color:#eaf6ff">No products yet</strong>
-            <div class="small" style="margin-top:8px">As admin, open Admin → Add Product to upload items. The product grid updates live for users.</div>
-            <div style="margin-top:12px"><button id="openAdminFromEmpty" class="btn-ghost">Open Admin</button></div>
+          <!-- Initial Loading State -->
+          <div style="grid-column:1/-1; text-align:center; padding:40px;">
+            <div class="spinner"></div>
+            <div class="small">Loading products...</div>
           </div>
         </div>
       </section>
@@ -700,7 +716,8 @@ let gridListeners = [];
     style: new Set(),
     design: new Set(),
     blouse: new Set(),
-    stock: new Set()
+    stock: new Set(),
+    price: new Set()
   };
   // ---- helper: escape text for safe insertion ----
   function escapeHtml(s){ return String(s===undefined||s===null?'':s).replace(/[&<>\"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
@@ -728,7 +745,7 @@ let gridListeners = [];
   if(!pdRating || !reviewsList) return;
 
   pdRating.innerText = 'Loading reviews...';
-  reviewsList.innerHTML = 'Loading comments...';
+  reviewsList.innerHTML = '<div class="spinner" style="width:20px;height:20px;border-width:2px;margin:10px 0;"></div>';
 
   const reviewsRef = collection(db, 'products', pid, 'reviews');
 
@@ -1037,7 +1054,7 @@ productGrid.addEventListener('click', e => {
       const id = docSnap.id;
       const data = docSnap.data() || {};
       const title = data.title || 'Untitled';
-      const tag = data.tag || '';      
+      const tag = data.tag || '';
       // Use the 'images' array if it exists, otherwise fall back to 'img'.
       const images = data.images && data.images.length > 0 ? data.images : [data.img];
       const primaryImage = images[0] || 'https://images.unsplash.com/photo-1520975918016-4d0b5b0b2f3d?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder';
@@ -1046,9 +1063,10 @@ productGrid.addEventListener('click', e => {
       const avg = data._avg ? Number(data._avg).toFixed(1) : null;
       const avgDisplay = avg ? `★ ${avg} (${data._count||0})` : 'No ratings';
 
-      const card = document.createElement('div'); 
-      card.className = 'card'; 
+      const card = document.createElement('div');
+      card.className = 'card';
       card.dataset.pid = id;
+      
       // Store product data on the element for filtering
       const safeDataForDataset = {
         material: data.material || '',
@@ -1060,29 +1078,27 @@ productGrid.addEventListener('click', e => {
       };
       card.dataset.productData = JSON.stringify(safeDataForDataset);
 
-      // build DOM safely (no raw innerHTML from user content)
-      let tagEl = null;
-      if(tag){
-        tagEl = document.createElement('div');
-        tagEl.className = 'tag';
-        tagEl.textContent = tag;
-      }
-
+      // --- IMAGE WRAPPER ---
       const imgWrap = document.createElement('div');
       imgWrap.className = 'imgwrap';
-      if(tagEl){
-        imgWrap.appendChild(tagEl); // ✅ CORRECT PLACE
-      }
-imgWrap.dataset.images = JSON.stringify(images); // ⭐ STORE ALL IMAGES
+      imgWrap.dataset.images = JSON.stringify(images);
 
-const imgEl = document.createElement('img');
-imgEl.loading = 'lazy';
-imgEl.src = primaryImage;
-imgEl.alt = title;
-imgWrap.appendChild(imgEl);
- 
+      // Tag
+      if(tag){
+        const tagEl = document.createElement('div');
+        tagEl.className = 'tag';
+        tagEl.textContent = tag;
+        imgWrap.appendChild(tagEl);
+      }
+
+      // Image
+      const imgEl = document.createElement('img');
+      imgEl.loading = 'lazy';
+      imgEl.src = primaryImage;
+      imgEl.alt = title;
+      imgWrap.appendChild(imgEl);
       
-      // Add a multi-image indicator if there's more than one image
+      // Multi-image indicator
       if (images.length > 1) {
         const multiImgIndicator = document.createElement('div');
         multiImgIndicator.textContent = '1/' + images.length;
@@ -1092,51 +1108,61 @@ imgWrap.appendChild(imgEl);
       
       card.appendChild(imgWrap);
 
-      const h3 = document.createElement('h3'); h3.textContent = title; card.appendChild(h3);
+      // --- TITLE ---
+      const h3 = document.createElement('h3'); 
+      h3.textContent = title; 
+      card.appendChild(h3);
 
-      const row = document.createElement('div'); row.style.display = 'flex'; row.style.justifyContent = 'space-between'; row.style.alignItems = 'center';
+      // --- PRICE & RATING ROW ---
+      const row = document.createElement('div'); 
+      row.style.display = 'flex'; 
+      row.style.justifyContent = 'space-between'; 
+      row.style.alignItems = 'center';
+      
+      // Price
       const priceWrap = document.createElement('div');
-priceWrap.className = 'price-wrap';
+      priceWrap.className = 'price-wrap';
 
-const oldPrice = document.createElement('span');
-oldPrice.className = 'price-old';
-const mrp = data.mrp || price;
-oldPrice.textContent = `₹${mrp}`;
+      const mrp = data.mrp || price;
+      if (mrp > price) {
+        const oldPrice = document.createElement('span');
+        oldPrice.className = 'price-old';
+        oldPrice.textContent = `₹${mrp}`;
+        priceWrap.appendChild(oldPrice);
+      }
 
+      const newPrice = document.createElement('span');
+      newPrice.className = 'price-new';
+      newPrice.textContent = `₹${price}`;
+      priceWrap.appendChild(newPrice);
 
-const newPrice = document.createElement('span');
-newPrice.className = 'price-new';
-newPrice.textContent = `₹${price}`;
+      // Discount Badge
+      if (mrp > price) {
+        const discount = Math.round(((mrp - price) / mrp) * 100);
+        if (discount > 0) {
+          const badge = document.createElement('span');
+          badge.className = 'discount-badge';
+          badge.textContent = `${discount}% OFF`;
+          priceWrap.appendChild(badge);
+        }
+      }
+      row.appendChild(priceWrap);
 
-if (mrp > price) {
-  priceWrap.appendChild(oldPrice);
-}
-priceWrap.appendChild(newPrice);
-
-
-// OPTIONAL discount badge
-let discount = 0;
-if (mrp > price) {
-  discount = Math.round(((mrp - price) / mrp) * 100);
-}
-
-if (discount > 0) {
-  const badge = document.createElement('span');
-  badge.className = 'discount-badge';
-  badge.textContent = `${discount}% OFF`;
-  priceWrap.appendChild(badge);
-}
-
-
-
-      const ratingWrap = document.createElement('div'); ratingWrap.style.display='flex'; ratingWrap.style.alignItems='center';
-      const rEl = document.createElement('div'); rEl.className = 'product-rating small'; rEl.dataset.pid = id; rEl.textContent = avgDisplay;
+      // Rating
+      const ratingWrap = document.createElement('div'); 
+      ratingWrap.style.display='flex'; 
+      ratingWrap.style.alignItems='center';
+      
+      const rEl = document.createElement('div'); 
+      rEl.className = 'product-rating small'; 
+      rEl.dataset.pid = id; 
+      rEl.textContent = avgDisplay;
       ratingWrap.appendChild(rEl);
-       row.appendChild(priceWrap);
-row.appendChild(ratingWrap);
+      
+      row.appendChild(ratingWrap);
       card.appendChild(row);
 
-      // --- Product Details Block (Restored) ---
+      // --- DETAILS ---
       const detailsContainer = document.createElement('div');
       detailsContainer.style.cssText = 'margin-top: 10px; font-size: 12px; color: var(--text-muted); display: grid; gap: 4px;';
 
@@ -1145,7 +1171,7 @@ row.appendChild(ratingWrap);
       addDetailToCard(detailsContainer, 'Design', data.design);
       addDetailToCard(detailsContainer, 'Blouse', data.blouse);
       
-      // Add stock status directly to the details container for correct HTML
+      // Availability
       const stockStatusText = (stock !== undefined && stock > 0) ? 'In Stock' : 'Out of Stock';
       const stockColor = (stock !== undefined && stock > 0) ? 'var(--success)' : 'var(--danger)';
       const stockEl = document.createElement('div');
@@ -1153,11 +1179,20 @@ row.appendChild(ratingWrap);
       detailsContainer.appendChild(stockEl);
 
       card.appendChild(detailsContainer);
-      const orderWrap = document.createElement('div'); orderWrap.style.marginTop='8px';
-      const orderBtn = document.createElement('button'); orderBtn.className='orderBtn btn'; orderBtn.type='button'; orderBtn.dataset.product = title; orderBtn.dataset.price = price;orderBtn.dataset.image = primaryImage; orderBtn.textContent='Order Now'; orderWrap.appendChild(orderBtn);
-      card.appendChild(orderWrap);
+
+      // --- ORDER BUTTON ---
+      const orderWrap = document.createElement('div'); 
+      orderWrap.style.marginTop='8px';
       
-      // Mute card if out of stock
+      const orderBtn = document.createElement('button'); 
+      orderBtn.className='orderBtn btn'; 
+      orderBtn.type='button'; 
+      orderBtn.dataset.product = title; 
+      orderBtn.dataset.price = price;
+      orderBtn.dataset.image = primaryImage; 
+      orderBtn.textContent='Order Now'; 
+      
+      // Out of stock logic
       if (stock === undefined || stock <= 0) {
         card.style.opacity = '0.6';
         card.style.pointerEvents = 'auto'; // Keep card clickable for detail view
@@ -1167,6 +1202,10 @@ row.appendChild(ratingWrap);
         orderBtn.style.cursor = 'not-allowed';
         orderBtn.style.boxShadow = 'none';
       }
+      
+      orderWrap.appendChild(orderBtn);
+      card.appendChild(orderWrap);
+      
       return card;
     }
 
@@ -1340,7 +1379,7 @@ function attachRatingListenersToGrid(){
     async function loadAdminProductsList(){
       const listContainer = $('adminProductsList');
       if(!listContainer) return;
-      listContainer.innerHTML = '<div class="small" style="padding:12px;text-align:center;color:var(--muted)">Loading products...</div>';
+      listContainer.innerHTML = '<div style="text-align:center;padding:20px;"><div class="spinner"></div></div>';
       
       try{
         const snap = await getDocs(productsColRef);
@@ -1766,6 +1805,23 @@ function attachRatingListenersToGrid(){
             if (selection !== isInStock) return false;
         }
 
+        // 8. Price filter (OR logic between ranges)
+        if (activeFilters.price.size > 0) {
+          const pPrice = Number(product.price || 0);
+          let priceMatch = false;
+          // Check if price matches ANY selected range
+          for (const rangeStr of activeFilters.price) {
+            const [minStr, maxStr] = rangeStr.split('-');
+            const min = Number(minStr);
+            const max = maxStr === '+' ? Infinity : Number(maxStr);
+            if (pPrice >= min && pPrice <= max) {
+              priceMatch = true;
+              break;
+            }
+          }
+          if (!priceMatch) return false;
+        }
+
         // If all filters pass, include the product
         return true;
       });
@@ -1838,6 +1894,25 @@ function attachRatingListenersToGrid(){
     }
     initializeFilters();
 
+    function initializePriceFilters() {
+      const container = $('priceFilterGroup');
+      if(!container) return;
+      
+      const ranges = [
+        { label: 'Under ₹1000', val: '0-1000' },
+        { label: '₹1000 - ₹2000', val: '1000-2000' },
+        { label: '₹2000 - ₹4000', val: '2000-4000' },
+        { label: 'Above ₹4000', val: '4000-+' }
+      ];
+
+      let html = `<h4 style="margin: 0 0 10px 0; font-size: 14px;">By Price</h4><div class="color-filter-grid">`;
+      ranges.forEach(r => {
+        html += `<div class="filter-item" data-filter-group="price" data-filter-value="${r.val}" style="cursor:pointer; border:1px solid var(--border); padding: 6px 10px; border-radius: 8px; font-size:13px;">${r.label}</div>`;
+      });
+      html += `</div>`;
+      container.innerHTML = html;
+    }
+
     function initializeDynamicFilters() {
         const fieldsToFilter = {
             material: { label: 'By Material', container: 'materialFilterGroup' },
@@ -1872,6 +1947,8 @@ function attachRatingListenersToGrid(){
                 <div class="filter-item" data-filter-group="stock" data-filter-value="out of stock" style="cursor:pointer; border:1px solid var(--border); padding: 6px 10px; border-radius: 8px; font-size:13px;">Out of Stock</div>
             </div>`;
         }
+
+        initializePriceFilters(); // Initialize price filters along with dynamic ones
 
         // --- Attach a single, delegated event listener for all new filters ---
         const filterGroupsContainer = document.getElementById('filterGroupsContainer');
