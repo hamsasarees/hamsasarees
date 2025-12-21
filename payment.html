@@ -126,6 +126,19 @@ img{
   cursor:pointer;
   text-decoration: none;
 }
+/* ================= SPINNER ================= */
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(59, 43, 8, 0.3);
+  border-radius: 50%;
+  border-top-color: #3b2b08;
+  animation: spin 1s linear infinite;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 
@@ -280,7 +293,7 @@ onAuthStateChanged(auth, user => {
     }
 
     payBtn.disabled = true;
-    payBtn.textContent = 'Processing...';
+    payBtn.innerHTML = '<div class="spinner"></div> Processing...';
 
     const rzp = new Razorpay({
       key: 'rzp_live_Rqulhc8rZRz8Iw',
