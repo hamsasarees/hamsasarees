@@ -100,6 +100,16 @@ img{border-radius:10px}
   width:100%;
   box-shadow:0 40px 120px rgba(0,0,0,.7);
 }
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(230,181,102,0.3);
+  border-radius: 50%;
+  border-top-color: var(--gold);
+  animation: spin 1s linear infinite;
+  margin: 20px auto;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 
@@ -178,7 +188,7 @@ const orderDetails = document.getElementById('orderDetails');
 async function loadOrders(){
   if(!auth.currentUser) return;
 
-  ordersContainer.innerHTML = 'Loading...';
+  ordersContainer.innerHTML = '<div class="spinner"></div><div style="text-align:center;font-size:13px;color:var(--text-muted)">Loading orders...</div>';
 
   const q = query(
     collection(db, `users/${auth.currentUser.uid}/orders`),
