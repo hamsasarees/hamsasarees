@@ -46,6 +46,11 @@ body{
     linear-gradient(180deg,#080c18,#0a0e1a);
   color:var(--text-main);
 }
+/* ================= SCROLLBAR ================= */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-main); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 .container{
   max-width:1200px;
   margin:auto;
@@ -57,10 +62,22 @@ header{
   gap:18px;
   padding:16px 18px;
   border-radius:16px;
-  background:linear-gradient(180deg,#12183a,#0f152e);
+  background: rgba(18, 24, 58, 0.6);
+  backdrop-filter: blur(12px);
   border:1px solid var(--border);
   box-shadow:0 20px 50px rgba(0,0,0,.45);
 }
+header.sticky {
+  position: sticky;
+  top: 12px;
+  width: 100%;
+  z-index: 1000;
+  background: rgba(10, 14, 26, 0.75);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  animation: slideDown 0.3s ease-out;
+}
+@keyframes slideDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }
 .brand{ display:flex; gap:12px; align-items:center; }
 .logo{ width:48px; height:48px; border-radius:12px; overflow:hidden; }
 .logo img { width: 100%; height: 100%; object-fit: cover; }
@@ -69,7 +86,8 @@ header{
 
 /* Form Styles */
 .payment-card{
-  background:linear-gradient(180deg,#141c3f,#0f1533);
+  background: rgba(20, 28, 63, 0.8);
+  backdrop-filter: blur(10px);
   border:1px solid var(--border);
   border-radius:20px;
   padding:24px;
@@ -89,6 +107,21 @@ input,textarea{
   color:var(--text-main);
   font-size:14px
 }
+input:focus, textarea:focus {
+  border-color: var(--gold);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(230,181,102,0.15);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+input.invalid, textarea.invalid {
+  border-color: var(--danger);
+}
+.error-message {
+  font-size: 12px;
+  color: var(--danger);
+  min-height: 16px; /* Prevents layout shift */
+  margin-top: 4px;
+}
 textarea{min-height:90px;resize:vertical}
 .price{
   font-size:22px;
@@ -107,8 +140,27 @@ button{
   font-weight:800;
   cursor:pointer;
   box-shadow:0 10px 30px rgba(230,181,102,.35);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  position: relative;
+  overflow: hidden;
 }
-button:disabled{opacity:.6;cursor:not-allowed}
+button::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%; width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: 0.5s;
+}
+button:hover::after {
+  left: 100%;
+}
+button:disabled{
+  opacity: 0.6;
+  cursor: not-allowed;
+  filter: grayscale(0.8);
+  box-shadow: none;
+  transform: none !important;
+}
 img{
   max-width:100%;
   max-height:260px;
@@ -125,6 +177,7 @@ img{
   border-radius:14px;
   cursor:pointer;
   text-decoration: none;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 /* ================= SPINNER ================= */
 .spinner {
@@ -178,19 +231,23 @@ img{
       <div class="row">
         <label>Your Name</label>
         <input id="name" required placeholder="Enter your full name" />
+        <div class="error-message"></div>
       </div>
 
       <div class="row">
         <label>Phone</label>
         <input id="phone" required placeholder="Enter your 10-digit mobile number" />
+        <div class="error-message"></div>
       </div>
 
       <div class="row">
         <label>Delivery Address</label>
         <textarea id="address" required placeholder="Enter your full delivery address"></textarea>
+        <div class="error-message"></div>
       </div>
 
       <button id="payBtn" disabled>Pay Securely</button>
+      <div id="paymentError" class="error-message" style="text-align:center; margin-top:12px;"></div>
     </div>
   </main>
 
@@ -201,6 +258,13 @@ img{
 </div>
 
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+  // --- ✅ UI PERFECTION: Sticky Header ---
+  window.addEventListener('scroll', () => {
+    const header = document.querySelector('header');
+    header.classList.toggle('sticky', window.scrollY > 20);
+  });
+</script>
 
 <script>
 /* ---------- LOAD ORDER FROM INDEX ---------- */
@@ -222,7 +286,7 @@ const addressEl = document.getElementById('address');
 const imgEl = document.getElementById('productImg');
 const payBtn = document.getElementById('payBtn');
 const priceRegex = /^[1-9]\d*(\.\d+)?$/;
-const price = Number(order.price);
+const price = Number(String(order.price).replace(/[^\d.]/g, ''));
 if (!price || price <= 0) {
   alert('Invalid price');
   location.href = 'index.html';
@@ -238,12 +302,58 @@ if (order.image) {
   imgEl.src = order.image;
   imgEl.onload = () => imgEl.style.display = 'block';
 }
+
+// --- ✅ PERFECTION: Real-time validation ---
+const validators = {
+  name: (el) => {
+    const valid = el.value.trim().length >= 2;
+    const message = valid ? '' : 'Name must be at least 2 characters.';
+    return { valid, message };
+  },
+  phone: (el) => {
+    const valid = /^[6-9]\d{9}$/.test(el.value.trim());
+    const message = valid ? '' : 'Please enter a valid 10-digit Indian mobile number.';
+    return { valid, message };
+  },
+  address: (el) => {
+    const valid = el.value.trim().length >= 10;
+    const message = valid ? '' : 'Please enter a full, valid address (min. 10 characters).';
+    return { valid, message };
+  }
+};
+
+function validateField(el) {
+  const validator = validators[el.id];
+  if (!validator) return true;
+
+  const { valid, message } = validator(el);
+  const errorEl = el.nextElementSibling;
+
+  el.classList.toggle('invalid', !valid);
+  if (errorEl && errorEl.classList.contains('error-message')) {
+    errorEl.textContent = message;
+  }
+  return valid;
+}
+
+function validateForm() {
+  const isNameValid = validateField(nameEl);
+  const isPhoneValid = validateField(phoneEl);
+  const isAddressValid = validateField(addressEl);
+  payBtn.disabled = !(isNameValid && isPhoneValid && isAddressValid);
+}
+
+[nameEl, phoneEl, addressEl].forEach(el => {
+  el.addEventListener('input', () => validateField(el));
+  el.addEventListener('blur', () => validateField(el)); // Also validate on blur
+  el.addEventListener('input', validateForm); // Check whole form on any input
+});
 </script>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, serverTimestamp, collection } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 /* ---------- FIREBASE ---------- */
 const app = initializeApp({
@@ -258,12 +368,13 @@ const db = getFirestore(app);
 /* ---------- AUTH + PAY ---------- */
 onAuthStateChanged(auth, user => {
   if (!user) {
+    // Using alert here is acceptable as it's a hard stop for a non-user.
     alert('Please sign in first');
     location.href = 'index.html';
     return;
   }
 
-  payBtn.disabled = false;
+  // payBtn is disabled by default. It will be enabled by validation.
 
   // 7️⃣ AUTO-FILL FROM FIRESTORE PROFILE
   const userRef = doc(db, 'users', user.uid);
@@ -279,21 +390,54 @@ onAuthStateChanged(auth, user => {
       if(data.name) nameEl.value = data.name;
       if(data.phone) phoneEl.value = data.phone;
       if(data.address) addressEl.value = data.address;
+      
+      // ✅ PERFECTION: Trigger validation after auto-filling
+      validateForm();
     }
   }).catch(err => console.error('Auto-fill error:', err));
 
-  payBtn.onclick = () => {
+  payBtn.onclick = async () => {
+    // Validation is now handled in real-time, so we can proceed.
     const name = nameEl.value.trim();
     const phone = phoneEl.value.replace(/\s+/g,'');
     const address = addressEl.value.trim();
 
-    if (!name || !/^[6-9]\d{9}$/.test(phone) || !address || address.length < 10) {
-      alert('Enter valid name, phone and full address');
+    // 🔒 RE-VALIDATE: Ensure inputs are valid even if button was forced enabled
+    if (!validateField(nameEl) || !validateField(phoneEl) || !validateField(addressEl)) {
+      validateForm(); // Update UI
       return;
     }
 
     payBtn.disabled = true;
     payBtn.innerHTML = '<div class="spinner"></div> Processing...';
+    document.getElementById('paymentError').textContent = ''; // Clear previous errors
+    
+    // 🔒 STOCK CHECK (PRODUCTION GRADE)
+    // Before opening payment, verify stock exists in Firestore
+    if(order.pid) {
+      try {
+        const pRef = doc(db, 'products', order.pid);
+        const pSnap = await getDoc(pRef);
+        if(pSnap.exists()) {
+          const currentStock = pSnap.data().stock;
+          if(currentStock === undefined || currentStock <= 0) {
+            // This alert is a critical, exceptional state. It's acceptable.
+            alert('Sorry, this item just went out of stock while you were checking out.');
+            location.href = 'index.html';
+            return;
+          }
+          
+          // 🔒 PRICE INTEGRITY CHECK
+          // Ensure the price in sessionStorage matches the live price in Firestore
+          const livePrice = Number(String(pSnap.data().price || '0').replace(/[^\d.]/g, ''));
+          if (livePrice !== price) {
+            alert('Product price has changed. Please re-order.');
+            location.href = 'index.html';
+            return;
+          }
+        }
+      } catch(e) { console.error('Stock check failed', e); }
+    }
 
     const rzp = new Razorpay({
       key: 'rzp_live_Rqulhc8rZRz8Iw',
@@ -304,8 +448,9 @@ onAuthStateChanged(auth, user => {
 
       handler: async res => {
         /* -------- FIRESTORE -------- */
+        const newOrderRef = doc(collection(db, 'users', user.uid, 'orders'));
         await setDoc(
-          doc(db, 'users', user.uid, 'orders', crypto.randomUUID()),
+          newOrderRef,
           {
             product: order.product,
             price,
@@ -319,6 +464,15 @@ onAuthStateChanged(auth, user => {
             createdAt: serverTimestamp()
           }
         );
+        
+        // 🔒 DECREMENT STOCK
+        if(order.pid) {
+          try {
+            await updateDoc(doc(db, 'products', order.pid), {
+              stock: increment(-1)
+            });
+          } catch(e) { console.error('Failed to decrement stock', e); }
+        }
 
         /* -------- GOOGLE FORM (MAIN ENTRY) -------- */
         const fd = new FormData();
@@ -335,13 +489,15 @@ onAuthStateChanged(auth, user => {
         });
 
         sessionStorage.removeItem('pendingOrder');
-        alert('Payment successful!');
-        location.href = 'yourorders.html';
+        // ✅ PERFECTION: No alert, just redirect to a page that confirms success.
+        location.href = 'yourorders.html?status=success';
       }
     });
 
-    rzp.on('payment.failed', () => {
-      alert('Payment failed');
+    rzp.on('payment.failed', (response) => {
+      // ✅ PERFECTION: Show error inline instead of alert.
+      const errorMsg = response.error?.description || 'Payment failed. Please try again.';
+      document.getElementById('paymentError').textContent = errorMsg;
       payBtn.disabled = false;
       payBtn.textContent = 'Pay Securely';
     });
