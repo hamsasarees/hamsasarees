@@ -50,6 +50,7 @@ html,body{
 /* ================= SELECTION ================= */
 ::selection { background: var(--gold); color: #0a0e1a; }
 ::-moz-selection { background: var(--gold); color: #0a0e1a; }
+::placeholder { color: var(--text-muted); opacity: 0.6; }
 
 /* ================= ANNOUNCEMENT BAR ================= */
 .announcement-bar {
@@ -127,23 +128,26 @@ header{
   gap:18px;
   padding:16px 18px;
   border-radius:16px;
-  background: rgba(18, 24, 58, 0.6);
+  background: rgba(255, 255, 255, 0.03);
   backdrop-filter: blur(12px);
-  border:1px solid var(--border);
-  box-shadow:0 20px 50px rgba(0,0,0,.45);
+  border:1px solid rgba(255,255,255,0.05);
+  box-shadow:0 20px 50px rgba(0,0,0,0.3);
 }
 .brand{
   display:flex;
-  gap:12px;
+  gap:14px;
   align-items:center;
 }
 
 .logo{
-  width:48px;
-  height:48px;
-  border-radius:12px;
-  overflow:hidden; /* Ensures the image respects the border radius */
-  transition: transform 0.3s ease;
+  width:52px;
+  height:52px;
+  border-radius:14px;
+  overflow:hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  flex-shrink: 0;
 }
 
 .logo img {
@@ -151,12 +155,13 @@ header{
   height: 100%;
   object-fit: cover; /* Ensures the image fills the container */
 }
-.logo:hover { transform: scale(1.05); }
+.logo:hover { transform: scale(1.05); box-shadow: 0 8px 20px rgba(230, 181, 102, 0.2); border-color: var(--gold); }
 
 .title{
   font-weight:800;
-  letter-spacing: -0.02em;
-  font-size:16px;
+  letter-spacing: -0.01em;
+  font-size:18px;
+  line-height: 1.2;
 }
 
 .small{
@@ -180,6 +185,7 @@ header{
 .search:focus-within {
   border-color: var(--gold);
   transform: scale(1.02);
+  background: rgba(255, 255, 255, 0.05);
   box-shadow: 0 0 0 2px var(--bg-main), 0 0 0 4px var(--gold);
 }
 
@@ -378,7 +384,8 @@ input.invalid, textarea.invalid {
 .card:hover{
   transform: translateY(-5px);
   background: rgba(255, 255, 255, 0.05);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+  border-color: rgba(230, 181, 102, 0.3);
 }
 
 /* Hover Overlay for Image */
@@ -723,6 +730,17 @@ h2 {
   border-bottom: 1px solid rgba(255,255,255,0.03);
   transition: background 0.2s;
 }
+.admin-product-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  background: rgba(255,255,255,0.02);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  transition: all 0.2s;
+}
 .admin-product-row:hover { background: rgba(255,255,255,0.02); }
 
 .empty-state {
@@ -759,14 +777,12 @@ h2 {
 .related-card:hover { background: rgba(255,255,255,0.06); }
 .related-img-wrap { aspect-ratio: 3/4; border-radius: 8px; overflow: hidden; margin-bottom: 8px; }
 
+/* ================= ADMIN LAYOUT ================= */
+.admin-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.admin-form-full { grid-column: 1 / -1; }
+@media(max-width: 600px) { .admin-form-grid { grid-template-columns: 1fr; } }
+
 /* ================= CART & BADGES ================= */
-.badge-new {
-  position: absolute; top: 10px; right: 10px; z-index: 5;
-  background: linear-gradient(135deg, var(--gold), #fff); color: #0a0e1a;
-  font-size: 10px; font-weight: 800; padding: 4px 10px;
-  border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px;
-  box-shadow: 0 4px 15px rgba(230, 181, 102, 0.4);
-}
 .cart-btn-wrap { position: relative; cursor: pointer; margin-right: 12px; display: flex; align-items: center; }
 .cart-badge {
   position: absolute; top: -5px; right: -8px;
@@ -809,6 +825,18 @@ h2 {
   70% { box-shadow: 0 0 0 10px rgba(230, 181, 102, 0); }
   100% { box-shadow: 0 0 0 0 rgba(230, 181, 102, 0); }
 }
+
+/* ================= BACK TO TOP ================= */
+.back-to-top {
+  position: fixed; bottom: 100px; right: 30px;
+  width: 40px; height: 40px;
+  background: var(--bg-panel); border: 1px solid var(--border);
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  color: var(--gold); cursor: pointer;
+  opacity: 0; visibility: hidden; transition: all 0.3s;
+  z-index: 890; /* Below floating cart */
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
 #pdOrderBtn:not(:disabled) { animation: pulse-gold 2s infinite; }
 
 /* ================= COLLECTIONS ================= */
@@ -820,6 +848,8 @@ h2 {
 .collection-overlay h3 { margin: 0 0 5px 0; font-size: 22px; color: white; font-weight: 700; }
 .btn-text { color: var(--gold); font-weight: 700; font-size: 14px; opacity: 0; transform: translateX(-10px); transition: all 0.3s; display: flex; align-items: center; gap: 6px; }
 .collection-card:hover .btn-text { opacity: 1; transform: translateX(0); }
+.back-to-top.show { opacity: 1; visibility: visible; }
+.back-to-top:hover { background: var(--gold); color: #000; transform: translateY(-3px); }
 
 /* ================= WHATSAPP FLOAT ================= */
 .whatsapp-float { position: fixed; bottom: 30px; left: 30px; width: 50px; height: 50px; background: #25D366; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(37, 211, 102, 0.3); z-index: 900; transition: transform 0.3s; text-decoration: none; }
@@ -857,6 +887,29 @@ h2 {
   width: 64px; height: 64px; margin-bottom: 16px; opacity: 0.3; stroke-width: 1.5;
 }
 
+/* ================= QUICK FILTERS ================= */
+.quick-filter-scroll {
+  display: flex; gap: 10px; overflow-x: auto; padding: 4px 4px 16px;
+  margin-bottom: 20px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox */
+}
+.quick-filter-scroll::-webkit-scrollbar { display: none; }
+.qf-chip {
+  background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+  padding: 8px 20px; border-radius: 30px; white-space: nowrap;
+  font-size: 13px; font-weight: 600; color: var(--text-muted);
+  cursor: pointer; transition: all 0.3s ease; flex-shrink: 0;
+  user-select: none;
+}
+.qf-chip:hover { background: rgba(255,255,255,0.08); color: var(--text-main); transform: translateY(-2px); }
+.qf-chip.active { background: var(--gold); color: #0a0e1a; border-color: var(--gold); box-shadow: 0 4px 15px rgba(230, 181, 102, 0.3); font-weight: 700; }
+
+/* ================= CARD SWATCHES ================= */
+.card-swatches { display: flex; gap: 6px; margin-top: 10px; align-items: center; min-height: 14px; }
+.card-swatch { width: 12px; height: 12px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.3); position: relative; transition: transform 0.2s; }
+.card-swatch:hover { transform: scale(1.3); border-color: var(--gold); z-index: 2; }
+
 /* ================= UI POLISH ================= */
 .bg-noise {
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -873,7 +926,7 @@ h2 {
   display: flex; align-items: center; justify-content: center;
   border: 1px solid var(--border); color: var(--gold); transition: all 0.3s ease;
 }
-.addToCartBtn:hover { background: var(--gold); color: #0a0e1a; transform: rotate(15deg); border-color: var(--gold); }
+.addToCartBtn:hover { background: var(--gold); color: #0a0e1a; transform: scale(1.1); border-color: var(--gold); box-shadow: 0 0 15px rgba(230, 181, 102, 0.4); }
 </style>
 
 </head>
@@ -934,6 +987,16 @@ h2 {
           </div>
         </div>
       </section>
+
+      <!-- Quick Filter Chips -->
+      <div class="quick-filter-scroll" id="quickFilterScroll">
+        <div class="qf-chip active" data-type="all">All Products</div>
+        <div class="qf-chip" data-type="tag" data-val="New">New Arrivals</div>
+        <div class="qf-chip" data-type="tag" data-val="Best Seller">Best Sellers</div>
+        <div class="qf-chip" data-type="material" data-val="silk">Silk Sarees</div>
+        <div class="qf-chip" data-type="material" data-val="cotton">Cotton Sarees</div>
+        <div class="qf-chip" data-type="price" data-val="0-2000">Under ₹2000</div>
+      </div>
 
       <!-- Filters Section -->
       <section class="filter-section">
@@ -1036,57 +1099,59 @@ h2 {
       <h3 id="adminFormTitle" style="margin-top:0;color:#eaf6ff">Add Product</h3>
       <p class="small">Only admin can add or edit products.</p>
 
-      <div class="field">
-        <label class="small" style="font-weight:600">Title *</label>
-        <input id="admin_pTitle" placeholder="Product title">
+      <div class="admin-form-grid">
+        <div class="field admin-form-full">
+          <label class="small" style="font-weight:600">Title *</label>
+          <input id="admin_pTitle" placeholder="Product title">
+        </div>
+
+        <div class="field">
+          <label class="small" style="font-weight:600">Selling Price (₹) *</label>
+          <input id="admin_pPrice" type="number" placeholder="1499">
+        </div>
+
+        <div class="field">
+          <label class="small" style="font-weight:600">MRP (₹)</label>
+          <input id="admin_pMrp" type="number" placeholder="1999">
+        </div>
+
+        <div class="field">
+          <label class="small" style="font-weight:600">Tag</label>
+          <input id="admin_pTag" placeholder="New / Best Seller">
+        </div>
+
+        <div class="field">
+          <label class="small" style="font-weight:600">Stock Qty</label>
+          <input id="admin_pStock" type="number" placeholder="e.g., 10">
+        </div>
+
+        <div class="field admin-form-full">
+          <label class="small" style="font-weight:600">Colors (comma-separated) *</label>
+          <input id="admin_pColors" placeholder="e.g., red, gold, blue">
+        </div>
+
+        <div class="field">
+          <label class="small" style="font-weight:600">Material</label>
+          <input id="admin_pMaterial" placeholder="e.g., Cotton, Silk">
+        </div>
+
+        <div class="field">
+          <label class="small" style="font-weight:600">Style</label>
+          <input id="admin_pStyle" placeholder="e.g., Kanjivaram">
+        </div>
+
+        <div class="field">
+          <label class="small" style="font-weight:600">Design</label>
+          <input id="admin_pDesign" placeholder="e.g., Floral">
+        </div>
+
+        <div class="field">
+          <label class="small" style="font-weight:600">Blouse</label>
+          <input id="admin_pBlouse" placeholder="e.g., Yes, No">
+        </div>
       </div>
 
-      <div class="field">
-        <label class="small" style="font-weight:600">Selling Price (₹) *</label>
-        <input id="admin_pPrice" type="number" placeholder="1499">
-      </div>
-
-      <div class="field">
-        <label class="small" style="font-weight:600">MRP (₹)</label>
-        <input id="admin_pMrp" type="number" placeholder="1999">
-      </div>
-
-      <div class="field">
-        <label class="small" style="font-weight:600">Tag</label>
-        <input id="admin_pTag" placeholder="New / Best Seller">
-      </div>
-
-      <div class="field">
-        <label class="small" style="font-weight:600">Colors (comma-separated) *</label>
-        <input id="admin_pColors" placeholder="e.g., red, gold, blue">
-      </div>
-
-      <div class="field">
-        <label class="small" style="font-weight:600">Material</label>
-        <input id="admin_pMaterial" placeholder="e.g., Cotton, Silk">
-      </div>
-
-      <div class="field">
-        <label class="small" style="font-weight:600">Style</label>
-        <input id="admin_pStyle" placeholder="e.g., Kanjivaram, Banarasi">
-      </div>
-
-      <div class="field">
-        <label class="small" style="font-weight:600">Design</label>
-        <input id="admin_pDesign" placeholder="e.g., Floral, Paisley">
-      </div>
-
-      <div class="field">
-        <label class="small" style="font-weight:600">Blouse Included</label>
-        <input id="admin_pBlouse" placeholder="e.g., Yes, No">
-      </div>
-
-      <div class="field">
-        <label class="small" style="font-weight:600">Number of Stock</label>
-        <input id="admin_pStock" type="number" placeholder="e.g., 10">
-      </div>
-
-      <div class="field">
+      <div class="field" style="margin-top: 16px;">
         <label class="small" style="font-weight:600">Image URLs</label>
         <div id="imageUrlsContainer">
           <input class="imageUrlInput" placeholder="Image URL 1" style="margin-bottom:8px">
@@ -1100,6 +1165,7 @@ h2 {
       </div>
 
       <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
+        <button id="adminClearForm" class="btn-ghost" style="font-size:12px;">Clear Form</button>
         <button id="adminCancelEdit" class="btn-ghost" style="display:none">Cancel Edit</button>
         <button id="adminSave" class="btn">Add Product</button>
         <div id="adminError" class="error-message" style="margin-left:10px;align-self:center"></div>
@@ -1124,6 +1190,13 @@ h2 {
   <div class="modal-box" role="dialog" aria-modal="true">
     <button class="close-x" id="closeCart" title="Close">✕</button>
     <h2>Your Cart</h2>
+    
+    <!-- Free Shipping Progress -->
+    <div id="shippingProgress" style="margin-bottom: 16px; background: rgba(255,255,255,0.05); padding: 12px; border-radius: 12px; display:none;">
+      <div class="small" id="shippingText" style="margin-bottom: 6px;">Add items for free shipping</div>
+      <div style="height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden;"><div id="shippingBar" style="height: 100%; width: 0%; background: var(--success); transition: width 0.5s;"></div></div>
+    </div>
+
     <div id="cartItemsList" style="max-height: 60vh; overflow-y: auto; margin-top: 16px;">
       <div class="small" style="text-align:center; color:var(--text-muted)">Your cart is empty</div>
     </div>
@@ -1487,6 +1560,7 @@ $('pdMainImg')?.addEventListener('click', () => {
       const list = $('cartItemsList');
       const footer = $('cartFooter');
       const totalEl = $('cartTotalAmount');
+      const shippingProgress = $('shippingProgress');
       if(!list) return;
 
       list.innerHTML = '';
@@ -1496,8 +1570,10 @@ $('pdMainImg')?.addEventListener('click', () => {
             <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
             <div style="font-weight:600; margin-bottom:4px">Your cart is empty</div>
             <div class="small">Looks like you haven't added any sarees yet.</div>
+            <button class="btn-ghost" style="margin-top:12px" onclick="document.getElementById('closeCart').click()">Start Shopping</button>
           </div>`;
         footer.style.display = 'none';
+        if(shippingProgress) shippingProgress.style.display = 'none';
         return;
       }
 
@@ -1520,6 +1596,19 @@ $('pdMainImg')?.addEventListener('click', () => {
 
       totalEl.innerText = '₹' + total;
       footer.style.display = 'block';
+
+      // Shipping Progress Logic (Threshold: 2000)
+      if(shippingProgress) {
+        shippingProgress.style.display = 'block';
+        const threshold = 2000;
+        const percentage = Math.min((total / threshold) * 100, 100);
+        $('shippingBar').style.width = percentage + '%';
+        if(total >= threshold) {
+          $('shippingText').innerHTML = '🎉 <strong>Free Shipping</strong> unlocked!';
+        } else {
+          $('shippingText').innerHTML = `Add <strong>₹${threshold - total}</strong> more for free shipping`;
+        }
+      }
 
       // Attach remove listeners
       document.querySelectorAll('.remove-cart-item').forEach(btn => {
@@ -1753,7 +1842,7 @@ productGrid.addEventListener('click', e => {
       const images = data.images && data.images.length > 0 ? data.images : [data.img];
       const primaryImage = images[0] || 'https://images.unsplash.com/photo-1520975918016-4d0b5b0b2f3d?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder';
       const price = String(data.price || '0').replace(/[^\d.]/g, '');
-      const stock = data.stock;
+      const stock = Number(data.stock || 0);
       const avg = data._avg ? Number(data._avg).toFixed(1) : null;
       const avgDisplay = avg ? `★ ${avg} (${data._count||0})` : 'No ratings';
 
@@ -1761,43 +1850,12 @@ productGrid.addEventListener('click', e => {
       card.className = 'card reveal';
       card.dataset.pid = id;
       
-      // Store product data on the element for filtering
-      const safeDataForDataset = {
-        material: data.material || '',
-        style: data.style || '',
-        design: data.design || '',
-        blouse: data.blouse || '',
-        stock: data.stock === undefined ? 0 : data.stock, // Default to 0 if undefined
-        colors: Array.isArray(data.colors) ? data.colors : []
-      };
-      card.dataset.productData = JSON.stringify(safeDataForDataset);
       card.style.transitionDelay = `${index * 50}ms`; // Staggered animation
       revealObserver.observe(card);
 
       // --- IMAGE WRAPPER ---
       const imgWrap = document.createElement('div');
       imgWrap.className = 'imgwrap';
-      imgWrap.dataset.images = JSON.stringify(images);
-
-      // Tag
-      if(tag){
-        const tagEl = document.createElement('div');
-        tagEl.className = 'tag';
-        tagEl.textContent = tag;
-        imgWrap.appendChild(tagEl);
-      }
-
-      // New Badge Logic (7 days)
-      if (createdAt) {
-        const createdMs = createdAt.seconds * 1000;
-        const oneWeek = 7 * 24 * 60 * 60 * 1000;
-        if (Date.now() - createdMs < oneWeek) {
-          const badge = document.createElement('div');
-          badge.className = 'badge-new';
-          badge.innerText = 'NEW';
-          imgWrap.appendChild(badge);
-        }
-      }
 
       // Image
       const imgEl = document.createElement('img');
@@ -1894,11 +1952,31 @@ productGrid.addEventListener('click', e => {
       }
       
       // Availability
-      const stockStatusText = (stock !== undefined && stock > 0) ? 'In Stock' : 'Out of Stock';
-      const stockColor = (stock !== undefined && stock > 0) ? 'var(--success)' : 'var(--danger)';
+      const stockStatusText = (stock > 0) ? 'In Stock' : 'Out of Stock';
+      const stockColor = (stock > 0) ? 'var(--success)' : 'var(--danger)';
       const stockEl = document.createElement('div');
       stockEl.innerHTML = `<span style="font-weight:600; color: var(--text-main);">Availability: </span><span style="color:${stockColor}">${stockStatusText}</span>`;
       detailsContainer.appendChild(stockEl);
+
+      // --- COLOR SWATCHES ---
+      if(data.colors && Array.isArray(data.colors) && data.colors.length > 0) {
+        const swatchContainer = document.createElement('div');
+        swatchContainer.className = 'card-swatches';
+        data.colors.slice(0, 5).forEach(c => {
+          const s = document.createElement('div');
+          s.className = 'card-swatch';
+          s.style.backgroundColor = FILTERS_CONFIG.colors[c.toLowerCase()] || '#ccc';
+          s.title = c;
+          swatchContainer.appendChild(s);
+        });
+        if(data.colors.length > 5) {
+          const more = document.createElement('span');
+          more.style.fontSize = '10px'; more.style.color = 'var(--text-muted)';
+          more.textContent = `+${data.colors.length - 5}`;
+          swatchContainer.appendChild(more);
+        }
+        detailsContainer.appendChild(swatchContainer);
+      }
 
       card.appendChild(detailsContainer);
 
@@ -1914,7 +1992,7 @@ productGrid.addEventListener('click', e => {
       orderBtn.textContent='Order Now'; 
       
       // Out of stock logic
-      if (stock === undefined || stock <= 0) {
+      if (stock <= 0) {
         card.classList.add('out-of-stock');
         orderBtn.disabled = true;
         orderBtn.textContent = 'Out of Stock';
@@ -1930,7 +2008,7 @@ productGrid.addEventListener('click', e => {
       cartBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>';
       cartBtn.title = "Add to Cart";
       cartBtn.dataset.pid = id; cartBtn.dataset.product = title; cartBtn.dataset.price = price; cartBtn.dataset.image = primaryImage;
-      if (stock === undefined || stock <= 0) cartBtn.disabled = true;
+      if (stock <= 0) cartBtn.disabled = true;
       orderWrap.appendChild(cartBtn);
 
       card.appendChild(orderWrap);
@@ -2112,7 +2190,7 @@ productGrid.addEventListener('click', ev=>{
           const row = document.createElement('div');
           row.className = 'admin-product-row';
           row.innerHTML = `
-            <div class="admin-thumb">
+            <div class="admin-thumb" style="width:40px; height:40px; border-radius:6px; overflow:hidden; margin-right:12px;">
               <img src="${escapeHtml(primaryImage)}" alt="${escapeHtml(title)}">
             </div>
             <div style="flex:1">
@@ -2644,6 +2722,27 @@ productGrid.addEventListener('click', ev=>{
     
     // Attach Sort Listener
     $('sortSelect').addEventListener('change', applyFiltersAndRender);
+
+    // ---- Quick Filters Logic ----
+    document.querySelectorAll('.qf-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        // Visual toggle
+        document.querySelectorAll('.qf-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+
+        // Reset all filters first
+        for (const key in activeFilters) activeFilters[key].clear();
+        
+        const type = chip.dataset.type;
+        const val = chip.dataset.val;
+
+        if (type !== 'all' && val) {
+          if (type === 'price') activeFilters.price.add(val);
+          else if (activeFilters[type]) activeFilters[type].add(val.toLowerCase());
+        }
+        applyFiltersAndRender();
+      });
+    });
 
     function initializePriceFilters() {
       const container = $('priceFilterGroup');
