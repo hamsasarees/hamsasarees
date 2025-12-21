@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Hamsa Sarees</title>
+<title>Hamsa Sarees — Single Page (Fixed)</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="hamsasareeslogo.jpg" type="image/jpeg">
   
@@ -138,6 +138,14 @@ button,a{
   box-shadow:0 10px 30px rgba(230,181,102,.35);
 }
 
+button:disabled, .btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  filter: grayscale(0.8);
+  box-shadow: none;
+  transform: none !important;
+}
+
 .btn:hover{
   transform:translateY(-1px);
 }
@@ -203,6 +211,14 @@ button,a{
 
 .card:hover{
   transform:translateY(-6px);
+}
+
+.card.out-of-stock {
+  opacity: 0.75;
+}
+
+.card.out-of-stock .imgwrap {
+  filter: grayscale(0.6);
 }
 
 /* IMAGE */
@@ -433,6 +449,12 @@ button,a{
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* ================= ACTIVE FILTERS ================= */
+.color-filter-item.active-filter, .filter-item.active-filter {
+  border-color: var(--gold);
+  background: rgba(230,181,102,0.1) !important;
+  box-shadow: 0 0 0 1px var(--gold);
+}
 
 </style>
 
@@ -497,9 +519,15 @@ button,a{
       </section>
 
       <section style="margin-top:12px">
-        <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
           <h2 style="margin:0">Products</h2>
-          <div class="small">Sign in to place orders; orders saved to your account</div>
+          <div style="display:flex;align-items:center;gap:10px">
+             <select id="sortSelect" class="btn-ghost" style="padding:8px;font-size:13px;outline:none;background:#0f1738;">
+               <option value="newest">Newest First</option>
+               <option value="priceLow">Price: Low to High</option>
+               <option value="priceHigh">Price: High to Low</option>
+             </select>
+          </div>
         </div>
         <div class="grid" id="productGrid" aria-live="polite" style="min-height:200px;">
           <!-- Initial Loading State -->
@@ -681,7 +709,6 @@ button,a{
   let currentProductId = null;
 let selectedRating = 0;
 let currentReviewsUnsub = null;
-let gridListeners = [];
 
   // ---- CONFIG ----
   const ADMIN_UID = 'EenXHJIvZpavhkGTCI8EZyFAfH93'; // UI-only sentinel; enforce admin in Firestore rules / backend
@@ -730,7 +757,7 @@ let gridListeners = [];
     const storageMod = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js');
 
     const { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } = authMod;
-    const { getFirestore, collection, addDoc, setDoc, doc, getDoc, deleteDoc, serverTimestamp, getDocs, onSnapshot } = fsMod;
+    const { getFirestore, collection, addDoc, setDoc, doc, getDoc, deleteDoc, serverTimestamp, getDocs, onSnapshot, updateDoc } = fsMod;
     const { getStorage, ref, uploadBytes, getDownloadURL } = storageMod;
 
     const app = initializeApp(firebaseConfig);
@@ -851,6 +878,16 @@ $('submitReview')?.addEventListener('click', async () => {
     createdAt: serverTimestamp()
   }
 );
+    
+    // Recalculate Average Rating for the Product
+    const reviewsSnap = await getDocs(collection(db, 'products', currentProductId, 'reviews'));
+    let sum = 0;
+    reviewsSnap.forEach(d => sum += (d.data().rating || 0));
+    const count = reviewsSnap.size;
+    const avg = count > 0 ? sum / count : 0;
+
+    // Update Product Document with new stats
+    await setDoc(doc(db, 'products', currentProductId), { _avg: avg, _count: count }, { merge: true });
 
     toast('Review submitted');
     $('reviewText').value = '';
@@ -911,6 +948,7 @@ pdOrderBtn?.addEventListener('click', () => {
   const mainImg = $('pdMainImg').src || '';
   // Directly create order object and redirect to payment
   const tempOrder = {
+    pid: currentProductId, // Critical for stock management
     product: title,
     price: price,
     image: mainImg,
@@ -1022,13 +1060,9 @@ productGrid.addEventListener('click', e => {
   if (isInStock) {
     pdOrderBtn.disabled = false;
     pdOrderBtn.textContent = 'Order Now';
-    pdOrderBtn.style.opacity = '';
-    pdOrderBtn.style.cursor = 'pointer';
   } else {
     pdOrderBtn.disabled = true;
     pdOrderBtn.textContent = 'Out of Stock';
-    pdOrderBtn.style.opacity = '0.6';
-    pdOrderBtn.style.cursor = 'not-allowed';
   }
 
   // Load reviews
@@ -1194,13 +1228,9 @@ productGrid.addEventListener('click', e => {
       
       // Out of stock logic
       if (stock === undefined || stock <= 0) {
-        card.style.opacity = '0.6';
-        card.style.pointerEvents = 'auto'; // Keep card clickable for detail view
+        card.classList.add('out-of-stock');
         orderBtn.disabled = true;
         orderBtn.textContent = 'Out of Stock';
-        orderBtn.style.background = '#555';
-        orderBtn.style.cursor = 'not-allowed';
-        orderBtn.style.boxShadow = 'none';
       }
       
       orderWrap.appendChild(orderBtn);
@@ -1210,8 +1240,6 @@ productGrid.addEventListener('click', e => {
     }
 
     function renderProducts(productsToRender) {
-      gridListeners.forEach(u => u());
-      gridListeners = [];
       const productGrid = $('productGrid');
       productGrid.innerHTML = '';
 
@@ -1233,7 +1261,6 @@ productGrid.addEventListener('click', e => {
         const card = renderProductCard(mockDocSnap);
         productGrid.appendChild(card);
       });
-      attachRatingListenersToGrid();
     }
 
     let productsUnsub = null;
@@ -1284,6 +1311,7 @@ productGrid.addEventListener('click', ev=>{
   // --- UNIFIED ORDER LOGIC ---
   // This now behaves exactly like the button in the detail modal.
   const tempOrder = {
+    pid: btn.closest('.card').dataset.pid, // Critical for stock management
     product: btn.dataset.product || '',
     price: btn.dataset.price || '0',
     image: btn.dataset.image || '',
@@ -1297,47 +1325,6 @@ productGrid.addEventListener('click', ev=>{
   window.location.href = 'payment.html';
 });
 
-    // ---- Rating listeners and live averages per product ----
-function attachRatingListenersToGrid(){
-  document.querySelectorAll('#productGrid .card').forEach(card=>{
-    const pid = card.dataset.pid;
-    if(!pid) return;
-
-    // ⭐ LIVE AVERAGE RATING
-
-    try{
-      const reviewsRef = collection(db, 'products', pid, 'reviews');
-      const unsub = onSnapshot(reviewsRef, snap=>{
-        let sum = 0;
-        let count = 0;
-
-        snap.forEach(docSnap=>{
-          const d = docSnap.data();
-          if(typeof d.rating === 'number'){
-            sum += d.rating;
-            count++;
-          }
-        });
-
-        const avg = count ? (sum / count).toFixed(1) : null;
-        const ratingEl = card.querySelector('.product-rating');
-
-        if(ratingEl){
-          ratingEl.innerText = avg
-            ? `★ ${avg} (${count})`
-            : 'No ratings';
-        }
-      });
-      gridListeners.push(unsub);
-    }catch(e){
-      console.warn('ratings listener failed', e);
-    }
-  });
-}
-
-      
-
-    attachRatingListenersToGrid();
 
     // Load user orders (persistent) and allow delete + view
     // Moved to yourorders.html as a separate page
@@ -1438,11 +1425,6 @@ function attachRatingListenersToGrid(){
             if(!ok) return;
             try{
               await deleteDoc(doc(db, 'products', id));
-              // --- FIX: Clean up the live rating listener for the deleted product ---
-              const cardInGrid = document.querySelector(`.card[data-pid="${id}"]`);
-              if (cardInGrid && typeof cardInGrid._reviewsUnsub === 'function') {
-                cardInGrid._reviewsUnsub(); // Detach the listener
-              }
 
               toast('Product deleted');
               await loadAdminProductsList();
@@ -1825,6 +1807,21 @@ function attachRatingListenersToGrid(){
         // If all filters pass, include the product
         return true;
       });
+      
+      // ---- SORTING LOGIC ----
+      const sortMode = $('sortSelect').value;
+      if(sortMode === 'priceLow'){
+        filteredProducts.sort((a,b) => Number(a.price) - Number(b.price));
+      } else if(sortMode === 'priceHigh'){
+        filteredProducts.sort((a,b) => Number(b.price) - Number(a.price));
+      } else {
+        // Default: Newest first (using createdAt if available, else fallback)
+        filteredProducts.sort((a,b) => {
+           const tA = a.createdAt ? (a.createdAt.seconds || 0) : 0;
+           const tB = b.createdAt ? (b.createdAt.seconds || 0) : 0;
+           return tB - tA;
+        });
+      }
 
       renderProducts(filteredProducts, productGrid);
     }
@@ -1867,7 +1864,7 @@ function attachRatingListenersToGrid(){
           <span class="color-count small" style="margin-left:4px; color:var(--text-muted);"></span>
         `;
         item.addEventListener('click', () => {
-          item.style.outline = activeFilters.colors.has(color) ? 'none' : '2px solid var(--gold)';
+          item.classList.toggle('active-filter');
           activeFilters.colors.has(color) ? activeFilters.colors.delete(color) : activeFilters.colors.add(color);
           applyFiltersAndRender();
         });
@@ -1879,7 +1876,7 @@ function attachRatingListenersToGrid(){
         for (const key in activeFilters) {
             activeFilters[key].clear();
         }
-        document.querySelectorAll('.color-filter-item, .filter-item').forEach(item => item.style.outline = 'none');
+        document.querySelectorAll('.active-filter').forEach(item => item.classList.remove('active-filter'));
         applyFiltersAndRender();
       });
 
@@ -1893,6 +1890,9 @@ function attachRatingListenersToGrid(){
       }
     }
     initializeFilters();
+    
+    // Attach Sort Listener
+    $('sortSelect').addEventListener('change', applyFiltersAndRender);
 
     function initializePriceFilters() {
       const container = $('priceFilterGroup');
@@ -1959,7 +1959,7 @@ function attachRatingListenersToGrid(){
                 if (!item) return;
                 const group = item.dataset.filterGroup;
                 const value = item.dataset.filterValue;
-                item.style.outline = activeFilters[group].has(value) ? 'none' : '2px solid var(--gold)';
+                item.classList.toggle('active-filter');
                 activeFilters[group].has(value) ? activeFilters[group].delete(value) : activeFilters[group].add(value);
                 applyFiltersAndRender();
             });
