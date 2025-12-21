@@ -51,7 +51,13 @@ body{
 ::-webkit-scrollbar-track { background: var(--bg-main); }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+/* ================= SELECTION ================= */
+::selection { background: var(--gold); color: #0a0e1a; }
+::-moz-selection { background: var(--gold); color: #0a0e1a; }
+::placeholder { color: var(--text-muted); opacity: 0.6; }
+.bg-noise { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; opacity: 0.04; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E"); }
 .container{
+  position: relative; z-index: 1;
   max-width:1200px;
   margin:auto;
   padding:20px 16px;
@@ -62,38 +68,27 @@ header{
   gap:18px;
   padding:16px 18px;
   border-radius:16px;
-  background: rgba(18, 24, 58, 0.6);
+  background: rgba(255, 255, 255, 0.03);
   backdrop-filter: blur(12px);
-  border:1px solid var(--border);
-  box-shadow:0 20px 50px rgba(0,0,0,.45);
+  border:1px solid rgba(255,255,255,0.05);
+  box-shadow:0 20px 50px rgba(0,0,0,0.3);
 }
-header.sticky {
-  position: sticky;
-  top: 12px;
-  width: 100%;
-  z-index: 1000;
-  background: rgba(10, 14, 26, 0.75);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  animation: slideDown 0.3s ease-out;
-}
-@keyframes slideDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }
-.brand{ display:flex; gap:12px; align-items:center; }
-.logo{ width:48px; height:48px; border-radius:12px; overflow:hidden; }
+.brand{ display:flex; gap:14px; align-items:center; }
+.logo{ width:52px; height:52px; border-radius:14px; overflow:hidden; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 10px rgba(0,0,0,0.2); flex-shrink: 0; }
 .logo img { width: 100%; height: 100%; object-fit: cover; }
-.title{ font-weight:800; font-size:16px; }
+.title{ font-weight:800; font-size:18px; letter-spacing: -0.01em; line-height: 1.2; }
 .small{ font-size:13px; color:var(--text-muted); }
 
 /* Form Styles */
 .payment-card{
-  background: rgba(20, 28, 63, 0.8);
+  background: rgba(255, 255, 255, 0.02);
   backdrop-filter: blur(10px);
-  border:1px solid var(--border);
+  border:1px solid rgba(255,255,255,0.08);
   border-radius:20px;
   padding:24px;
   max-width:480px;
   margin: 40px auto;
-  box-shadow:0 30px 70px rgba(0,0,0,.45);
+  box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);
 }
 h1{margin:0 0 6px;font-size:24px;font-weight:800}
 .row{margin-bottom:14px}
@@ -111,7 +106,7 @@ input,textarea{
 input:focus, textarea:focus {
   border-color: var(--gold);
   outline: none;
-  box-shadow: 0 0 0 3px rgba(230,181,102,0.15);
+  box-shadow: 0 0 0 2px var(--bg-main), 0 0 0 4px rgba(230,181,102,0.4);
   transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 input.invalid, textarea.invalid {
@@ -155,6 +150,9 @@ button::after {
 button:hover::after {
   left: 100%;
 }
+button:active {
+  transform: scale(0.96);
+}
 button:disabled{
   opacity: 0.6;
   cursor: not-allowed;
@@ -180,6 +178,9 @@ img{
   text-decoration: none;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
+.btn-ghost:active {
+  transform: scale(0.96);
+}
 /* ================= SPINNER ================= */
 .spinner {
   width: 20px;
@@ -197,6 +198,7 @@ img{
 </head>
 
 <body>
+<div class="bg-noise"></div>
 <div class="container">
   <header>
     <div class="brand">
@@ -259,13 +261,6 @@ img{
 </div>
 
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-<script>
-  // --- ✅ UI PERFECTION: Sticky Header ---
-  window.addEventListener('scroll', () => {
-    const header = document.querySelector('header');
-    header.classList.toggle('sticky', window.scrollY > 20);
-  });
-</script>
 
 <script>
 /* ---------- LOAD ORDER FROM INDEX ---------- */
@@ -345,9 +340,11 @@ function validateForm() {
 }
 
 [nameEl, phoneEl, addressEl].forEach(el => {
-  el.addEventListener('input', () => validateField(el));
   el.addEventListener('blur', () => validateField(el)); // Also validate on blur
-  el.addEventListener('input', validateForm); // Check whole form on any input
+  el.addEventListener('input', () => {
+    if(el.classList.contains('invalid')) validateField(el); // Only show error while typing if already invalid
+    validateForm(); // Always check button state
+  });
 });
 </script>
 
