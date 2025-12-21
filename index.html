@@ -172,6 +172,7 @@ button,a{
   border-radius:14px;
   font-weight:800;
   cursor:pointer;
+  text-decoration: none;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   box-shadow:0 10px 30px rgba(230,181,102,.35);
   position: relative;
@@ -184,6 +185,12 @@ button,a{
   top: 0; left: -100%; width: 100%; height: 100%;
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
   transition: 0.5s;
+}
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 .btn:hover::after {
   left: 100%;
@@ -620,6 +627,30 @@ h2 {
   border: 1px dashed var(--border);
 }
 
+/* ================= OPTIMIZATION CLASSES ================= */
+.multi-img-badge {
+  position: absolute; bottom: 8px; right: 8px;
+  background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+  color: white; padding: 2px 8px; border-radius: 10px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.5px;
+}
+.card-details-grid {
+  margin-top: 10px; font-size: 12px; color: var(--text-muted);
+  display: grid; gap: 4px;
+}
+.filter-count { margin-left: 4px; color: var(--text-muted); }
+.admin-thumb {
+  width: 50px; height: 50px; overflow: hidden;
+  border-radius: 8px; margin-right: 12px; flex-shrink: 0;
+}
+.related-card {
+  padding: 10px; box-shadow: none;
+  background: rgba(255,255,255,0.03); cursor: pointer;
+  border-radius: 12px; transition: background 0.2s;
+}
+.related-card:hover { background: rgba(255,255,255,0.06); }
+.related-img-wrap { aspect-ratio: 3/4; border-radius: 8px; overflow: hidden; margin-bottom: 8px; }
+
 </style>
 
 </head>
@@ -662,7 +693,10 @@ h2 {
               <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
               22/3, Tharamangalam Main Road, Jalakandapuram, Salem 636501
             </div>
-            <a href="https://www.google.com/search?q=Hamsa+Sarees+,+Jalakandapuram" target="_blank" rel="noopener noreferrer" class="btn">Locate Us on Google</a>
+            <a href="https://www.google.com/search?q=Hamsa+Sarees+,+Jalakandapuram" target="_blank" rel="noopener noreferrer" class="btn btn-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+              <span>Locate Us on Google</span>
+            </a>
           </div>
         </div>
       </section>
@@ -1257,13 +1291,13 @@ $('pdMainImg')?.addEventListener('click', () => {
 
       related.forEach(p => {
         const div = document.createElement('div');
-        div.className = 'card';
-        div.style.cssText = 'padding:10px; box-shadow:none; background:rgba(255,255,255,0.03); cursor:pointer;';
+        div.className = 'card related-card';
+        // Removed inline style in favor of class
         const img = (p.images && p.images[0]) || p.img || 'https://images.unsplash.com/photo-1520975918016-4d0b5b0b2f3d?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder';
         
         div.innerHTML = `
-          <div style="aspect-ratio:3/4; border-radius:8px; overflow:hidden; margin-bottom:8px;">
-            <img src="${img}" style="width:100%; height:100%; object-fit:cover;">
+          <div class="related-img-wrap">
+            <img src="${img}" loading="lazy" style="width:100%; height:100%; object-fit:cover;">
           </div>
           <h4 style="margin:0; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${p.title}</h4>
           <div style="color:var(--gold); font-weight:700; font-size:13px;">₹${p.price}</div>
@@ -1349,7 +1383,7 @@ productGrid.addEventListener('click', e => {
       if (images.length > 1) {
         const multiImgIndicator = document.createElement('div');
         multiImgIndicator.textContent = '1/' + images.length;
-        multiImgIndicator.style.cssText = 'position:absolute; bottom:8px; right:8px; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); color:white; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:600; letter-spacing:0.5px;';
+        multiImgIndicator.className = 'multi-img-badge';
         imgWrap.appendChild(multiImgIndicator);
       }
       
@@ -1411,7 +1445,7 @@ productGrid.addEventListener('click', e => {
 
       // --- DETAILS ---
       const detailsContainer = document.createElement('div');
-      detailsContainer.style.cssText = 'margin-top: 10px; font-size: 12px; color: var(--text-muted); display: grid; gap: 4px;';
+      detailsContainer.className = 'card-details-grid';
 
       // Simplified card view: Only show Material if present, hide others to reduce clutter
       if(data.material) {
@@ -1599,8 +1633,8 @@ productGrid.addEventListener('click', ev=>{
           const row = document.createElement('div');
           row.className = 'admin-product-row';
           row.innerHTML = `
-            <div style="width: 50px; height: 50px; overflow: hidden; border-radius: 8px; margin-right: 12px; flex-shrink: 0;">
-              <img src="${escapeHtml(primaryImage)}" alt="${escapeHtml(title)}" style="width: 100%; height: 100%; object-fit: cover;">
+            <div class="admin-thumb">
+              <img src="${escapeHtml(primaryImage)}" alt="${escapeHtml(title)}">
             </div>
             <div style="flex:1">
               <strong style="color:#eaf6ff">${escapeHtml(title)}</strong>
@@ -2082,7 +2116,7 @@ productGrid.addEventListener('click', ev=>{
         item.innerHTML = `
           <div class="color-swatch" style="background:${FILTERS_CONFIG.colors[color]}"></div>
           <span>${color.charAt(0).toUpperCase() + color.slice(1)}</span>
-          <span class="color-count small" style="margin-left:4px; color:var(--text-muted);"></span>
+          <span class="color-count small filter-count"></span>
         `;
         item.addEventListener('click', () => {
           item.classList.toggle('active-filter');
@@ -2155,7 +2189,7 @@ productGrid.addEventListener('click', ev=>{
                 const count = allProducts.filter(p => p[field]?.trim().toLowerCase() === value).length;
                 const isActive = activeFilters[field].has(value) ? 'active-filter' : '';
                 html += `<div class="filter-item ${isActive}" data-filter-group="${field}" data-filter-value="${value}">
-                    ${value.charAt(0).toUpperCase() + value.slice(1)} <span class="small" style="margin-left:4px; color:var(--text-muted);">(${count})</span>
+                    ${value.charAt(0).toUpperCase() + value.slice(1)} <span class="small filter-count">(${count})</span>
                 </div>`;
             });
             html += `</div>`;
