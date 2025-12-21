@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Hamsa Sarees — Single Page (Fixed)</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<link rel="icon" href="hamsasareeslogo.jpg" type="image/jpeg">
   
  
 <style>
@@ -644,6 +645,7 @@ button,a{
   const $ = id => document.getElementById(id);
   let currentEditingId = null; // To track which product is being edited
   let allProducts = []; // Master list of all products from Firestore
+  let isProfileForced = false; // 🔒 Profile Enforcement Flag
   function openModal(modal){ if(!modal) return; modal.classList.add('show'); modal.removeAttribute('aria-hidden'); document.body.style.overflow = 'hidden'; }
     function closeModal(modal){
   if(!modal) return;
@@ -652,6 +654,9 @@ button,a{
     document.activeElement.blur();
   }
 
+  // 🔒 BLOCK CLOSE IF FORCED
+  if(isProfileForced && modal.id === 'profileModal') return;
+
   modal.classList.remove('show');
   modal.setAttribute('aria-hidden','true');
   document.body.style.overflow = '';
@@ -659,6 +664,8 @@ button,a{
 
   let currentProductId = null;
 let selectedRating = 0;
+let currentReviewsUnsub = null;
+let gridListeners = [];
 
   // ---- CONFIG ----
   const ADMIN_UID = 'EenXHJIvZpavhkGTCI8EZyFAfH93'; // UI-only sentinel; enforce admin in Firestore rules / backend
@@ -715,6 +722,7 @@ let selectedRating = 0;
     const storage = getStorage(app);
     const googleProvider = new GoogleAuthProvider();
     function loadProductReviews(pid){
+  if(currentReviewsUnsub) currentReviewsUnsub();
   const pdRating = $('pdRating');
   const reviewsList = $('reviewsList');
   if(!pdRating || !reviewsList) return;
@@ -724,7 +732,7 @@ let selectedRating = 0;
 
   const reviewsRef = collection(db, 'products', pid, 'reviews');
 
-  onSnapshot(reviewsRef, snap => {
+  currentReviewsUnsub = onSnapshot(reviewsRef, snap => {
     let sum = 0;
     let count = 0;
 
@@ -787,6 +795,8 @@ div.innerHTML = `
     const toastEl = document.getElementById('toast');
 
     // backdrop click and Esc
+    window.addEventListener('keydown', e => { if(e.key==='Escape') document.querySelectorAll('.modal.show').forEach(m=>closeModal(m)); });
+    document.querySelectorAll('.modal').forEach(m => m.addEventListener('click', e => { if(e.target===m) closeModal(m); }));
    // ================= REVIEW SYSTEM (FIXED) =================
 
 
@@ -899,6 +909,17 @@ pdOrderBtn?.addEventListener('click', () => {
   } catch (e) {
     console.error("Failed to save order to sessionStorage:", e);
     alert("Could not proceed to payment. Please try again.");
+  }
+});
+
+// ================= ZOOM IMAGE =================
+$('pdMainImg')?.addEventListener('click', () => {
+  const src = $('pdMainImg').src;
+  if(src){
+    const z = $('zoomImg');
+    z.src = src;
+    z.style.cssText = 'width:100%;height:auto;border-radius:8px';
+    openModal($('zoomModal'));
   }
 });
 
@@ -1041,17 +1062,17 @@ productGrid.addEventListener('click', e => {
 
       // build DOM safely (no raw innerHTML from user content)
       let tagEl = null;
-if(tag){
-  tagEl = document.createElement('div');
-  tagEl.className = 'tag';
-  tagEl.textContent = tag;
-}
+      if(tag){
+        tagEl = document.createElement('div');
+        tagEl.className = 'tag';
+        tagEl.textContent = tag;
+      }
 
       const imgWrap = document.createElement('div');
-imgWrap.className = 'imgwrap';
+      imgWrap.className = 'imgwrap';
       if(tagEl){
-  imgWrap.appendChild(tagEl); // ✅ CORRECT PLACE
-}
+        imgWrap.appendChild(tagEl); // ✅ CORRECT PLACE
+      }
 imgWrap.dataset.images = JSON.stringify(images); // ⭐ STORE ALL IMAGES
 
 const imgEl = document.createElement('img');
@@ -1150,6 +1171,8 @@ row.appendChild(ratingWrap);
     }
 
     function renderProducts(productsToRender) {
+      gridListeners.forEach(u => u());
+      gridListeners = [];
       const productGrid = $('productGrid');
       productGrid.innerHTML = '';
 
@@ -1236,18 +1259,16 @@ productGrid.addEventListener('click', ev=>{
 });
 
     // ---- Rating listeners and live averages per product ----
-    // ---- Rating listeners and live averages (FIXED) ----
 function attachRatingListenersToGrid(){
   document.querySelectorAll('#productGrid .card').forEach(card=>{
     const pid = card.dataset.pid;
     if(!pid) return;
 
     // ⭐ LIVE AVERAGE RATING
-    if(card._reviewsUnsub) return;
 
     try{
       const reviewsRef = collection(db, 'products', pid, 'reviews');
-      card._reviewsUnsub = onSnapshot(reviewsRef, snap=>{
+      const unsub = onSnapshot(reviewsRef, snap=>{
         let sum = 0;
         let count = 0;
 
@@ -1268,6 +1289,7 @@ function attachRatingListenersToGrid(){
             : 'No ratings';
         }
       });
+      gridListeners.push(unsub);
     }catch(e){
       console.warn('ratings listener failed', e);
     }
@@ -1548,6 +1570,7 @@ function attachRatingListenersToGrid(){
     $('closeProfile')?.addEventListener('click', ()=>{ closeModal(profileModal); });
     $('closeDetailBtn')?.addEventListener('click', ()=>{ closeModal(orderDetailModal); });
 
+    let userProfileUnsub = null;
     // ---- Auth state changes: UI toggle ----
     onAuthStateChanged(auth, user=>{
       if(user){
@@ -1559,9 +1582,11 @@ function attachRatingListenersToGrid(){
         if(loginShowBtn) loginShowBtn.style.display='none';
         if(adminBtn) adminBtn.style.display = (user.uid === ADMIN_UID) ? 'inline-block' : 'none';
 
-        // 1️⃣ & 2️⃣ FIRST LOGIN: Check if user doc exists, if not create it
+        // 1️⃣ & 2️⃣ FIRST LOGIN & PROFILE ENFORCEMENT
         const userRef = doc(db, 'users', user.uid);
-        getDoc(userRef).then(snap => {
+        
+        if(userProfileUnsub) userProfileUnsub();
+        userProfileUnsub = onSnapshot(userRef, (snap) => {
           if(!snap.exists()){
             setDoc(userRef, {
               uid: user.uid,
@@ -1572,10 +1597,67 @@ function attachRatingListenersToGrid(){
               createdAt: serverTimestamp(),
               updatedAt: serverTimestamp()
             }).catch(err => console.error('Error creating profile:', err));
+            return;
+          }
+
+          const data = snap.data();
+          const name = (data.name || '').trim();
+          const phone = (data.phone || '').trim();
+          const address = (data.address || '').trim();
+          const isValidPhone = /^[6-9]\d{9}$/.test(phone);
+          const isProfileComplete = name && isValidPhone && address;
+
+          if(!isProfileComplete){
+            // ⛔ FORCE PROFILE
+            isProfileForced = true;
+            openModal(profileModal);
+            
+            // Lock down UI: Hide close button
+            const closeBtn = $('closeProfile');
+            if(closeBtn) closeBtn.style.display = 'none';
+            
+            const title = profileModal.querySelector('h2');
+            if(title) title.innerText = 'Complete Your Profile';
+
+            let msg = document.getElementById('profileForceMsg');
+            if(!msg){
+              msg = document.createElement('div');
+              msg.id = 'profileForceMsg';
+              msg.style.cssText = 'color:#3b2b08;background:linear-gradient(90deg,var(--gold),#f3d48c);padding:12px;border-radius:8px;margin-bottom:16px;font-weight:700;text-align:center;box-shadow:0 4px 12px rgba(0,0,0,0.2)';
+              msg.innerText = 'Please complete your profile to continue using the website.';
+              const box = profileModal.querySelector('.modal-box');
+              if(box) box.insertBefore(msg, box.children[2]);
+            }
+
+            // Auto-fill if empty
+            if(document.activeElement.id !== 'profileName') $('profileName').value = name;
+            if(document.activeElement.id !== 'profilePhone') $('profilePhone').value = phone;
+            if(document.activeElement.id !== 'profileAddress') $('profileAddress').value = address;
+            $('profileEmail').value = data.email || user.email;
+
+          } else {
+            // ✅ PROFILE OK
+            if(isProfileForced){
+              isProfileForced = false;
+              closeModal(profileModal);
+              toast('Profile completed! Website unlocked.');
+            }
+            
+            // Restore UI
+            const closeBtn = $('closeProfile');
+            if(closeBtn) closeBtn.style.display = 'block';
+            
+            const title = profileModal.querySelector('h2');
+            if(title) title.innerText = 'My Profile';
+            
+            const msg = document.getElementById('profileForceMsg');
+            if(msg) msg.remove();
           }
         });
 
       }else{
+        if(userProfileUnsub) userProfileUnsub();
+        isProfileForced = false;
         closeModal(loginModal);
         if(userBadge) userBadge.style.display='none';
         if(signOutBtn) signOutBtn.style.display='none';
@@ -1617,23 +1699,30 @@ function attachRatingListenersToGrid(){
       if(!/^[6-9]\d{9}$/.test(phone)) { alert('Please enter a valid 10-digit Indian mobile number'); return; }
       if(!address) { alert('Address cannot be empty'); return; }
 
+      const btn = $('saveProfileBtn');
+      btn.disabled = true;
+      btn.innerText = 'Saving...';
+
       try {
         await setDoc(doc(db, 'users', auth.currentUser.uid), {
           name, phone, address, updatedAt: serverTimestamp()
         }, { merge: true });
-        toast('Profile saved successfully');
-        closeModal(profileModal);
+        
+        // If forced, we do NOT close manually here. 
+        // We rely on the onSnapshot listener to detect the valid data and unlock the UI.
+        if(!isProfileForced){
+            toast('Profile saved successfully');
+            closeModal(profileModal);
+        }
       } catch(e) {
         console.error(e);
         alert('Failed to save profile');
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Save Profile';
       }
     });
 
-    // ---- Search and shopNow (debounced) ----
-    const searchBox = $('searchBox');
-    if(searchBox){
-      // The search input is now handled by the initializeFilters function
-    }
     const shopNow = $('shopNow'); if(shopNow) shopNow.addEventListener('click', ()=>{ const grid=document.getElementById('productGrid'); if(grid) grid.scrollIntoView({behavior:'smooth'}); });
 
     // ---- FILTERING LOGIC ----
