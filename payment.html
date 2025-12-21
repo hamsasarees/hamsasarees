@@ -18,6 +18,7 @@
 " />
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<link rel="icon" href="hamsasareeslogo.jpg" type="image/jpeg">
 
 <style>
 /* ================= ROOT THEME ================= */
@@ -256,6 +257,12 @@ onAuthStateChanged(auth, user => {
   getDoc(userRef).then(snap => {
     if(snap.exists()){
       const data = snap.data();
+      // 🔒 STRICT CHECK: If profile incomplete, redirect to home
+      if(!data.name || !data.phone || !data.address || !/^[6-9]\d{9}$/.test(data.phone)){
+        alert('Please complete your profile first.');
+        location.href = 'index.html';
+        return;
+      }
       if(data.name) nameEl.value = data.name;
       if(data.phone) phoneEl.value = data.phone;
       if(data.address) addressEl.value = data.address;
