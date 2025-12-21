@@ -34,8 +34,9 @@ html,body{
   margin:0;
   font-family:Inter,system-ui,Arial,sans-serif;
   background:
-    radial-gradient(900px 400px at 20% -10%, rgba(230,181,102,.12), transparent 60%),
-    linear-gradient(180deg,#080c18,#0a0e1a);
+    radial-gradient(circle at 50% 0%, #1a2342 0%, transparent 70%),
+    radial-gradient(circle at 85% 30%, rgba(230, 181, 102, 0.08) 0%, transparent 50%),
+    #0a0e1a;
   color:var(--text-main);
 }
 /* ================= SCROLLBAR ================= */
@@ -48,16 +49,28 @@ html,body{
 /* ================= FILTERS ================= */
 .filter-section{
   background: var(--glass);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px);
   border:1px solid var(--border);
-  padding:16px;
-  border-radius:16px;
-  margin-top:22px;
+  padding:20px;
+  border-radius:20px;
+  margin-top:30px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
 }
 .color-filter-grid{
   display:flex; flex-wrap:wrap; gap:12px;
 }
-.color-filter-item{ display:flex; align-items:center; gap:6px; background:#0f1738; padding:6px 10px; border-radius:8px; font-size:13px; cursor:pointer; border:1px solid var(--border); }
+.color-filter-item, .filter-item { 
+  display:flex; align-items:center; gap:6px; 
+  background:rgba(255,255,255,0.03); 
+  padding:8px 14px; 
+  border-radius:50px; /* Pill shape */
+  font-size:13px; 
+  cursor:pointer; 
+  border:1px solid var(--border); 
+  transition: all 0.2s ease;
+}
+.color-filter-item:hover, .filter-item:hover { background: rgba(255,255,255,0.08); transform: translateY(-1px); }
+
 .color-swatch{ width:16px; height:16px; border-radius:50%; border:1px solid rgba(255,255,255,0.1); }
 /* ================= LAYOUT ================= */
 .container{
@@ -152,7 +165,7 @@ button,a{
 }
 
 .btn{
-  background:linear-gradient(90deg,var(--gold),#f3d48c);
+  background:linear-gradient(135deg,var(--gold),#cfa34e);
   color:#3b2b08;
   border:none;
   padding:10px 18px;
@@ -225,34 +238,51 @@ input.invalid, textarea.invalid {
 
 /* ================= HERO ================= */
 .hero{
-  display:grid;
-  grid-template-columns:1.4fr .6fr;
-  gap:18px;
-  margin-top:22px;
+  display:flex;
+  justify-content: center;
+  margin-top:30px;
+  margin-bottom: 40px;
 }
 
-.hero-card,
-.promo{
-  background: linear-gradient(135deg, rgba(20, 28, 63, 0.8), rgba(15, 21, 51, 0.9));
-  backdrop-filter: blur(10px);
-  border:1px solid var(--border);
+.hero-card {
+  width: 100%;
+  background: linear-gradient(135deg, #161e3d 0%, #0f1738 100%);
+  border:1px solid rgba(230, 181, 102, 0.2);
   border-radius:20px;
-  padding:24px;
-  box-shadow:0 30px 70px rgba(0,0,0,.45);
+  padding:60px 20px;
+  box-shadow:0 20px 60px rgba(0,0,0,0.4);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
 }
 
-.hero-card h1{
-  margin:0 0 10px;
-  font-size:30px;
-  line-height:1.25;
-  background: linear-gradient(90deg, #fff, #e6b566);
+/* Subtle animated background for hero */
+.hero-card::before {
+  content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+  background: radial-gradient(circle, rgba(230, 181, 102, 0.05) 0%, transparent 60%);
+  animation: rotateHero 20s linear infinite; pointer-events: none;
+}
+@keyframes rotateHero { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+.hero-content { position: relative; z-index: 2; max-width: 700px; margin: 0 auto; }
+
+.hero-content h1 {
+  font-size: 3rem; margin: 10px 0;
+  background: linear-gradient(90deg, #fff, #e6b566, #fff); background-size: 200%;
   -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
   background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shineText 4s linear infinite;
 }
+@keyframes shineText { to { background-position: 200%; } }
 
-.promo{
-  text-align:center;
+.hero-desc { font-size: 1.1rem; color: var(--text-muted); margin-bottom: 24px; line-height: 1.6; }
+.badge-pill { display: inline-block; background: rgba(230, 181, 102, 0.15); color: var(--gold); padding: 6px 16px; border-radius: 50px; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 12px; border: 1px solid rgba(230, 181, 102, 0.3); }
+.hero-address { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px; color: var(--text-muted); margin-bottom: 30px; }
+
+@media(max-width:768px){
+  .hero-card { padding: 40px 16px; }
+  .hero-content h1 { font-size: 2rem; }
 }
 
 /* ================= PRODUCT GRID ================= */
@@ -265,14 +295,13 @@ input.invalid, textarea.invalid {
 
 /* ================= PRODUCT CARD ================= */
 .card{
-  background: rgba(24, 36, 90, 0.4);
-  backdrop-filter: blur(5px);
-  border:1px solid var(--border);
+  background: #131b36;
+  border:1px solid rgba(255,255,255,0.05);
   border-radius:18px;
   padding:12px;
   cursor:pointer;
-  transition:.25s ease;
-  box-shadow:0 18px 45px rgba(0,0,0,.5);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-shadow:0 10px 30px rgba(0,0,0,0.2);
   animation: fadeIn 0.6s cubic-bezier(0.25, 0.8, 0.25, 1) backwards;
   display: flex;
   flex-direction: column;
@@ -281,9 +310,9 @@ input.invalid, textarea.invalid {
 @keyframes fadeIn { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
 
 .card:hover{
-  transform: translateY(-6px);
-  border-color: rgba(230, 181, 102, 0.3);
-  box-shadow: 0 25px 50px rgba(0,0,0,0.6);
+  transform: translateY(-8px);
+  border-color: rgba(230, 181, 102, 0.4);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
 }
 
 /* Hover Overlay for Image */
@@ -559,7 +588,9 @@ h2 {
 /* ================= ACTIVE FILTERS ================= */
 .color-filter-item.active-filter, .filter-item.active-filter {
   border-color: var(--gold);
-  background: rgba(230,181,102,0.1) !important;
+  background: var(--gold) !important;
+  color: #0a0e1a !important;
+  font-weight: 700;
   box-shadow: 0 0 0 1px var(--gold);
 }
 
@@ -596,13 +627,17 @@ h2 {
 
     <main>
       <section class="hero">
-        <div class="hero-card" style="grid-column: 1 / -1; text-align: center;">
-          <p style="font-size: 16px; line-height: 1.6; margin: 0;">
-            Manufactured and Sold by Hamsa Sarees <br> Address: 22/3 , Tharamangalam Main Road , JALAKANDAPURAM , Salem 636501.
-          </p><br><br><br>
-          <a href="https://www.google.com/search?q=Hamsa+Sarees+,+Jalakandapuram" target="_blank" rel="noopener noreferrer" class="btn" style="margin-top: 16px;">
-            Search on Google About Us
-          </a>
+        <div class="hero-card">
+          <div class="hero-content">
+            <div class="badge-pill">Direct from Weaver</div>
+            <h1>Hamsa Sarees</h1>
+            <p class="hero-desc">Experience the elegance of authentic handloom sarees. Crafted with passion in Jalakandapuram.</p>
+            <div class="hero-address">
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+              22/3, Tharamangalam Main Road, Jalakandapuram, Salem 636501
+            </div>
+            <a href="https://www.google.com/search?q=Hamsa+Sarees+,+Jalakandapuram" target="_blank" rel="noopener noreferrer" class="btn">Locate Us on Google</a>
+          </div>
         </div>
       </section>
 
@@ -2070,7 +2105,7 @@ productGrid.addEventListener('click', ev=>{
       let html = `<h4 style="margin: 0 0 10px 0; font-size: 14px;">By Price</h4><div class="color-filter-grid">`;
       ranges.forEach(r => {
         const isActive = activeFilters.price.has(r.val) ? 'active-filter' : '';
-        html += `<div class="filter-item ${isActive}" data-filter-group="price" data-filter-value="${r.val}" style="cursor:pointer; border:1px solid var(--border); padding: 6px 10px; border-radius: 8px; font-size:13px;">${r.label}</div>`;
+        html += `<div class="filter-item ${isActive}" data-filter-group="price" data-filter-value="${r.val}">${r.label}</div>`;
       });
       html += `</div>`;
       container.innerHTML = html;
@@ -2095,7 +2130,7 @@ productGrid.addEventListener('click', ev=>{
             uniqueValues.forEach(value => {
                 const count = allProducts.filter(p => p[field]?.trim().toLowerCase() === value).length;
                 const isActive = activeFilters[field].has(value) ? 'active-filter' : '';
-                html += `<div class="filter-item ${isActive}" data-filter-group="${field}" data-filter-value="${value}" style="cursor:pointer; border:1px solid var(--border); padding: 6px 10px; border-radius: 8px; font-size:13px;">
+                html += `<div class="filter-item ${isActive}" data-filter-group="${field}" data-filter-value="${value}">
                     ${value.charAt(0).toUpperCase() + value.slice(1)} <span class="small" style="margin-left:4px; color:var(--text-muted);">(${count})</span>
                 </div>`;
             });
@@ -2109,8 +2144,8 @@ productGrid.addEventListener('click', ev=>{
             const inStockActive = activeFilters.stock.has('in stock') ? 'active-filter' : '';
             const outStockActive = activeFilters.stock.has('out of stock') ? 'active-filter' : '';
             availabilityContainer.innerHTML = `<h4 style="margin: 0 0 10px 0; font-size: 14px;">By Availability</h4><div class="color-filter-grid">
-                <div class="filter-item ${inStockActive}" data-filter-group="stock" data-filter-value="in stock" style="cursor:pointer; border:1px solid var(--border); padding: 6px 10px; border-radius: 8px; font-size:13px;">In Stock</div>
-                <div class="filter-item ${outStockActive}" data-filter-group="stock" data-filter-value="out of stock" style="cursor:pointer; border:1px solid var(--border); padding: 6px 10px; border-radius: 8px; font-size:13px;">Out of Stock</div>
+                <div class="filter-item ${inStockActive}" data-filter-group="stock" data-filter-value="in stock">In Stock</div>
+                <div class="filter-item ${outStockActive}" data-filter-group="stock" data-filter-value="out of stock">Out of Stock</div>
             </div>`;
         }
 
