@@ -132,6 +132,16 @@ header{
   backdrop-filter: blur(12px);
   border:1px solid rgba(255,255,255,0.05);
   box-shadow:0 20px 50px rgba(0,0,0,0.3);
+  position: sticky;
+  top: 0;
+  z-index: 990; /* Below modals */
+  transition: padding 0.3s ease, background-color 0.3s ease;
+}
+header.scrolled {
+  background: rgba(17, 23, 44, 0.8); /* --bg-panel with opacity */
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  box-shadow:0 20px 50px rgba(0,0,0,0.3);
 }
 .brand{
   display:flex;
@@ -225,7 +235,7 @@ button,a{
   text-decoration: none;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
   transition-delay: 20ms;
-  box-shadow:0 4px 15px rgba(230,181,102,0.3);
+  box-shadow:0 4px 10px rgba(230,181,102,0.2);
   position: relative;
   overflow: hidden;
 }
@@ -278,7 +288,7 @@ input.invalid, textarea.invalid {
 
 .btn:hover{
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(230, 181, 102, 0.5);
+  box-shadow: 0 6px 20px rgba(230, 181, 102, 0.3);
   background-position: 100% 0;
 }
 
@@ -379,9 +389,9 @@ input.invalid, textarea.invalid {
   border:1px solid rgba(255,255,255,0.05);
   border-radius:18px;
   padding:12px;
-  cursor:pointer;
-  transition: transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-  box-shadow:0 10px 30px rgba(0,0,0,0.2);
+  cursor:default;
+  transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  box-shadow:0 10px 30px rgba(0,0,0,0.15);
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -392,7 +402,7 @@ input.invalid, textarea.invalid {
 .card:hover{
   transform: translateY(-5px);
   background: rgba(255, 255, 255, 0.06);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.4), inset 0 0 0 1px rgba(255,255,255,0.05);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.25), inset 0 0 0 1px rgba(255,255,255,0.05);
   border-color: rgba(230, 181, 102, 0.5);
 }
 
@@ -447,6 +457,7 @@ input.invalid, textarea.invalid {
   overflow:hidden;
   background:#080c1f;
   position:relative;
+  cursor: pointer;
 }
 
 .imgwrap img{
@@ -480,7 +491,8 @@ input.invalid, textarea.invalid {
   line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  color: #dbe4ff;
+  color: var(--text-main);
+  cursor: pointer;
 }
 
 /* ================= PRICE ================= */
@@ -515,7 +527,8 @@ input.invalid, textarea.invalid {
 
 /* ================= RATING ================= */
 .product-rating{
-  font-size:13px;
+  font-size:12px;
+  opacity: 0.7;
   color:var(--success);
 }
 h2 {
@@ -665,12 +678,25 @@ h2 {
   padding:10px;
   color:var(--text-main);
 }
+.imageUrlInput.invalid {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 1px rgba(255,107,107,0.4);
+}
+.imageUrlInput.valid {
+  border-color: var(--success);
+}
 
 /* ================= MOBILE ================= */
 @media(max-width:768px){
   header{flex-direction:column}
   .hero{grid-template-columns:1fr}
   .pd-layout{grid-template-columns:1fr}
+  .modal-box {
+    max-height: 88vh;
+    overflow-y: auto;
+  }
+  /* Add padding to modal content so sticky bar doesn't cover content */
+  .product-detail-box { padding-bottom: 80px !important; }
 }
 .imgwrap{
   position:relative; /* 🔒 fixes flicker */
@@ -726,15 +752,22 @@ h2 {
   margin-top: auto;
   padding-top: 12px;
 }
-@media (hover:hover) {
+.orderBtn {
+  opacity: 0;
+  transform: translateY(6px);
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.card:hover .orderBtn {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+@media (hover: none) {
   .orderBtn {
-    opacity: 0;
-    transform: translateY(6px);
-    transition: all 0.25s ease;
-  }
-  .card:hover .orderBtn {
     opacity: 1;
-    transform: translateY(0);
+    transform: none;
+    pointer-events: auto;
   }
 }
 .admin-product-row {
@@ -746,9 +779,10 @@ h2 {
   background: rgba(255,255,255,0.02);
   border-radius: 8px;
   margin-bottom: 8px;
-  transition: all 0.2s;
+  transition: none !important;
+  transform: none !important;
 }
-.admin-product-row:hover { background: rgba(255,255,255,0.02); }
+.admin-product-row:hover { background: rgba(255,255,255,0.04); transform: none !important; box-shadow: none !important; }
 
 .empty-state {
   grid-column: 1 / -1;
@@ -772,9 +806,21 @@ h2 {
   display: grid; gap: 4px;
 }
 .filter-count { margin-left: 4px; color: var(--text-muted); }
-.admin-thumb {
-  width: 50px; height: 50px; overflow: hidden;
-  border-radius: 8px; margin-right: 12px; flex-shrink: 0;
+.admin-product-img {
+  width: 72px;
+  height: 72px;
+  background: #0b1020;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  margin-right: 12px;
+}
+.admin-product-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  image-rendering: auto;
+  display: block;
 }
 .related-card {
   padding: 10px; box-shadow: none;
@@ -943,11 +989,6 @@ h2 {
   pointer-events: none; z-index: 0; opacity: 0.04;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
 }
-.scroll-progress {
-  position: fixed; top: 0; left: 0; height: 3px; background: var(--gold);
-  z-index: 9999; width: 0%; transition: width 0.1s;
-  box-shadow: 0 0 10px var(--gold);
-}
 .addToCartBtn {
   border-radius: 50% !important; width: 42px; height: 42px; padding: 0 !important;
   display: flex; align-items: center; justify-content: center;
@@ -966,7 +1007,11 @@ h2 {
 .pd-thumbs img:hover { opacity: 1; transform: translateY(-2px); transition: all 0.2s; }
 
 #zoomModal {
-  background: rgba(0, 0, 0, 0.95); /* Deep dark background for focus */
+  background: rgba(0, 0, 0, 0);
+  transition: background 0.25s ease;
+}
+#zoomModal.show {
+  background: rgba(0, 0, 0, 0.92);
 }
 #zoomModal .modal-box {
   background: transparent;
@@ -980,9 +1025,7 @@ h2 {
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: zoomFadeIn 0.3s ease-out;
 }
-@keyframes zoomFadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
 #zoomImg {
   max-width: 90vw;
@@ -991,6 +1034,8 @@ h2 {
   border-radius: 4px;
   box-shadow: 0 0 40px rgba(0,0,0,0.5);
   cursor: zoom-out;
+  background: radial-gradient(circle, #222 30%, #111 70%);
+  transition: transform 0.2s ease, opacity 0.3s ease;
 }
 #zoomModal .close-x {
   position: fixed;
@@ -1015,12 +1060,19 @@ h2 {
   color: #000;
   transform: rotate(90deg);
 }
+
+/* ================= MOBILE STICKY CTA ================= */
+.mobile-sticky-cta {
+  display: none; position: fixed; bottom: 0; left: 0; width: 100%;
+  background: var(--bg-panel); border-top: 1px solid var(--border);
+  padding: 12px 16px; z-index: 1100; align-items: center; gap: 12px;
+  box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
+}
 </style>
 
 </head>
 <body>
   <div class="bg-noise"></div>
-  <div id="scrollProgress" class="scroll-progress"></div>
   <div class="announcement-bar">
     <p>Welcome to Hamsa Sarees</p>
   </div>
@@ -1126,6 +1178,7 @@ h2 {
             <div id="styleFilterGroup"></div>
             <div id="designFilterGroup"></div>
             <div id="availabilityFilterGroup"></div>
+            <div id="activeFiltersBar" class="small" style="grid-column: 1/-1; margin-top:12px; color:var(--gold); display:none; border-top:1px solid rgba(255,255,255,0.05); padding-top:12px;"></div>
         </div>
       </section>
 
@@ -1140,6 +1193,7 @@ h2 {
              </select>
           </div>
         </div>
+        <div class="small" style="opacity:.7; margin-bottom:10px">Loading latest sarees...</div>
         <div class="grid" id="productGrid" aria-live="polite" style="min-height:200px;">
           <!-- Initial Loading State -->
           <div class="card skeleton skeleton-card"></div>
@@ -1336,7 +1390,7 @@ h2 {
   let currentEditingId = null; // To track which product is being edited
   let allProducts = []; // Master list of all products from Firestore
   let isProfileForced = false; // 🔒 Profile Enforcement Flag
-  function openModal(modal){ if(!modal) return; modal.classList.add('show'); modal.removeAttribute('aria-hidden'); document.body.style.overflow = 'hidden'; }
+  function openModal(modal){ if(!modal) return; modal.classList.add('show'); modal.removeAttribute('aria-hidden'); document.documentElement.style.overflow = 'hidden'; }
     function closeModal(modal){
   if(!modal) return;
 
@@ -1349,38 +1403,81 @@ h2 {
 
   modal.classList.remove('show');
   modal.setAttribute('aria-hidden','true');
-  document.body.style.overflow = '';
-  document.body.style.paddingRight = '';
+  document.documentElement.style.overflow = '';
+  if(modal.id === 'productDetailModal') document.getElementById('mobileStickyCta').style.display = 'none';
 }
 
   // ================= ZOOM LOGIC (FIXED) =================
-  function openZoom(src){
+  function openZoomFrom(img){
+    const rect = img.getBoundingClientRect();
     const zoomModal = document.getElementById('zoomModal');
     const zoomImg = document.getElementById('zoomImg');
     if(!zoomModal || !zoomImg) return;
-    zoomImg.src = src;
+    
+    zoomImg.src = img.src;
+    
+    // Animation Start State
+    zoomImg.style.transition = 'none';
+    zoomImg.style.transformOrigin = 'center center';
+    zoomImg.style.opacity = '0';
+    zoomImg.style.transform = 'scale(0.9)';
+
     if(document.activeElement instanceof HTMLElement){
       document.activeElement.blur();
     }
+
     zoomModal.classList.add('show');
     zoomModal.removeAttribute('aria-hidden');
-    document.body.style.overflow = 'hidden';
-    document.body.style.paddingRight = '8px';
+    document.documentElement.style.overflow = 'hidden';
+    
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        zoomImg.style.transition = '';
+        zoomImg.style.opacity = '1';
+        zoomImg.style.transform = 'scale(1)';
+      });
+    });
   }
 
   document.addEventListener('click', e => {
     const img = e.target.closest('#pdMainImg');
     if(!img || !img.src) return;
-    openZoom(img.src);
+    openZoomFrom(img);
   });
 
   document.getElementById('zoomModal')?.addEventListener('click', () => {
     closeModal(document.getElementById('zoomModal'));
   });
+  
+  document.getElementById('zoomImg')?.addEventListener('click', e => {
+    e.stopPropagation();
+  });
+  
+  // 4️⃣ IMAGE ZOOM PERFECTION (Cursor-anchored)
+  const zoomImg = document.getElementById('zoomImg');
+  if(zoomImg){
+    zoomImg.addEventListener('mousemove', e => {
+      const rect = zoomImg.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      zoomImg.style.transformOrigin = `${x}% ${y}%`;
+      zoomImg.style.transform = 'scale(1.5)';
+    });
+    zoomImg.addEventListener('mouseleave', () => {
+      zoomImg.style.transform = 'scale(1)';
+    });
+  }
+
   let cart = JSON.parse(localStorage.getItem('hamsaCart') || '[]');
   let currentProductId = null;
 let selectedRating = 0;
 let currentReviewsUnsub = null;
+
+  // 4️⃣ SCROLL-BASED CONTEXT
+  const headerEl = document.querySelector('header');
+  window.addEventListener('scroll', () => {
+      if (headerEl) headerEl.classList.toggle('scrolled', window.scrollY > 20);
+  }, { passive: true });
 
   // ---- CONFIG ----
   const ADMIN_UID = 'EenXHJIvZpavhkGTCI8EZyFAfH93'; // UI-only sentinel; enforce admin in Firestore rules / backend
@@ -1599,31 +1696,29 @@ $('submitReview')?.addEventListener('click', async () => {
     googleBtnLarge && googleBtnLarge.addEventListener('click', ()=>signInPopup());
     loginShowBtn && loginShowBtn.addEventListener('click', ()=>{ openModal(loginModal); });
 
-    signOutBtn && signOutBtn.addEventListener('click', async () => { try{ await signOut(auth); toast('Signed out'); }catch(e){ console.error('signout failed', e); } });
+    // 7️⃣ PREVENT ACCIDENTAL ACTIONS
+    signOutBtn && signOutBtn.addEventListener('click', async () => { if(confirm('Are you sure you want to sign out?')) { try{ await signOut(auth); toast('Signed out'); }catch(e){ console.error('signout failed', e); } } });
 
     // ---- PRODUCTS: load from Firestore (live) ----
     // ================= PRODUCT DETAIL → ORDER NOW =================
-    // ---- Helper: Create Pending Order (Bug B Fix) ----
-    function createPendingOrder({ pid, title, price, image }) {
+    // ---- Helper: Create Pending Order (Stable Architecture) ----
+    function createPendingOrder(product) {
       if (!auth.currentUser) {
         openModal(loginModal);
         showLoginError('Please sign in to place orders');
         return;
       }
 
-      const order = {
-        pid,
-        product: title,
-        price: String(price).replace(/[^\d.]/g, ''),
-        image,
-        name: auth.currentUser.displayName || '',
-        phone: '',
-        address: '',
+      const orderPayload = {
+        pid: product.id,
+        product: product.title,
+        price: Number(product.price), // Ensure price is a number
+        image: (product.images && product.images[0]) || product.img || '',
         createdAt: Date.now()
       };
 
       try {
-        sessionStorage.setItem('pendingOrder', JSON.stringify(order));
+        sessionStorage.setItem('pendingOrder', JSON.stringify(orderPayload));
         window.location.href = 'payment.html';
       } catch (e) {
         console.error("Failed to save order:", e);
@@ -1633,21 +1728,13 @@ $('submitReview')?.addEventListener('click', async () => {
 
 const pdOrderBtn = $('pdOrderBtn');
 pdOrderBtn?.addEventListener('click', () => {
-  if (!currentProductId) {
-    alert('Product not selected');
-    return;
-  }
-  // Get product info directly from the detail modal's state
-  const title = $('pdTitle').innerText || '';
-  const priceText = $('pdPrice').innerText || '';
-  const mainImg = $('pdMainImg').src || '';
-  
-  createPendingOrder({
-    pid: currentProductId,
-    title: title,
-    price: priceText,
-    image: mainImg
-  });
+    if (!currentProductId) { alert('Product not selected'); return; }
+    const product = allProducts.find(p => p.id === currentProductId);
+    if (!product) {
+        alert('Could not find product details. Please try again.');
+        return;
+    }
+    createPendingOrder(product);
 });
 
     // ================= CART LOGIC =================
@@ -1682,14 +1769,20 @@ pdOrderBtn?.addEventListener('click', () => {
         showLoginError('Please sign in to add items to your cart.');
         return;
       }
+      // The button that was clicked to trigger this.
+      const triggerBtn = event?.target.closest('button');
+
       cart.push(product);
       updateCartUI();
       saveCart();
       toast('Added to Cart');
       
-      const cartBtnWrap = document.getElementById('openCartBtn');
-      if(cartBtnWrap) {
-        cartBtnWrap.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.25)' }, { transform: 'scale(1)' }], { duration: 300 });
+      // 1️⃣ MICRO-FEEDBACK
+      if(triggerBtn){
+        const originalContent = triggerBtn.innerHTML;
+        triggerBtn.innerHTML = '✓';
+        triggerBtn.style.background = 'var(--success)';
+        setTimeout(() => { triggerBtn.innerHTML = originalContent; triggerBtn.style.background = ''; }, 1500);
       }
     }
 
@@ -1762,7 +1855,8 @@ pdOrderBtn?.addEventListener('click', () => {
     $('openCartBtn')?.addEventListener('click', () => { renderCart(); openModal(cartModal); });
     $('floatingCartBtn')?.addEventListener('click', () => { renderCart(); openModal(cartModal); });
     $('closeCart')?.addEventListener('click', () => closeModal(cartModal));
-    $('clearCartBtn')?.addEventListener('click', () => { cart = []; updateCartUI(); saveCart(); renderCart(); });
+    // 7️⃣ PREVENT ACCIDENTAL ACTIONS
+    $('clearCartBtn')?.addEventListener('click', () => { if(confirm('Are you sure you want to clear your cart?')) { cart = []; updateCartUI(); saveCart(); renderCart(); } });
     $('checkoutCartBtn')?.addEventListener('click', () => {
        // For now, we use the existing payment flow which handles one item, 
        // or we can just alert that bulk checkout is coming soon if payment.html isn't ready.
@@ -1833,6 +1927,17 @@ pdOrderBtn?.addEventListener('click', () => {
           pdPriceEl.appendChild(badge);
         }
       }
+      
+      // 9️⃣ TRUST SIGNAL
+      const trustMsg = document.createElement('div');
+      trustMsg.className = 'small';
+      trustMsg.style.cssText = 'opacity:0.8; margin-top:12px; font-size:12px; display:grid; gap:4px;';
+      trustMsg.innerHTML = `
+        <div style="display:flex;align-items:center;gap:6px"><span>✔</span> Secure payment via Razorpay</div>
+        <div style="display:flex;align-items:center;gap:6px"><span>✔</span> Easy support via WhatsApp</div>
+        <div style="display:flex;align-items:center;gap:6px;opacity:0.7;font-style:italic;margin-top:4px"><span>ℹ</span> Color may slightly vary due to lighting</div>
+      `;
+      pdPriceEl.appendChild(trustMsg);
 
       // Details
       const detailsContainer = $('pdDetails');
@@ -1865,7 +1970,7 @@ pdOrderBtn?.addEventListener('click', () => {
       const pdOrderBtn = $('pdOrderBtn');
       if (isInStock) {
         pdOrderBtn.disabled = false;
-        pdOrderBtn.textContent = 'Order Now';
+        pdOrderBtn.textContent = 'Buy Now'; // Language cleanup
       } else {
         pdOrderBtn.disabled = true;
         pdOrderBtn.textContent = 'Out of Stock';
@@ -1874,13 +1979,18 @@ pdOrderBtn?.addEventListener('click', () => {
       // Add to Cart Button Logic
       const pdCartBtn = $('pdCartBtn');
       if(pdCartBtn) {
-        pdCartBtn.onclick = () => {
+        pdCartBtn.onclick = (e) => {
             addToCart({
                 pid: product.id,
                 product: product.title,
                 price: product.price,
                 image: images[0]
-            });
+            }, e);
+            // 1️⃣ MICRO-FEEDBACK
+            const originalText = pdCartBtn.textContent;
+            pdCartBtn.disabled = true;
+            pdCartBtn.textContent = 'Added ✓';
+            setTimeout(() => { pdCartBtn.textContent = originalText; pdCartBtn.disabled = !isInStock; }, 1500);
         };
         pdCartBtn.disabled = !isInStock;
       }
@@ -1890,6 +2000,46 @@ pdOrderBtn?.addEventListener('click', () => {
 
       // Related Products
       renderRelatedProducts(product);
+
+      // Mobile Sticky CTA Logic
+      const stickyCta = $('mobileStickyCta');
+      if (stickyCta) {
+        const shareBtnHtml = navigator.share ? `
+          <button id="stickyShareBtn" class="btn-ghost" title="Share Product" style="width:44px; height:44px; padding:0; border-radius:50%; flex-shrink:0;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
+          </button>
+        ` : '';
+
+        stickyCta.innerHTML = `
+          ${shareBtnHtml}
+          <div style="flex:1; overflow:hidden; white-space:nowrap;">
+            <div style="font-size:14px;font-weight:700;color:var(--text-main); text-overflow:ellipsis; overflow:hidden;">${product.title}</div>
+            <div style="font-size:16px;font-weight:800;color:var(--gold)">₹${product.price}</div>
+          </div>
+          <button id="stickyBuyBtn" class="btn" style="width:auto;padding:10px 24px; flex-shrink:0;">Buy Now</button>
+        `;
+
+        const stickyBtn = stickyCta.querySelector('#stickyBuyBtn');
+        if(stickyBtn) stickyBtn.onclick = () => pdOrderBtn.click();
+        if(!isInStock) { stickyBtn.disabled = true; stickyBtn.textContent = 'Out of Stock'; }
+
+        const shareBtn = stickyCta.querySelector('#stickyShareBtn');
+        if (shareBtn) {
+          shareBtn.onclick = async () => {
+            const shareUrl = `${window.location.origin}${window.location.pathname}?product=${product.id}`;
+            try {
+              await navigator.share({
+                title: product.title,
+                text: `Check out this saree from Hamsa Sarees: ${product.title}`,
+                url: shareUrl
+              });
+            } catch (err) {
+              if (err.name !== 'AbortError') console.error('Share failed:', err);
+            }
+          };
+        }
+        stickyCta.style.display = 'flex';
+      }
 
       openModal(document.getElementById('productDetailModal'));
     }
@@ -1951,8 +2101,9 @@ productGrid.addEventListener('click', e => {
   if (!card) return;
   if (!card.dataset.pid) return;
 
-  // If Order button clicked, ignore (already handled elsewhere)
-  if (e.target.closest('.orderBtn')) return;
+  // 2️⃣ PRODUCT CARD CLICK AREA IS TOO AGGRESSIVE
+  // Only allow click on image wrapper or title
+  if (!e.target.closest('.imgwrap') && !e.target.tagName.match(/^H3$/i)) return;
 
   openProductDetail(card.dataset.pid);
 });
@@ -2127,7 +2278,7 @@ productGrid.addEventListener('click', e => {
       orderBtn.className='orderBtn btn'; 
       orderBtn.type='button'; 
       orderBtn.style.flex = '1';
-      orderBtn.textContent='Order Now'; 
+      orderBtn.textContent='Buy Now'; // Language cleanup
       
       // Out of stock logic
       if (stock <= 0) {
@@ -2215,6 +2366,18 @@ productGrid.addEventListener('click', e => {
           allProducts.push({ id: d.id, ...data, _searchStr: searchStr });
         });
 
+        // ✅ DEEP LINKING: Check for product in URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const productIdFromUrl = urlParams.get('product');
+        if (productIdFromUrl) {
+          // Use a timeout to ensure the rest of the UI is ready
+          setTimeout(() => {
+            openProductDetail(productIdFromUrl);
+            // Clean up the URL to prevent re-triggering on refresh
+            history.replaceState(null, '', window.location.pathname);
+          }, 100);
+        }
+
         // Initial render with all products
         applyFiltersAndRender();
 
@@ -2231,12 +2394,18 @@ productGrid.addEventListener('click', e => {
     productGrid.addEventListener('click', ev => {
       const btn = ev.target.closest('.addToCartBtn');
       if(!btn) return;
+      // Pass the event to get the button for feedback
       addToCart({
         pid: btn.dataset.pid,
         product: btn.dataset.product,
         price: btn.dataset.price,
         image: btn.dataset.image
-      });
+      }, ev);
+      // 1️⃣ MICRO-FEEDBACK
+      const originalContent = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '✓';
+      setTimeout(() => { btn.innerHTML = originalContent; btn.disabled = false; }, 1500);
     });
 
     // delegate order button via productGrid click
@@ -2244,12 +2413,14 @@ productGrid.addEventListener('click', ev=>{
   const btn = ev.target.closest('.orderBtn');
   if(!btn) return;
 
-  createPendingOrder({
-    pid: btn.closest('.card').dataset.pid,
-    title: btn.dataset.product || '',
-    price: btn.dataset.price || '0',
-    image: btn.dataset.image || ''
-  });
+    const pid = btn.closest('.card')?.dataset.pid;
+    if (!pid) return;
+    const product = allProducts.find(p => p.id === pid);
+    if (!product) {
+        alert('Could not find product details. Please try again.');
+        return;
+    }
+    createPendingOrder(product);
 });
 
 
@@ -2307,13 +2478,15 @@ productGrid.addEventListener('click', ev=>{
           const data = docSnap.data() || {};
           const title = data.title || 'Untitled';
           const price = data.price || '0';
-          const primaryImage = (data.images && data.images.length > 0) ? data.images[0] : data.img || 'https://images.unsplash.com/photo-1520975918016-4d0b5b0b2f3d?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder';
+          
+          // ✅ FIX: Normalize image source (Array vs String vs Placeholder)
+          const imgSrc = (data.images && data.images[0]) || data.img || 'https://images.unsplash.com/photo-1520975918016-4d0b5b0b2f3d?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder';
           
           const row = document.createElement('div');
           row.className = 'admin-product-row';
           row.innerHTML = `
-            <div class="admin-thumb" style="width:40px; height:40px; border-radius:6px; overflow:hidden; margin-right:12px;">
-              <img src="${escapeHtml(primaryImage)}" alt="${escapeHtml(title)}">
+            <div class="admin-product-img">
+              <img src="${escapeHtml(imgSrc)}" alt="${escapeHtml(title)}">
             </div>
             <div style="flex:1">
               <strong style="color:#eaf6ff">${escapeHtml(title)}</strong>
@@ -2382,7 +2555,10 @@ productGrid.addEventListener('click', ev=>{
 
       const imageUrlsContainer = $('imageUrlsContainer');
       imageUrlsContainer.innerHTML = ''; // Clear existing inputs
-      const images = data.images || [data.img] || [];
+      
+      // ✅ FIX: Safely extract images for edit form
+      const images = (data.images && Array.isArray(data.images) && data.images.length > 0) ? data.images : (data.img ? [data.img] : []);
+      
       if (images.length > 0) {
         images.forEach(url => {
           const newInput = document.createElement('input');
@@ -2422,15 +2598,37 @@ productGrid.addEventListener('click', ev=>{
       });
     }
 
+    function isValidImageUrl(url) {
+      return /^https?:\/\/.+\.(jpg|jpeg|png|webp|gif)(\?.*)?$/i.test(url);
+    }
+
     function updatePreview() {
-      const imageUrls = [...document.querySelectorAll('#imageUrlsContainer .imageUrlInput')]
-        .map(input => input.value.trim())
-        .filter(url => url);
+      const inputs = document.querySelectorAll('#imageUrlsContainer .imageUrlInput');
       const previewImage = $('admin_pPreview');
-      if (imageUrls.length > 0) {
-        previewImage.src = imageUrls[0];
+      let validUrl = null;
+
+      inputs.forEach(input => {
+        const url = input.value.trim();
+        const isValid = isValidImageUrl(url);
+        input.classList.toggle('valid', isValid);
+        input.classList.toggle('invalid', url.length > 0 && !isValid);
+        if (isValid && !validUrl) validUrl = url;
+      });
+
+      if (!validUrl) {
+        previewImage.style.display = 'none';
+        previewImage.src = '';
+        return;
+      }
+
+      // Preload to check if it actually loads
+      const img = new Image();
+      img.onload = () => {
+        previewImage.src = validUrl;
         previewImage.style.display = 'block';
-      } else { previewImage.style.display = 'none'; }
+      };
+      img.onerror = () => { previewImage.style.display = 'none'; };
+      img.src = validUrl;
     }
 
     $('adminSave').addEventListener('click', async ()=>{
@@ -2449,13 +2647,16 @@ productGrid.addEventListener('click', ev=>{
       const errEl = $('adminError');
       if(errEl) errEl.textContent = '';
 
-      const imageUrls = [...document.querySelectorAll('#imageUrlsContainer .imageUrlInput')]
+      const rawImageUrls = [...document.querySelectorAll('#imageUrlsContainer .imageUrlInput')]
         .map(input => input.value.trim())
-        .filter(url => url);
+        .filter(Boolean);
+
+      const validImages = rawImageUrls.filter(isValidImageUrl);
 
       if (!title || !price) { if(errEl) errEl.textContent='Title and Price required'; return; }
       if (colors.length === 0) { if(errEl) errEl.textContent='Add at least one color'; return; }
-      if (imageUrls.length === 0) { if(errEl) errEl.textContent='Add at least one image'; return; }
+      if (rawImageUrls.length === 0) { if(errEl) errEl.textContent='At least one image URL is required'; return; }
+      if (validImages.length === 0) { if(errEl) errEl.textContent='Enter a valid image URL (.jpg, .png, .webp)'; return; }
       if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) { if(errEl) errEl.textContent='Admin only'; return; }
 
       try {
@@ -2466,14 +2667,14 @@ productGrid.addEventListener('click', ev=>{
           price,
           mrp,
           tag,
-          img: imageUrls[0],
+          img: validImages[0],
           material,
           colors,
           style: pStyle,
           design,
           blouse,
           stock,
-          images: imageUrls,
+          images: validImages,
         };
 
         if (currentEditingId) {
@@ -2673,6 +2874,9 @@ productGrid.addEventListener('click', ev=>{
           name, phone, address, updatedAt: serverTimestamp()
         }, { merge: true });
         
+        // 1️⃣ MICRO-FEEDBACK
+        btn.innerText = 'Saved ✓';
+
         // If forced, we do NOT close manually here. 
         // We rely on the onSnapshot listener to detect the valid data and unlock the UI.
         if(!isProfileForced){
@@ -2683,8 +2887,10 @@ productGrid.addEventListener('click', ev=>{
         console.error(e);
         if(errEl) errEl.textContent = 'Failed to save profile. Try again.';
       } finally {
-        btn.disabled = false;
-        btn.innerText = 'Save Profile';
+        setTimeout(() => {
+          btn.disabled = false;
+          btn.innerText = 'Save Profile';
+        }, 2000);
       }
     });
 
@@ -2747,6 +2953,22 @@ productGrid.addEventListener('click', ev=>{
         // If all filters pass, include the product
         return true;
       });
+      
+      // 8️⃣ FILTER UX (Active Filters Summary)
+      const activeBar = $('activeFiltersBar');
+      if(activeBar) {
+        const parts = [];
+        if(activeFilters.colors.size) parts.push('Colors: ' + [...activeFilters.colors].map(c => c.charAt(0).toUpperCase() + c.slice(1)).join(', '));
+        if(activeFilters.material.size) parts.push('Material: ' + [...activeFilters.material].map(c => c.charAt(0).toUpperCase() + c.slice(1)).join(', '));
+        if(activeFilters.style.size) parts.push('Style: ' + [...activeFilters.style].map(c => c.charAt(0).toUpperCase() + c.slice(1)).join(', '));
+        if(activeFilters.design.size) parts.push('Design: ' + [...activeFilters.design].map(c => c.charAt(0).toUpperCase() + c.slice(1)).join(', '));
+        if(activeFilters.blouse.size) parts.push('Blouse: ' + [...activeFilters.blouse].map(c => c.charAt(0).toUpperCase() + c.slice(1)).join(', '));
+        if(activeFilters.stock.size) parts.push('Availability: ' + [...activeFilters.stock].map(c => c.charAt(0).toUpperCase() + c.slice(1)).join(', '));
+        if(activeFilters.price.size) parts.push('Price: ' + [...activeFilters.price].join(', '));
+        
+        activeBar.innerHTML = parts.length ? `<strong>Active Filters:</strong> ${parts.join(' • ')}` : '';
+        activeBar.style.display = parts.length ? 'block' : 'none';
+      }
       
       // ---- SORTING LOGIC ----
       const sortMode = sortSelect.value;
@@ -2965,15 +3187,6 @@ productGrid.addEventListener('click', ev=>{
       });
     });
 
-    // Scroll Progress
-    window.addEventListener('scroll', () => {
-      const scrolled = window.scrollY;
-      const max = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-      const width = (scrolled / max) * 100;
-      const bar = document.getElementById('scrollProgress');
-      if(bar) bar.style.width = width + '%';
-    });
-
     // Initialize reveal on static elements
     document.querySelectorAll('.hero-card, .trust-section, .filter-section, .section-title, .collections-section, .stats-section, .testimonials-section, .faq-section').forEach(el => {
       el.classList.add('reveal');
@@ -3015,8 +3228,11 @@ productGrid.addEventListener('click', ev=>{
         <!-- Container for additional product details -->
         <div id="pdDetails" style="margin: 16px 0; font-size: 14px; color: var(--text-muted); display: grid; gap: 8px;"></div>
 
-        <button id="pdOrderBtn" class="btn">Order Now</button>
-        <button id="pdCartBtn" class="btn-ghost" style="margin-left:10px">Add to Cart</button>
+        <!-- 5️⃣ SAFE ZONES -->
+        <div style="margin-top: 24px; display: flex; align-items: center; gap: 12px;">
+          <button id="pdOrderBtn" class="btn" style="flex-grow: 1;">Buy Now</button>
+          <button id="pdCartBtn" class="btn-ghost">Add to Cart</button>
+        </div>
 
         <hr style="margin: 20px 0; border-color: var(--border);">
 
@@ -3062,6 +3278,9 @@ productGrid.addEventListener('click', ev=>{
     <span id="floatingCartCount" class="floating-cart-count">0</span>
   </div>
 
+  <!-- Mobile Sticky CTA (Hidden by default) -->
+  <div id="mobileStickyCta" class="mobile-sticky-cta"></div>
+
   <a href="https://wa.me/919876543210" target="_blank" class="whatsapp-float" aria-label="Chat on WhatsApp">
     <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
   </a>
@@ -3093,7 +3312,9 @@ productGrid.addEventListener('click', ev=>{
       </div>
     </div>
     <div class="footer-bottom">
-      © 2025 Hamsa Sarees. All rights reserved. Designed by Terminal Joint.
+      © 2025 Hamsa Sarees. All rights reserved. Designed by Terminal Joint.<br>
+      <!-- 🔟 HUMAN TOUCH -->
+      <div class="small" style="margin-top:8px; opacity:0.7;">We're a small business run with love. Thank you for your support!</div>
     </div>
   </footer>
 
