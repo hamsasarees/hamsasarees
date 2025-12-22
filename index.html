@@ -414,6 +414,12 @@ input.invalid, textarea.invalid {
   display: flex; align-items: center; justify-content: center;
   cursor: pointer; transition: all 0.2s;
 }
+.wishlist-btn.active {
+  background: rgba(255, 107, 107, 0.2);
+  color: var(--danger);
+  border-color: var(--danger);
+}
+.wishlist-btn.active svg { fill: var(--danger); }
 .action-btn:hover { background: var(--gold); color: #000; border-color: var(--gold); transform: scale(1.1); }
 
 /* Hover Overlay for Image */
@@ -1077,6 +1083,11 @@ h2 {
   padding: 12px 16px; z-index: 1100; align-items: center; gap: 12px;
   box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
 }
+
+/* Wishlist Grid in Modal */
+.wishlist-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; }
+.wishlist-item { background: rgba(255,255,255,0.03); border-radius: 12px; padding: 10px; position: relative; border: 1px solid var(--border); }
+.wishlist-item img { width: 100%; aspect-ratio: 3/4; object-fit: cover; border-radius: 8px; margin-bottom: 8px; }
 </style>
 
 </head>
@@ -1112,6 +1123,7 @@ h2 {
         <button id="adminBtn" class="btn-ghost" style="display:none" aria-hidden="true">Admin</button>
         <div id="userBadge" style="display:none;background:rgba(255,255,255,0.03);padding:8px 10px;border-radius:10px;color:#fff;font-weight:700"></div>
         <a id="myOrdersBtn" href="yourorders.html" class="btn-ghost" style="display:none">My Orders</a>
+        <button id="wishlistBtn" class="btn-ghost" style="display:none">Wishlist</button>
         <button id="profileBtn" class="btn-ghost" style="display:none">Profile</button>
         <button id="signOutBtn" class="btn-ghost" style="display:none">Sign out</button>
         <button id="loginShowBtn" class="btn">Sign in</button>
@@ -1262,6 +1274,16 @@ h2 {
       </div>
       <div style="margin-top:12px;display:flex;justify-content:flex-end">
         <button id="saveProfileBtn" class="btn">Save Profile</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="wishlistModal" aria-hidden="true">
+    <div class="modal-box" role="dialog" aria-modal="true">
+      <button class="close-x" id="closeWishlist" title="Close">✕</button>
+      <h2>My Wishlist</h2>
+      <div id="wishlistContent" style="margin-top:16px; max-height:60vh; overflow-y:auto;">
+        <!-- Wishlist items will be injected here -->
       </div>
     </div>
   </div>
@@ -1480,6 +1502,8 @@ h2 {
   let cart = JSON.parse(localStorage.getItem('hamsaCart') || '[]');
   let currentProductId = null;
 let selectedRating = 0;
+let wishlistMap = new Map(); // Stores ID -> Data
+let wishlistUnsub = null;
 let currentReviewsUnsub = null;
 
   // ---- CONFIG ----
@@ -1600,6 +1624,7 @@ div.innerHTML = `
     const profileModal = $('profileModal');
     const loginErr = $('loginErr'), userBadge = $('userBadge'), signOutBtn = $('signOutBtn'), loginShowBtn = $('loginShowBtn'), googleBtnLarge = $('googleBtnLarge');
     const cartModal = $('cartModal');
+    const wishlistModal = $('wishlistModal');
     const myOrdersBtn = $('myOrdersBtn'), profileBtn = $('profileBtn');
     const adminBtn = $('adminBtn');
 
@@ -1739,6 +1764,89 @@ pdOrderBtn?.addEventListener('click', () => {
     }
     createPendingOrder(product);
 });
+
+    // ================= WISHLIST LOGIC =================
+    async function toggleWishlist(product) {
+      if (!auth.currentUser) {
+        openModal(loginModal);
+        showLoginError('Please sign in to use wishlist');
+        return;
+      }
+      
+      const ref = doc(db, 'users', auth.currentUser.uid, 'wishlist', product.id);
+      
+      // Check if in map to decide action (Optimistic check, real source is Firestore)
+      if (wishlistMap.has(product.id)) {
+        try {
+          await deleteDoc(ref);
+          toast('Removed from Wishlist');
+        } catch (e) { console.error(e); }
+      } else {
+        try {
+          await setDoc(ref, {
+            title: product.title,
+            price: Number(product.price),
+            image: (product.images && product.images[0]) || product.img || '',
+            addedAt: serverTimestamp()
+          });
+          toast('Added to Wishlist');
+        } catch (e) { console.error(e); }
+      }
+    }
+
+    function updateHeartIcons() {
+      document.querySelectorAll('.card').forEach(card => {
+        const pid = card.dataset.pid;
+        const btn = card.querySelector('.wishlist-btn');
+        if (btn) {
+          if (wishlistMap.has(pid)) {
+            btn.classList.add('active');
+          } else {
+            btn.classList.remove('active');
+          }
+        }
+      });
+    }
+
+    function renderWishlistContent() {
+      const container = $('wishlistContent');
+      if(!container) return;
+      
+      if(wishlistMap.size === 0) {
+        container.innerHTML = '<div class="empty-state-content"><div class="small">Your wishlist is empty.</div></div>';
+        return;
+      }
+
+      let html = '<div class="wishlist-grid">';
+      wishlistMap.forEach((item, id) => {
+        html += `
+          <div class="wishlist-item">
+            <img src="${item.image || ''}" onclick="openProductDetail('${id}')" style="cursor:pointer">
+            <div style="font-weight:700; font-size:13px; margin-bottom:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(item.title)}</div>
+            <div style="color:var(--gold); font-weight:600; font-size:13px;">₹${item.price}</div>
+            <button class="btn-ghost small remove-wish" data-id="${id}" style="width:100%; margin-top:8px; padding:6px; color:var(--danger); border-color:var(--border);">Remove</button>
+          </div>
+        `;
+      });
+      html += '</div>';
+      container.innerHTML = html;
+
+      // Attach remove listeners
+      container.querySelectorAll('.remove-wish').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const id = e.target.dataset.id;
+          if(auth.currentUser && id) {
+            await deleteDoc(doc(db, 'users', auth.currentUser.uid, 'wishlist', id));
+            toast('Removed');
+          }
+        });
+      });
+    }
+
+    $('wishlistBtn')?.addEventListener('click', () => {
+      renderWishlistContent();
+      openModal(wishlistModal);
+    });
 
     // ================= CART LOGIC =================
     async function saveCart() {
@@ -2156,8 +2264,16 @@ productGrid.addEventListener('click', e => {
       `;
       // Quick View Logic
       actionsDiv.querySelector('.quickview-btn').addEventListener('click', (e) => { e.stopPropagation(); openProductDetail(id); });
-      // Wishlist Logic (Visual only for now)
-      actionsDiv.querySelector('.wishlist-btn').addEventListener('click', (e) => { e.stopPropagation(); e.currentTarget.style.fill = 'var(--danger)'; e.currentTarget.style.color = 'var(--danger)'; toast('Added to Wishlist'); });
+      
+      // Wishlist Logic
+      const wishBtn = actionsDiv.querySelector('.wishlist-btn');
+      if (wishlistMap.has(id)) wishBtn.classList.add('active');
+      
+      wishBtn.addEventListener('click', (e) => { 
+        e.stopPropagation(); 
+        toggleWishlist({ id: id, ...data });
+      });
+      
       card.appendChild(actionsDiv);
 
       card.style.transitionDelay = `${index * 50}ms`; // Staggered animation
@@ -2746,6 +2862,7 @@ productGrid.addEventListener('click', ev=>{
     $('closeOrderDetail')?.addEventListener('click', ()=>{ closeModal(orderDetailModal); });
     $('closeProfile')?.addEventListener('click', ()=>{ closeModal(profileModal); });
     $('closeDetailBtn')?.addEventListener('click', ()=>{ closeModal(orderDetailModal); });
+    $('closeWishlist')?.addEventListener('click', ()=>{ closeModal(wishlistModal); });
 
     let userProfileUnsub = null;
     // ---- Auth state changes: UI toggle ----
@@ -2765,6 +2882,7 @@ productGrid.addEventListener('click', ev=>{
         if(signOutBtn) signOutBtn.style.display='inline-block';
         if(myOrdersBtn) myOrdersBtn.style.display='inline-block';
         if(profileBtn) profileBtn.style.display='inline-block';
+        if($('wishlistBtn')) $('wishlistBtn').style.display='inline-block';
         if(loginShowBtn) loginShowBtn.style.display='none';
         if(adminBtn) adminBtn.style.display = (user.uid === ADMIN_UID) ? 'inline-block' : 'none';
 
@@ -2841,6 +2959,19 @@ productGrid.addEventListener('click', ev=>{
           }
         });
 
+        // 🔄 REAL-TIME WISHLIST SYNC
+        if (wishlistUnsub) wishlistUnsub();
+        wishlistUnsub = onSnapshot(collection(db, 'users', user.uid, 'wishlist'), (snap) => {
+          wishlistMap.clear();
+          snap.forEach(doc => {
+            wishlistMap.set(doc.id, doc.data());
+          });
+          updateHeartIcons();
+          if(wishlistModal.classList.contains('show')) {
+             renderWishlistContent();
+          }
+        });
+
       }else{
         if(userProfileUnsub) userProfileUnsub();
         isProfileForced = false;
@@ -2850,8 +2981,12 @@ productGrid.addEventListener('click', ev=>{
         if(signOutBtn) signOutBtn.style.display='none';
         if(myOrdersBtn) myOrdersBtn.style.display='none';
         if(profileBtn) profileBtn.style.display='none';
+        if($('wishlistBtn')) $('wishlistBtn').style.display='none';
         if(loginShowBtn) loginShowBtn.style.display='inline-block';
         if(adminBtn) adminBtn.style.display='none';
+        if(wishlistUnsub) wishlistUnsub();
+        wishlistMap.clear();
+        updateHeartIcons();
       }
     });
 
@@ -3343,9 +3478,7 @@ productGrid.addEventListener('click', ev=>{
     </div>
     <div class="footer-bottom">
       © 2025 Hamsa Sarees. All rights reserved. Designed by Terminal Joint.<br>
-      <!-- 🔟 HUMAN TOUCH -->
-      <div class="small" style="margin-top:8px; opacity:0.7;">We're a small business run with love. Thank you for your support!</div>
-    </div>
+      </div>
   </footer>
 
   </body>
