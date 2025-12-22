@@ -223,7 +223,8 @@ button,a{
   font-weight:800;
   cursor:pointer;
   text-decoration: none;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
+  transition-delay: 20ms;
   box-shadow:0 4px 15px rgba(230,181,102,0.3);
   position: relative;
   overflow: hidden;
@@ -288,7 +289,8 @@ input.invalid, textarea.invalid {
   padding:9px 16px;
   border-radius:14px;
   cursor:pointer;
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), background 0.3s ease, box-shadow 0.3s ease;
+  transition-delay: 20ms;
 }
 
 .btn-ghost:hover{
@@ -470,7 +472,7 @@ input.invalid, textarea.invalid {
 .card h3{
   margin:12px 0 6px;
   font-size:15px;
-  font-weight:700;
+  font-weight:500;
   letter-spacing: -0.01em;
   line-height: 1.5;
   display: -webkit-box;
@@ -478,6 +480,7 @@ input.invalid, textarea.invalid {
   line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  color: #dbe4ff;
 }
 
 /* ================= PRICE ================= */
@@ -494,8 +497,9 @@ input.invalid, textarea.invalid {
 }
 
 .price-new{
-  font-size:17px;
+  font-size:18px;
   font-weight:900;
+  letter-spacing: 0.5px;
   color:var(--gold);
 }
 
@@ -562,9 +566,17 @@ h2 {
   background:none;
   border:none;
   color:var(--text-muted);
-  font-size:20px;
+  font-size:24px;
   cursor:pointer;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.2s ease, color 0.2s ease;
 }
+.close-x:hover { background: rgba(255,255,255,0.1); color: var(--text-main); }
 
 /* ================= PRODUCT DETAIL ================= */
 .product-detail-box{max-width:1000px}
@@ -604,10 +616,18 @@ h2 {
   font-size:22px;
   font-weight:900;
   color:var(--gold);
+  margin-bottom: 20px;
 }
 
 .pd-info {
   padding-left: 10px;
+}
+.pd-info h2 {
+  margin-bottom: 6px;
+}
+#pdDetails > div {
+  padding: 6px 0;
+  border-bottom: 1px dashed rgba(255,255,255,0.08);
 }
 
 /* ================= REVIEWS ================= */
@@ -629,9 +649,9 @@ h2 {
 }
 
 .review-item{
-  background:#0f1738;
-  border:1px solid var(--border);
-  border-radius:12px;
+  background: rgba(255,255,255,0.04);
+  border-left: 3px solid var(--gold);
+  border-radius: 12px;
   padding:10px;
 }
 
@@ -706,14 +726,16 @@ h2 {
   margin-top: auto;
   padding-top: 12px;
 }
-
-.admin-product-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px;
-  border-bottom: 1px solid rgba(255,255,255,0.03);
-  transition: background 0.2s;
+@media (hover:hover) {
+  .orderBtn {
+    opacity: 0;
+    transform: translateY(6px);
+    transition: all 0.25s ease;
+  }
+  .card:hover .orderBtn {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 .admin-product-row {
   display: flex;
@@ -884,7 +906,7 @@ h2 {
   background: rgba(255,255,255,0.03); border: 1px solid var(--border);
   padding: 8px 20px; border-radius: 30px; white-space: nowrap;
   font-size: 13px; font-weight: 500; color: var(--text-muted);
-  cursor: pointer; transition: all 0.3s ease; flex-shrink: 0;
+  cursor: pointer; transition: background 0.3s ease, color 0.3s ease, transform 0.3s ease, border-color 0.3s ease; flex-shrink: 0;
   user-select: none;
 }
 .qf-chip:hover { background: rgba(255,255,255,0.08); color: var(--text-main); transform: translateY(-2px); border-color: rgba(255,255,255,0.2); }
@@ -932,6 +954,67 @@ h2 {
   border: 1px solid var(--border); color: var(--gold); transition: all 0.3s ease;
 }
 .addToCartBtn:hover { background: var(--gold); color: #0a0e1a; transform: scale(1.1); border-color: var(--gold); box-shadow: 0 0 15px rgba(230, 181, 102, 0.4); }
+
+/* ================= IMPROVED ZOOM UI ================= */
+.pd-main-img {
+  cursor: zoom-in;
+  transition: transform 0.3s ease;
+}
+.pd-main-img:hover {
+  transform: scale(1.01);
+}
+.pd-thumbs img:hover { opacity: 1; transform: translateY(-2px); transition: all 0.2s; }
+
+#zoomModal {
+  background: rgba(0, 0, 0, 0.95); /* Deep dark background for focus */
+}
+#zoomModal .modal-box {
+  background: transparent;
+  box-shadow: none;
+  border: none;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: zoomFadeIn 0.3s ease-out;
+}
+@keyframes zoomFadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+#zoomImg {
+  max-width: 90vw;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: 4px;
+  box-shadow: 0 0 40px rgba(0,0,0,0.5);
+  cursor: zoom-out;
+}
+#zoomModal .close-x {
+  position: fixed;
+  top: 30px;
+  right: 30px;
+  width: 44px;
+  height: 44px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 24px;
+  border: 1px solid rgba(255,255,255,0.2);
+  transition: all 0.2s;
+  z-index: 1200;
+  float: none;
+}
+#zoomModal .close-x:hover {
+  background: var(--gold);
+  color: #000;
+  transform: rotate(90deg);
+}
 </style>
 
 </head>
@@ -1059,6 +1142,8 @@ h2 {
         </div>
         <div class="grid" id="productGrid" aria-live="polite" style="min-height:200px;">
           <!-- Initial Loading State -->
+          <div class="card skeleton skeleton-card"></div>
+          <div class="card skeleton skeleton-card"></div>
           <div class="card skeleton skeleton-card"></div>
           <div class="card skeleton skeleton-card"></div>
           <div class="card skeleton skeleton-card"></div>
@@ -1244,6 +1329,10 @@ h2 {
 (async function(){
   if(document.readyState === 'loading') await new Promise(r=>document.addEventListener('DOMContentLoaded', r));
   const $ = id => document.getElementById(id);
+  // 1️⃣ CACHE DOM QUERIES
+  const productGrid = $('productGrid');
+  const searchBox = $('searchBox');
+  const sortSelect = $('sortSelect');
   let currentEditingId = null; // To track which product is being edited
   let allProducts = []; // Master list of all products from Firestore
   let isProfileForced = false; // 🔒 Profile Enforcement Flag
@@ -1261,8 +1350,33 @@ h2 {
   modal.classList.remove('show');
   modal.setAttribute('aria-hidden','true');
   document.body.style.overflow = '';
+  document.body.style.paddingRight = '';
 }
 
+  // ================= ZOOM LOGIC (FIXED) =================
+  function openZoom(src){
+    const zoomModal = document.getElementById('zoomModal');
+    const zoomImg = document.getElementById('zoomImg');
+    if(!zoomModal || !zoomImg) return;
+    zoomImg.src = src;
+    if(document.activeElement instanceof HTMLElement){
+      document.activeElement.blur();
+    }
+    zoomModal.classList.add('show');
+    zoomModal.removeAttribute('aria-hidden');
+    document.body.style.overflow = 'hidden';
+    document.body.style.paddingRight = '8px';
+  }
+
+  document.addEventListener('click', e => {
+    const img = e.target.closest('#pdMainImg');
+    if(!img || !img.src) return;
+    openZoom(img.src);
+  });
+
+  document.getElementById('zoomModal')?.addEventListener('click', () => {
+    closeModal(document.getElementById('zoomModal'));
+  });
   let cart = JSON.parse(localStorage.getItem('hamsaCart') || '[]');
   let currentProductId = null;
 let selectedRating = 0;
@@ -1312,16 +1426,13 @@ let currentReviewsUnsub = null;
     const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
     const authMod = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
     const fsMod = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
-    const storageMod = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js');
 
     const { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } = authMod;
     const { getFirestore, collection, addDoc, setDoc, doc, getDoc, deleteDoc, serverTimestamp, getDocs, onSnapshot, updateDoc } = fsMod;
-    const { getStorage, ref, uploadBytes, getDownloadURL } = storageMod;
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-    const storage = getStorage(app);
     const googleProvider = new GoogleAuthProvider();
     function loadProductReviews(pid){
   if(currentReviewsUnsub) currentReviewsUnsub();
@@ -1491,55 +1602,52 @@ $('submitReview')?.addEventListener('click', async () => {
     signOutBtn && signOutBtn.addEventListener('click', async () => { try{ await signOut(auth); toast('Signed out'); }catch(e){ console.error('signout failed', e); } });
 
     // ---- PRODUCTS: load from Firestore (live) ----
-    const productGrid = $('productGrid');
     // ================= PRODUCT DETAIL → ORDER NOW =================
+    // ---- Helper: Create Pending Order (Bug B Fix) ----
+    function createPendingOrder({ pid, title, price, image }) {
+      if (!auth.currentUser) {
+        openModal(loginModal);
+        showLoginError('Please sign in to place orders');
+        return;
+      }
+
+      const order = {
+        pid,
+        product: title,
+        price: String(price).replace(/[^\d.]/g, ''),
+        image,
+        name: auth.currentUser.displayName || '',
+        phone: '',
+        address: '',
+        createdAt: Date.now()
+      };
+
+      try {
+        sessionStorage.setItem('pendingOrder', JSON.stringify(order));
+        window.location.href = 'payment.html';
+      } catch (e) {
+        console.error("Failed to save order:", e);
+        alert("Could not proceed to payment.");
+      }
+    }
+
 const pdOrderBtn = $('pdOrderBtn');
 pdOrderBtn?.addEventListener('click', () => {
   if (!currentProductId) {
     alert('Product not selected');
     return;
   }
-  if (!auth.currentUser) {
-    closeModal(document.getElementById('productDetailModal'));
-    openModal(loginModal);
-    showLoginError('Please sign in to place orders');
-    return;
-  }
   // Get product info directly from the detail modal's state
   const title = $('pdTitle').innerText || '';
   const priceText = $('pdPrice').innerText || '';
-  const price = priceText.replace(/[^\d.]/g, '') || '0'; // Keep decimal point, default to 0
   const mainImg = $('pdMainImg').src || '';
-  // Directly create order object and redirect to payment
-  const tempOrder = {
-    pid: currentProductId, // Critical for stock management
-    product: title,
-    price: price,
-    image: mainImg,
-    // Pre-fill user details if available, otherwise payment page will ask
-    name: auth.currentUser.displayName || '',
-    phone: '', // Phone and address must be entered on payment page
-    address: '',
-    createdAt: Date.now()
-  };
-  try {
-    sessionStorage.setItem('pendingOrder', JSON.stringify(tempOrder));
-    window.location.href = 'payment.html';
-  } catch (e) {
-    console.error("Failed to save order to sessionStorage:", e);
-    alert("Could not proceed to payment. Please try again.");
-  }
-});
-
-// ================= ZOOM IMAGE =================
-$('pdMainImg')?.addEventListener('click', () => {
-  const src = $('pdMainImg').src;
-  if(src){
-    const z = $('zoomImg');
-    z.src = src;
-    z.style.cssText = 'max-width:100%; max-height:85vh; object-fit:contain; border-radius:8px; display:block; margin:auto;';
-    openModal($('zoomModal'));
-  }
+  
+  createPendingOrder({
+    pid: currentProductId,
+    title: title,
+    price: priceText,
+    image: mainImg
+  });
 });
 
     // ================= CART LOGIC =================
@@ -1748,9 +1856,9 @@ $('pdMainImg')?.addEventListener('click', () => {
       const stock = Number(product.stock || 0);
       const isInStock = stock > 0;
       const stockColor = isInStock ? 'var(--success)' : 'var(--danger)';
-      const stockText = isInStock ? 'In Stock' : 'Out of Stock';
+      const stockText = isInStock ? 'In Stock' : 'Sold Out';
       const stockEl = document.createElement('div');
-      stockEl.innerHTML = `<span style="font-weight:600; color: var(--text-main);">Availability: </span><span style="color: ${stockColor};">${stockText}</span>`;
+      stockEl.innerHTML = `<span style="color: ${stockColor}; font-weight: 600; font-size: 13px;">${stockText}</span>`;
       detailsContainer.appendChild(stockEl);
 
       // Button
@@ -1888,6 +1996,7 @@ productGrid.addEventListener('click', e => {
       // Image
       const imgEl = document.createElement('img');
       imgEl.loading = 'lazy';
+      imgEl.decoding = 'async';
       imgEl.src = primaryImage;
       imgEl.alt = title;
       imgWrap.appendChild(imgEl);
@@ -1898,6 +2007,7 @@ productGrid.addEventListener('click', e => {
         secImg.className = 'secondary-img';
         secImg.src = images[1];
         secImg.loading = 'lazy';
+        secImg.decoding = 'async';
         imgWrap.appendChild(secImg);
       }
       
@@ -1980,10 +2090,10 @@ productGrid.addEventListener('click', e => {
       }
       
       // Availability
-      const stockStatusText = (stock > 0) ? 'In Stock' : 'Out of Stock';
+      const stockStatusText = (stock > 0) ? 'In Stock' : 'Sold Out';
       const stockColor = (stock > 0) ? 'var(--success)' : 'var(--danger)';
       const stockEl = document.createElement('div');
-      stockEl.innerHTML = `<span style="font-weight:600; color: var(--text-main);">Availability: </span><span style="color:${stockColor}">${stockStatusText}</span>`;
+      stockEl.innerHTML = `<span style="color:${stockColor}; font-weight:600; font-size:12px;">${stockStatusText}</span>`;
       detailsContainer.appendChild(stockEl);
 
       // --- COLOR SWATCHES ---
@@ -2045,7 +2155,6 @@ productGrid.addEventListener('click', e => {
     }
 
     function renderProducts(productsToRender) {
-      const productGrid = $('productGrid');
       productGrid.innerHTML = '';
 
       if (productsToRender.length === 0) {
@@ -2135,27 +2244,12 @@ productGrid.addEventListener('click', ev=>{
   const btn = ev.target.closest('.orderBtn');
   if(!btn) return;
 
-  if(!auth.currentUser){
-    openModal(loginModal);
-    showLoginError('Please sign in with Google to place orders');
-    return;
-  }
-
-  // --- UNIFIED ORDER LOGIC ---
-  // This now behaves exactly like the button in the detail modal.
-  const tempOrder = {
-    pid: btn.closest('.card').dataset.pid, // Critical for stock management
-    product: btn.dataset.product || '',
-    price: (btn.dataset.price || '0').replace(/[^\d.]/g, ''),
-    image: btn.dataset.image || '',
-    name: auth.currentUser.displayName || '',
-    phone: '',
-    address: '',
-    createdAt: Date.now()
-  };
-
-  sessionStorage.setItem('pendingOrder', JSON.stringify(tempOrder));
-  window.location.href = 'payment.html';
+  createPendingOrder({
+    pid: btn.closest('.card').dataset.pid,
+    title: btn.dataset.product || '',
+    price: btn.dataset.price || '0',
+    image: btn.dataset.image || ''
+  });
 });
 
 
@@ -2598,8 +2692,7 @@ productGrid.addEventListener('click', ev=>{
 
     // ---- FILTERING LOGIC ----
     function applyFiltersAndRender() {
-      const productGrid = $('productGrid');
-      const searchTerm = $('searchBox').value.toLowerCase();
+      const searchTerm = searchBox.value.toLowerCase();
       
       let filteredProducts = allProducts.filter(product => {
         // 1. Search term filter
@@ -2656,7 +2749,7 @@ productGrid.addEventListener('click', ev=>{
       });
       
       // ---- SORTING LOGIC ----
-      const sortMode = $('sortSelect').value;
+      const sortMode = sortSelect.value;
       if(sortMode === 'priceLow'){
         filteredProducts.sort((a,b) => Number(a.price) - Number(b.price));
       } else if(sortMode === 'priceHigh'){
@@ -2670,7 +2763,7 @@ productGrid.addEventListener('click', ev=>{
         });
       }
 
-      renderProducts(filteredProducts, productGrid);
+      renderProducts(filteredProducts);
     }
 
     function updateColorFilterCounts() {
@@ -2728,7 +2821,6 @@ productGrid.addEventListener('click', ev=>{
       });
 
       // Integrate search box with the new filtering system
-      const searchBox = $('searchBox');
       const clearBtn = $('clearSearch');
       if(searchBox){ let searchTimer = null;
         searchBox.addEventListener('input', () => {
@@ -2749,7 +2841,7 @@ productGrid.addEventListener('click', ev=>{
     initializeFilters();
     
     // Attach Sort Listener
-    $('sortSelect').addEventListener('change', applyFiltersAndRender);
+    sortSelect.addEventListener('change', applyFiltersAndRender);
 
     // ---- Quick Filters Logic ----
     document.querySelectorAll('.qf-chip').forEach(chip => {
@@ -2897,12 +2989,9 @@ productGrid.addEventListener('click', ev=>{
 
 </script>
 
-  <!-- Image zoom modal (added) -->
-  <div class="modal zoom-modal" id="zoomModal" aria-hidden="true">
-    <div class="modal-box" role="dialog" aria-modal="true">
-      <button class="close-x" id="closeZoom" title="Close">✕</button>
-      <img id="zoomImg" src="" alt="Zoomed-in product image" />
-    </div>
+  <!-- Image zoom modal (fixed) -->
+  <div class="modal" id="zoomModal" aria-hidden="true">
+    <div class="modal-box"><img id="zoomImg" src="" alt="Zoomed image"></div>
   </div>
 
 
@@ -2921,7 +3010,7 @@ productGrid.addEventListener('click', ev=>{
       <!-- Info -->
       <div class="pd-info">
         <h2 id="pdTitle"></h2>
-        <div id="pdPrice" class="pd-price" style="margin-bottom: 16px;"></div>
+        <div id="pdPrice" class="pd-price"></div>
 
         <!-- Container for additional product details -->
         <div id="pdDetails" style="margin: 16px 0; font-size: 14px; color: var(--text-muted); display: grid; gap: 8px;"></div>
