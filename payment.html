@@ -320,7 +320,15 @@ if (!price || price <= 0) {
   location.href = 'index.html';
 }
 
-const productNames = ORDER.items.map(i => i.product).join(', ');
+const itemCounts = {};
+ORDER.items.forEach(item => {
+  const pName = item.product || 'Unknown Product';
+  itemCounts[pName] = (itemCounts[pName] || 0) + 1;
+});
+const productNames = Object.entries(itemCounts)
+  .map(([name, count]) => count > 1 ? `${name} (x${count})` : name)
+  .join(', ');
+
 productEl.value = productNames.length > 50 ? productNames.substring(0, 47) + '...' : productNames;
 priceText.textContent = `₹${price}`;
 
