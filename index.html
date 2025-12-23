@@ -1014,6 +1014,12 @@ h2 {
   border: 1px solid var(--border); color: var(--gold); transition: all 0.3s ease;
 }
 .addToCartBtn:hover { background: var(--gold); color: #0a0e1a; transform: scale(1.1); border-color: var(--gold); box-shadow: 0 0 15px rgba(230, 181, 102, 0.4); }
+.wishlist-footer-btn {
+  border-radius: 50% !important; width: 42px; height: 42px; padding: 0 !important;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border); color: var(--text-muted); transition: all 0.3s ease;
+}
+.wishlist-footer-btn:hover { background: rgba(255, 107, 107, 0.1); color: var(--danger); border-color: var(--danger); transform: scale(1.1); }
 
 /* ================= IMPROVED ZOOM UI ================= */
 .pd-main-img {
@@ -2316,24 +2322,12 @@ productGrid.addEventListener('click', e => {
       const actionsDiv = document.createElement('div');
       actionsDiv.className = 'card-actions';
       actionsDiv.innerHTML = `
-        <div class="action-btn wishlist-btn" title="Add to Wishlist">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
-        </div>
         <div class="action-btn quickview-btn" title="Quick View">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
         </div>
       `;
       // Quick View Logic
       actionsDiv.querySelector('.quickview-btn').addEventListener('click', (e) => { e.stopPropagation(); openProductDetail(id); });
-      
-      // Wishlist Logic
-      const wishBtn = actionsDiv.querySelector('.wishlist-btn');
-      if (wishlistMap.has(id)) wishBtn.classList.add('active');
-      
-      wishBtn.addEventListener('click', (e) => { 
-        e.stopPropagation(); 
-        toggleWishlist({ id: id, ...data });
-      });
       
       card.appendChild(actionsDiv);
 
@@ -2502,6 +2496,19 @@ productGrid.addEventListener('click', e => {
       cartBtn.dataset.pid = id; cartBtn.dataset.product = title; cartBtn.dataset.price = price; cartBtn.dataset.image = primaryImage;
       if (stock <= 0) cartBtn.disabled = true;
       orderWrap.appendChild(cartBtn);
+
+      // Wishlist Button (Moved to footer)
+      const wishBtn = document.createElement('button');
+      wishBtn.className = 'wishlist-btn wishlist-footer-btn btn-ghost';
+      wishBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>';
+      wishBtn.title = "Add to Wishlist";
+      if (wishlistMap.has(id)) wishBtn.classList.add('active');
+      
+      wishBtn.addEventListener('click', (e) => { 
+        e.stopPropagation(); 
+        toggleWishlist({ id: id, ...data });
+      });
+      orderWrap.appendChild(wishBtn);
 
       card.appendChild(orderWrap);
       
@@ -3464,7 +3471,7 @@ productGrid.addEventListener('click', ev=>{
            <span style="font-weight:600; font-size:14px;">Quantity:</span>
            <div style="display:flex; align-items:center; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:8px;">
              <button id="qtyMinus" style="padding:8px 12px; background:none; border:none; color:var(--text-main); cursor:pointer; font-size:16px;">−</button>
-             <input id="qtyInput" type="number" value="1" min="1" style="width:40px; text-align:center; border:none; background:transparent; color:var(--text-main); font-weight:700; -moz-appearance:textfield;">
+             <input id="qtyInput" type="number" value="1" min="1" style="width:40px; text-align:center; border:none; background:transparent; color:var(--text-main); font-weight:700; -moz-appearance:textfield; appearance:textfield;">
              <button id="qtyPlus" style="padding:8px 12px; background:none; border:none; color:var(--text-main); cursor:pointer; font-size:16px;">+</button>
            </div>
            <span id="qtyStockMsg" class="small" style="color:var(--danger); display:none;"></span>
@@ -3553,7 +3560,7 @@ productGrid.addEventListener('click', ev=>{
       </div>
     </div>
     <div class="footer-bottom">
-      © 2025 Hamsa Sarees. All rights reserved. Designed by Terminal Joint.<br>
+      © 2025 Hamsa Sarees. All rights reserved.<br>Website Designed , Created & Published by Terminal Joint.<br>
       </div>
   </footer>
 
