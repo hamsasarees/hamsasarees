@@ -3035,23 +3035,24 @@ productGrid.addEventListener('click', ev=>{
             const msg = document.getElementById('profileForceMsg');
             if(msg) msg.remove();
           }
-        }, (err) => {
-          console.warn('Profile snapshot error:', err);
-        });
 
-        // 🔄 REAL-TIME WISHLIST SYNC
-        if (wishlistUnsub) wishlistUnsub();
-        wishlistUnsub = onSnapshot(collection(db, 'users', user.uid, 'wishlist'), (snap) => {
-          wishlistMap.clear();
-          snap.forEach(doc => {
-            wishlistMap.set(doc.id, doc.data());
-          });
-          updateHeartIcons();
-          if(wishlistModal.classList.contains('show')) {
-             renderWishlistContent();
+          // 🔄 REAL-TIME WISHLIST SYNC (Moved inside profile check to ensure user doc exists)
+          if (!wishlistUnsub) {
+            wishlistUnsub = onSnapshot(collection(db, 'users', user.uid, 'wishlist'), (snap) => {
+              wishlistMap.clear();
+              snap.forEach(doc => {
+                wishlistMap.set(doc.id, doc.data());
+              });
+              updateHeartIcons();
+              if(wishlistModal.classList.contains('show')) {
+                 renderWishlistContent();
+              }
+            }, (err) => {
+              console.warn('Wishlist snapshot error:', err);
+            });
           }
         }, (err) => {
-          console.warn('Wishlist snapshot error:', err);
+          console.warn('Profile snapshot error:', err);
         });
 
       }else{
@@ -3066,7 +3067,7 @@ productGrid.addEventListener('click', ev=>{
         if($('wishlistBtn')) $('wishlistBtn').style.display='none';
         if(loginShowBtn) loginShowBtn.style.display='inline-block';
         if(adminBtn) adminBtn.style.display='none';
-        if(wishlistUnsub) wishlistUnsub();
+        if(wishlistUnsub) { wishlistUnsub(); wishlistUnsub = null; }
         wishlistMap.clear();
         updateHeartIcons();
       }
