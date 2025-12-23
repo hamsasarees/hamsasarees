@@ -1047,10 +1047,11 @@ h2 {
   max-height: 90vh;
   object-fit: contain;
   border-radius: 4px;
-  box-shadow: 0 0 40px rgba(0,0,0,0.5);
-  cursor: zoom-out;
-  background: radial-gradient(circle, #222 30%, #111 70%);
-  transition: transform 0.2s ease, opacity 0.3s ease;
+  box-shadow: 0 0 50px rgba(0,0,0,0.8);
+  cursor: crosshair;
+  background: radial-gradient(circle, #222 10%, #111 70%);
+  transition: transform 0.1s ease-out, opacity 0.3s ease;
+  will-change: transform;
 }
 #zoomModal .close-x {
   position: fixed;
@@ -1059,20 +1060,21 @@ h2 {
   width: 44px;
   height: 44px;
   background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(4px);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: #fff;
   font-size: 24px;
   border: 1px solid rgba(255,255,255,0.2);
   transition: all 0.2s;
-  z-index: 1200;
+  z-index: 1100;
   float: none;
 }
 #zoomModal .close-x:hover {
   background: var(--gold);
-  color: #000;
+  color: #0a0e1a;
   transform: rotate(90deg);
 }
 
@@ -1154,7 +1156,7 @@ h2 {
         <div class="trust-item">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
           <span class="small" style="font-weight:700;color:var(--text-main)">Free Shipping</span>
-          <span class="small" style="font-size:11px;color:var(--text-muted)">On orders above ₹2000</span>
+          <span class="small" style="font-size:11px;color:var(--text-muted)">On all orders</span>
         </div>
         <div class="trust-item">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
@@ -1390,12 +1392,6 @@ h2 {
     <button class="close-x" id="closeCart" title="Close">✕</button>
     <h2>Your Cart</h2>
     
-    <!-- Free Shipping Progress -->
-    <div id="shippingProgress" style="margin-bottom: 16px; background: rgba(255,255,255,0.05); padding: 12px; border-radius: 12px; display:none;">
-      <div class="small" id="shippingText" style="margin-bottom: 6px;">Add items for free shipping</div>
-      <div style="height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden;"><div id="shippingBar" style="height: 100%; width: 0%; background: var(--success); transition: width 0.5s;"></div></div>
-    </div>
-
     <div id="cartItemsList" style="max-height: 60vh; overflow-y: auto; margin-top: 16px;">
       <div class="small" style="text-align:center; color:var(--text-muted)">Your cart is empty</div>
     </div>
@@ -1492,12 +1488,15 @@ h2 {
       const x = ((e.clientX - rect.left) / rect.width) * 100;
       const y = ((e.clientY - rect.top) / rect.height) * 100;
       zoomImg.style.transformOrigin = `${x}% ${y}%`;
-      zoomImg.style.transform = 'scale(1.8)';
+      zoomImg.style.transform = 'scale(2.5)';
     });
     zoomImg.addEventListener('mouseleave', () => {
       zoomImg.style.transform = 'scale(1)';
     });
   }
+   $('closeZoom')?.addEventListener('click', () => {
+    closeModal(document.getElementById('zoomModal'));
+  });
 
   let cart = JSON.parse(localStorage.getItem('hamsaCart') || '[]');
   let currentProductId = null;
@@ -1750,18 +1749,26 @@ $('submitReview')?.addEventListener('click', async () => {
     // ---- PRODUCTS: load from Firestore (live) ----
     // ================= PRODUCT DETAIL → ORDER NOW =================
     // ---- Helper: Create Pending Order (Stable Architecture) ----
-    function createPendingOrder(product) {
+    function createPendingOrder(product, qty = 1) {
       if (!auth.currentUser) {
         openModal(loginModal);
         showLoginError('Please sign in to place orders');
         return;
       }
 
+      const items = [];
+      for(let i=0; i<qty; i++) {
+        items.push({
+          pid: product.id,
+          product: product.title,
+          price: Number(product.price),
+          image: (product.images && product.images[0]) || product.img || ''
+        });
+      }
+
       const orderPayload = {
-        pid: product.id,
-        product: product.title,
-        price: Number(product.price), // Ensure price is a number
-        image: (product.images && product.images[0]) || product.img || '',
+        items: items,
+        totalAmount: Number(product.price) * qty,
         lockedAt: Date.now()
       };
 
@@ -1782,7 +1789,9 @@ pdOrderBtn?.addEventListener('click', () => {
         alert('Could not find product details. Please try again.');
         return;
     }
-    createPendingOrder(product);
+    const qtyInput = $('qtyInput');
+    const qty = qtyInput && qtyInput.offsetParent !== null ? (parseInt(qtyInput.value) || 1) : 1;
+    createPendingOrder(product, qty);
 });
 
     // ================= WISHLIST LOGIC =================
@@ -1924,7 +1933,6 @@ pdOrderBtn?.addEventListener('click', () => {
       const list = $('cartItemsList');
       const footer = $('cartFooter');
       const totalEl = $('cartTotalAmount');
-      const shippingProgress = $('shippingProgress');
       if(!list) return;
 
       list.innerHTML = '';
@@ -1937,7 +1945,6 @@ pdOrderBtn?.addEventListener('click', () => {
             <button class="btn-ghost" style="margin-top:12px" onclick="document.getElementById('closeCart').click()">Start Shopping</button>
           </div>`;
         footer.style.display = 'none';
-        if(shippingProgress) shippingProgress.style.display = 'none';
         return;
       }
 
@@ -1961,19 +1968,6 @@ pdOrderBtn?.addEventListener('click', () => {
       totalEl.innerText = '₹' + total;
       footer.style.display = 'block';
 
-      // Shipping Progress Logic (Threshold: 2000)
-      if(shippingProgress) {
-        shippingProgress.style.display = 'block';
-        const threshold = 2000;
-        const percentage = Math.min((total / threshold) * 100, 100);
-        $('shippingBar').style.width = percentage + '%';
-        if(total >= threshold) {
-          $('shippingText').innerHTML = '🎉 <strong>Free Shipping</strong> unlocked!';
-        } else {
-          $('shippingText').innerHTML = `Add <strong>₹${threshold - total}</strong> more for free shipping`;
-        }
-      }
-
       // Attach remove listeners
       document.querySelectorAll('.remove-cart-item').forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -1992,10 +1986,15 @@ pdOrderBtn?.addEventListener('click', () => {
     // 7️⃣ PREVENT ACCIDENTAL ACTIONS
     $('clearCartBtn')?.addEventListener('click', () => { if(confirm('Are you sure you want to clear your cart?')) { cart = []; updateCartUI(); saveCart(); renderCart(); } });
     $('checkoutCartBtn')?.addEventListener('click', () => {
-       // For now, we use the existing payment flow which handles one item, 
-       // or we can just alert that bulk checkout is coming soon if payment.html isn't ready.
-       // Assuming we want to proceed with the first item or a custom flow:
-       alert('Checkout for multiple items will be available soon! Please order items individually for now.');
+       if(cart.length === 0) { alert('Cart is empty'); return; }
+       const total = cart.reduce((sum, item) => sum + (Number(item.price) || 0), 0);
+       const orderPayload = {
+         items: cart,
+         totalAmount: total,
+         lockedAt: Date.now()
+       };
+       sessionStorage.setItem('pendingOrder', JSON.stringify(orderPayload));
+       window.location.href = 'payment.html';
     });
 
     // ---- Open Product Detail Logic (Centralized) ----
@@ -2066,7 +2065,7 @@ pdOrderBtn?.addEventListener('click', () => {
       const trustMsg = document.createElement('div');
       trustMsg.className = 'small';
       trustMsg.style.cssText = 'opacity:0.8; margin-top:12px; font-size:12px; display:grid; gap:4px;';
-      trustMsg.innerHTML = `
+      trustMsg.innerHTML = ` 
         <div style="display:flex;align-items:center;gap:6px"><span>✔</span> Secure payment via Razorpay</div>
         <div style="display:flex;align-items:center;gap:6px"><span>✔</span> Easy support via WhatsApp</div>
         <div style="display:flex;align-items:center;gap:6px;opacity:0.7;font-style:italic;margin-top:4px"><span>ℹ</span> Color may slightly vary due to lighting</div>
@@ -2099,6 +2098,41 @@ pdOrderBtn?.addEventListener('click', () => {
       const stockEl = document.createElement('div');
       stockEl.innerHTML = `<span style="color: ${stockColor}; font-weight: 600; font-size: 13px;">${stockText}</span>`;
       detailsContainer.appendChild(stockEl);
+      
+      // Quantity Logic
+      const qtySection = $('pdQuantitySection');
+      const qtyInput = $('qtyInput');
+      const qtyMinus = $('qtyMinus');
+      const qtyPlus = $('qtyPlus');
+      const qtyMsg = $('qtyStockMsg');
+
+      if(qtySection && qtyInput){
+        if(isInStock){
+            qtySection.style.display = 'flex';
+            qtyInput.value = 1;
+            qtyInput.max = stock;
+            qtyMsg.style.display = 'none';
+            
+            qtyMinus.onclick = () => {
+                let val = parseInt(qtyInput.value) || 1;
+                if(val > 1) { qtyInput.value = val - 1; qtyMsg.style.display = 'none'; }
+            };
+            qtyPlus.onclick = () => {
+                let val = parseInt(qtyInput.value) || 1;
+                if(val < stock) { qtyInput.value = val + 1; qtyMsg.style.display = 'none'; }
+                else { qtyMsg.innerText = `Max ${stock} available`; qtyMsg.style.display = 'inline'; }
+            };
+            qtyInput.onchange = () => {
+                let val = parseInt(qtyInput.value) || 1;
+                if(val < 1) val = 1;
+                if(val > stock) { val = stock; qtyMsg.innerText = `Max ${stock} available`; qtyMsg.style.display = 'inline'; }
+                else { qtyMsg.style.display = 'none'; }
+                qtyInput.value = val;
+            };
+        } else {
+            qtySection.style.display = 'none';
+        }
+      }
 
       // Button
       const pdOrderBtn = $('pdOrderBtn');
@@ -2114,12 +2148,19 @@ pdOrderBtn?.addEventListener('click', () => {
       const pdCartBtn = $('pdCartBtn');
       if(pdCartBtn) {
         pdCartBtn.onclick = (e) => {
-            addToCart({
-                pid: product.id,
-                product: product.title,
-                price: product.price,
-                image: images[0]
-            }, e);
+            const qty = (qtyInput && qtySection.style.display !== 'none') ? (parseInt(qtyInput.value) || 1) : 1;
+            for(let i=0; i<qty; i++){
+                cart.push({
+                    pid: product.id,
+                    product: product.title,
+                    price: product.price,
+                    image: images[0]
+                });
+            }
+            updateCartUI();
+            saveCart();
+            toast(`${qty} item${qty>1?'s':''} added to Cart`);
+
             // 1️⃣ MICRO-FEEDBACK
             const originalText = pdCartBtn.textContent;
             pdCartBtn.disabled = true;
@@ -2582,7 +2623,7 @@ productGrid.addEventListener('click', ev=>{
         alert('Could not find product details. Please try again.');
         return;
     }
-    createPendingOrder(product);
+    createPendingOrder(product, 1);
 });
 
 
@@ -2977,6 +3018,8 @@ productGrid.addEventListener('click', ev=>{
             const msg = document.getElementById('profileForceMsg');
             if(msg) msg.remove();
           }
+        }, (err) => {
+          console.warn('Profile snapshot error:', err);
         });
 
         // 🔄 REAL-TIME WISHLIST SYNC
@@ -2990,6 +3033,8 @@ productGrid.addEventListener('click', ev=>{
           if(wishlistModal.classList.contains('show')) {
              renderWishlistContent();
           }
+        }, (err) => {
+          console.warn('Wishlist snapshot error:', err);
         });
 
       }else{
@@ -3389,6 +3434,7 @@ productGrid.addEventListener('click', ev=>{
 
   <!-- Image zoom modal (fixed) -->
   <div class="modal" id="zoomModal" aria-hidden="true">
+    <button class="close-x" id="closeZoom" title="Close">✕</button>
     <div class="modal-box"><img id="zoomImg" src="" alt="Zoomed image"></div>
   </div>
 
@@ -3412,6 +3458,17 @@ productGrid.addEventListener('click', ev=>{
 
         <!-- Container for additional product details -->
         <div id="pdDetails" style="margin: 16px 0; font-size: 14px; color: var(--text-muted); display: grid; gap: 8px;"></div>
+
+        <!-- Quantity Selector -->
+        <div id="pdQuantitySection" style="margin: 16px 0; display: none; align-items: center; gap: 12px;">
+           <span style="font-weight:600; font-size:14px;">Quantity:</span>
+           <div style="display:flex; align-items:center; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:8px;">
+             <button id="qtyMinus" style="padding:8px 12px; background:none; border:none; color:var(--text-main); cursor:pointer; font-size:16px;">−</button>
+             <input id="qtyInput" type="number" value="1" min="1" style="width:40px; text-align:center; border:none; background:transparent; color:var(--text-main); font-weight:700; -moz-appearance:textfield;">
+             <button id="qtyPlus" style="padding:8px 12px; background:none; border:none; color:var(--text-main); cursor:pointer; font-size:16px;">+</button>
+           </div>
+           <span id="qtyStockMsg" class="small" style="color:var(--danger); display:none;"></span>
+        </div>
 
         <!-- 5️⃣ SAFE ZONES -->
         <div style="margin-top: 24px; display: flex; align-items: center; gap: 12px;">
