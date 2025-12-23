@@ -91,6 +91,11 @@ header{
   margin: 40px auto;
   box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);
 }
+.progress-steps { display: flex; gap: 8px; margin-bottom: 24px; }
+.progress-step { flex: 1; padding: 8px; text-align: center; background: rgba(255,255,255,0.03); border-radius: 8px; font-size: 13px; color: var(--text-muted); border-bottom: 3px solid transparent; transition: all 0.3s; }
+.progress-step.active { color: var(--gold); font-weight: 700; border-bottom-color: var(--gold); }
+.progress-step.done { color: var(--text-muted); opacity: 0.7; }
+
 h1{margin:0 0 6px;font-size:24px;font-weight:800}
 .row{margin-bottom:14px}
 label{display:block;font-size:13px;color:var(--text-muted);margin-bottom:6px;font-weight:600;}
@@ -136,6 +141,7 @@ button{
   padding:12px 18px;
   border-radius:14px;
   font-weight:800;
+  margin-top: 20px; /* 5️⃣ SAFE ZONE */
   cursor:pointer;
   box-shadow:0 4px 15px rgba(230,181,102,0.3);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -222,6 +228,13 @@ button:not(:disabled) {
   <main>
     <div class="payment-card">
       <h1>Confirm & Pay</h1>
+      <!-- 8️⃣ PROGRESS FEELING -->
+      <div class="progress-steps">
+        <div class="progress-step done">1. Cart</div>
+        <div class="progress-step active">2. Payment</div>
+        <div class="progress-step">3. Success</div>
+      </div>
+
       <div class="small" style="margin-bottom: 20px;">Please verify all details carefully</div>
 
       <div class="row">
@@ -263,7 +276,8 @@ button:not(:disabled) {
 
   <footer style="text-align:center;padding:18px;color:#9fb8d9;font-size:13px;line-height:1.6;">
     ©2025 Hamsa Sarees, unauthorized use is strictly prohibited.<br>
-    Website designed, created & published by Terminal Joint.
+    Website designed, created & published by Terminal Joint.<br>
+    <div class="small" style="margin-top:8px; opacity:0.7;">We're a small business run with love. Thank you for your support!</div>
   </footer>
 </div>
 
@@ -273,13 +287,18 @@ button:not(:disabled) {
 /* ---------- LOAD ORDER FROM INDEX ---------- */
 const raw = sessionStorage.getItem('pendingOrder');
 if (!raw) {
-  alert('Invalid access');
+  alert('Order data missing. Please order again.');
   location.href = 'index.html';
 }
 
-let order;
-try { order = JSON.parse(raw); }
-catch { location.href = 'index.html'; }
+let ORDER;
+try {
+  // ✅ FREEZE a snapshot of the order. This is now the single source of truth.
+  ORDER = Object.freeze(JSON.parse(raw));
+} catch {
+  alert('Invalid order data. Please order again.');
+  location.href = 'index.html';
+}
 
 const productEl = document.getElementById('product');
 const priceText = document.getElementById('priceText');
@@ -288,21 +307,18 @@ const phoneEl = document.getElementById('phone');
 const addressEl = document.getElementById('address');
 const imgEl = document.getElementById('productImg');
 const payBtn = document.getElementById('payBtn');
-const priceRegex = /^[1-9]\d*(\.\d+)?$/;
-const price = Number(String(order.price).replace(/[^\d.]/g, ''));
+
+const price = ORDER.price; // Already a number from index.html
 if (!price || price <= 0) {
-  alert('Invalid price');
+  alert('Invalid price in order data.');
   location.href = 'index.html';
 }
 
-productEl.value = order.product || '';
+productEl.value = ORDER.product || '';
 priceText.textContent = `₹${price}`;
-nameEl.value = order.name || '';
-phoneEl.value = order.phone || '';
-addressEl.value = order.address || '';
 
-if (order.image) {
-  imgEl.src = order.image;
+if (ORDER.image) {
+  imgEl.src = ORDER.image;
   imgEl.onload = () => imgEl.style.display = 'block';
 }
 
@@ -310,17 +326,17 @@ if (order.image) {
 const validators = {
   name: (el) => {
     const valid = el.value.trim().length >= 2;
-    const message = valid ? '' : 'Name must be at least 2 characters.';
+    const message = valid ? '' : 'Please enter your full name.';
     return { valid, message };
   },
   phone: (el) => {
     const valid = /^[6-9]\d{9}$/.test(el.value.trim());
-    const message = valid ? '' : 'Please enter a valid 10-digit Indian mobile number.';
+    const message = valid ? '' : 'Please enter a valid 10-digit mobile number.';
     return { valid, message };
   },
   address: (el) => {
     const valid = el.value.trim().length >= 10;
-    const message = valid ? '' : 'Please enter a full, valid address (min. 10 characters).';
+    const message = valid ? '' : 'Please enter your complete delivery address.';
     return { valid, message };
   }
 };
@@ -358,7 +374,7 @@ function validateForm() {
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, serverTimestamp, collection } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, serverTimestamp, collection, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 /* ---------- FIREBASE ---------- */
 const app = initializeApp({
@@ -417,39 +433,12 @@ onAuthStateChanged(auth, user => {
     payBtn.innerHTML = '<div class="spinner"></div> Processing...';
     document.getElementById('paymentError').textContent = ''; // Clear previous errors
     
-    // 🔒 STOCK CHECK (PRODUCTION GRADE)
-    // Before opening payment, verify stock exists in Firestore
-    if(order.pid) {
-      try {
-        const pRef = doc(db, 'products', order.pid);
-        const pSnap = await getDoc(pRef);
-        if(pSnap.exists()) {
-          const currentStock = pSnap.data().stock;
-          if(currentStock === undefined || currentStock <= 0) {
-            // This alert is a critical, exceptional state. It's acceptable.
-            alert('Sorry, this item just went out of stock while you were checking out.');
-            location.href = 'index.html';
-            return;
-          }
-          
-          // 🔒 PRICE INTEGRITY CHECK
-          // Ensure the price in sessionStorage matches the live price in Firestore
-          const livePrice = Number(String(pSnap.data().price || '0').replace(/[^\d.]/g, ''));
-          if (livePrice !== price) {
-            alert('Product price has changed. Please re-order.');
-            location.href = 'index.html';
-            return;
-          }
-        }
-      } catch(e) { console.error('Stock check failed', e); }
-    }
-
     const rzp = new Razorpay({
       key: 'rzp_live_Rqulhc8rZRz8Iw',
-      amount: Math.round(price * 100),
+      amount: Math.round(ORDER.price * 100), // Use frozen price
       currency: 'INR',
       name: 'Hamsa Sarees',
-      description: order.product,
+      description: ORDER.product,
 
       handler: async res => {
         /* -------- FIRESTORE -------- */
@@ -457,12 +446,13 @@ onAuthStateChanged(auth, user => {
         await setDoc(
           newOrderRef,
           {
-            product: order.product,
+            product: ORDER.product,
+            pid: ORDER.pid || '',
             price,
             name,
             phone,
             address,
-            image: order.image || '',
+            image: ORDER.image || '',
             email: user.email,
             paymentId: res.razorpay_payment_id,
             status: 'PAID',
@@ -471,10 +461,17 @@ onAuthStateChanged(auth, user => {
         );
         
         // 🔒 DECREMENT STOCK
-        if(order.pid) {
+        if(ORDER.pid) {
           try {
-            await updateDoc(doc(db, 'products', order.pid), {
-              stock: increment(-1)
+            await runTransaction(db, async (transaction) => {
+              const sfDocRef = doc(db, 'products', ORDER.pid);
+              const sfDoc = await transaction.get(sfDocRef);
+              if (!sfDoc.exists()) throw "Document does not exist!";
+              
+              const currentStock = sfDoc.data().stock || 0;
+              if (currentStock <= 0) throw 'OUT_OF_STOCK';
+              
+              transaction.update(sfDocRef, { stock: currentStock - 1 });
             });
           } catch(e) { console.error('Failed to decrement stock', e); }
         }
@@ -483,7 +480,7 @@ onAuthStateChanged(auth, user => {
         const fd = new FormData();
         fd.append('entry.2120009411', name);
         fd.append('entry.6103303', phone);
-        fd.append('entry.952475985', order.product);
+        fd.append('entry.952475985', ORDER.product);
         fd.append('entry.2008322116', address);
         fd.append('entry.135044268', price);
 
@@ -504,7 +501,7 @@ onAuthStateChanged(auth, user => {
       const errorMsg = response.error?.description || 'Payment failed. Please try again.';
       document.getElementById('paymentError').textContent = errorMsg;
       payBtn.disabled = false;
-      payBtn.textContent = 'Pay Securely';
+      payBtn.textContent = 'Pay Securely'; // Ensure text resets correctly
     });
 
     rzp.open();
