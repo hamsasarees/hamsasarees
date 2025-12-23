@@ -294,7 +294,13 @@ if (!raw) {
 let ORDER;
 try {
   // ✅ FREEZE a snapshot of the order. This is now the single source of truth.
-  ORDER = Object.freeze(JSON.parse(raw));
+  const parsed = JSON.parse(raw);
+  // Backward compatibility or normalization
+  if (!parsed.items) {
+    parsed.items = [{ pid: parsed.pid, product: parsed.product, price: parsed.price, image: parsed.image }];
+    parsed.totalAmount = parsed.price;
+  }
+  ORDER = Object.freeze(parsed);
 } catch {
   alert('Invalid order data. Please order again.');
   location.href = 'index.html';
@@ -308,17 +314,18 @@ const addressEl = document.getElementById('address');
 const imgEl = document.getElementById('productImg');
 const payBtn = document.getElementById('payBtn');
 
-const price = ORDER.price; // Already a number from index.html
+const price = ORDER.totalAmount; // Already a number from index.html
 if (!price || price <= 0) {
   alert('Invalid price in order data.');
   location.href = 'index.html';
 }
 
-productEl.value = ORDER.product || '';
+const productNames = ORDER.items.map(i => i.product).join(', ');
+productEl.value = productNames.length > 50 ? productNames.substring(0, 47) + '...' : productNames;
 priceText.textContent = `₹${price}`;
 
-if (ORDER.image) {
-  imgEl.src = ORDER.image;
+if (ORDER.items[0] && ORDER.items[0].image) {
+  imgEl.src = ORDER.items[0].image;
   imgEl.onload = () => imgEl.style.display = 'block';
 }
 
@@ -433,12 +440,32 @@ onAuthStateChanged(auth, user => {
     payBtn.innerHTML = '<div class="spinner"></div> Processing...';
     document.getElementById('paymentError').textContent = ''; // Clear previous errors
     
+    // 🔒 PRE-PAYMENT STOCK CHECK
+    if(ORDER.items && ORDER.items.length > 0) {
+      try {
+        const counts = {};
+        ORDER.items.forEach(i => { if(i.pid) counts[i.pid] = (counts[i.pid] || 0) + 1; });
+        const pids = Object.keys(counts);
+        const snaps = await Promise.all(pids.map(pid => getDoc(doc(db, 'products', pid))));
+        
+        for (let i = 0; i < snaps.length; i++) {
+           const snap = snaps[i];
+           const qty = counts[pids[i]];
+           if(snap.exists() && (snap.data().stock || 0) < qty) {
+               alert('Sorry, insufficient stock for one or more items.');
+               location.href = 'index.html';
+               return;
+           }
+        }
+      } catch(e) { console.error('Stock check failed', e); }
+    }
+    
     const rzp = new Razorpay({
       key: 'rzp_live_Rqulhc8rZRz8Iw',
-      amount: Math.round(ORDER.price * 100), // Use frozen price
+      amount: Math.round(price * 100), // Use frozen price
       currency: 'INR',
       name: 'Hamsa Sarees',
-      description: ORDER.product,
+      description: 'Order Payment',
 
       handler: async res => {
         /* -------- FIRESTORE -------- */
@@ -446,13 +473,13 @@ onAuthStateChanged(auth, user => {
         await setDoc(
           newOrderRef,
           {
-            product: ORDER.product,
-            pid: ORDER.pid || '',
+            items: ORDER.items,
+            product: productNames,
             price,
             name,
             phone,
             address,
-            image: ORDER.image || '',
+            image: ORDER.items[0].image || '',
             email: user.email,
             paymentId: res.razorpay_payment_id,
             status: 'PAID',
@@ -461,17 +488,22 @@ onAuthStateChanged(auth, user => {
         );
         
         // 🔒 DECREMENT STOCK
-        if(ORDER.pid) {
+        if(ORDER.items.length > 0) {
           try {
             await runTransaction(db, async (transaction) => {
-              const sfDocRef = doc(db, 'products', ORDER.pid);
-              const sfDoc = await transaction.get(sfDocRef);
-              if (!sfDoc.exists()) throw "Document does not exist!";
+              const counts = {};
+              ORDER.items.forEach(i => { if(i.pid) counts[i.pid] = (counts[i.pid] || 0) + 1; });
               
-              const currentStock = sfDoc.data().stock || 0;
-              if (currentStock <= 0) throw 'OUT_OF_STOCK';
-              
-              transaction.update(sfDocRef, { stock: currentStock - 1 });
+              for (const pid of Object.keys(counts)) {
+                 const ref = doc(db, 'products', pid);
+                 const sfDoc = await transaction.get(ref);
+                 if (!sfDoc.exists()) throw "Document does not exist!";
+                 
+                 const currentStock = sfDoc.data().stock || 0;
+                 const qty = counts[pid];
+                 if (currentStock < qty) throw 'OUT_OF_STOCK';
+                 transaction.update(ref, { stock: currentStock - qty });
+              }
             });
           } catch(e) { console.error('Failed to decrement stock', e); }
         }
@@ -480,7 +512,7 @@ onAuthStateChanged(auth, user => {
         const fd = new FormData();
         fd.append('entry.2120009411', name);
         fd.append('entry.6103303', phone);
-        fd.append('entry.952475985', ORDER.product);
+        fd.append('entry.952475985', productNames);
         fd.append('entry.2008322116', address);
         fd.append('entry.135044268', price);
 
